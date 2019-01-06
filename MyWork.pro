@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    inputwindow.cpp
+    inputwindow.cpp \
+    locomotive.cpp
 
 HEADERS += \
         mainwindow.h \
-    inputwindow.h
+    inputwindow.h \
+    locomotive.h
 
 FORMS += \
         mainwindow.ui \
