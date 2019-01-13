@@ -1,18 +1,18 @@
 #define g 9.81
 #include "locomotive.h"
 
-Locomotive::Locomotive(QString *type, int mass, int constructionVelocity, float calcVelocity) {
+Locomotive::Locomotive(QString *type, int mass, int constructionVelocity, float calcVelocity) :
+    type(type),
+    mass(mass),
+    constructionVelocity(constructionVelocity),
+    calcVelocity(calcVelocity)
+{
 
     double currentUnitTractionModeMotionResist;
     double currentTractionModeMotionResist;
     double currentUnitIdleModeMotionResist;
     double currentIdleModeMotionResist;
     double currentAdhesionCoefficient;
-
-    this->type = type;
-    this->mass = mass;
-    this->constructionVelocity = constructionVelocity;
-    this->calcVelocity = calcVelocity;
 
     for (int i = 0; i < this->constructionVelocity; i++) {
 
@@ -36,22 +36,18 @@ Locomotive::Locomotive(QString *type, int mass, int constructionVelocity, float 
     }
 }
 
-QString Locomotive::getType() const
-{
+QString Locomotive::getType() const {
     return *type;
 }
 
-int Locomotive::getMass() const
-{
+int Locomotive::getMass() const {
     return mass;
 }
 
-float Locomotive::getCalcVelocity() const
-{
+float Locomotive::getCalcVelocity() const {
     return calcVelocity;
 }
 
-int Locomotive::getConstructionVelocity() const
-{
+int Locomotive::getConstructionVelocity() const {
     return constructionVelocity;
 }

@@ -8,6 +8,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     wInputWindow = new InputWindow(this);
+
+    //подключаем к слоту запуска главного окна по кнопке во окне ввода
+    connect(wInputWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
 }
 
 MainWindow::~MainWindow()
@@ -23,4 +26,5 @@ void MainWindow::on_actionClose_triggered()
 void MainWindow::on_actionNew_triggered()
 {
     wInputWindow->show();
+    this->hide();
 }
