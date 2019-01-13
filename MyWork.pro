@@ -28,12 +28,18 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     inputwindow.cpp \
-    locomotive.cpp
+    locomotive.cpp \
+    tracksection.cpp \
+    makeuptrain.cpp \
+    railcar.cpp
 
 HEADERS += \
         mainwindow.h \
     inputwindow.h \
-    locomotive.h
+    locomotive.h \
+    tracksection.h \
+    makeuptrain.h \
+    railcar.h
 
 FORMS += \
         mainwindow.ui \

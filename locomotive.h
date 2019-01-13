@@ -3,9 +3,8 @@
 #include <QString>
 #include <QVector>
 
-
-class Locomotive {
-
+class Locomotive
+{
 private:
     QString *type; //Название локомотива
     int mass; //Масса локомотива P

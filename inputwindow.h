@@ -17,6 +17,14 @@ public:
 
 private:
     Ui::InputWindow *ui;
+
+signals:
+    void showMainWindow();  // Сигнал для первого окна на открытие
+
+private slots:
+    void on_buttonBox_accepted();
+
+    void on_buttonBox_rejected();
 };
 
 #endif // INPUTWINDOW_H
