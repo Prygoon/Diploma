@@ -11,7 +11,6 @@ public:
     TrackSection(int lenght, double slope);
 
     int getLength() const;
-
     double getSlope() const;
 };
 

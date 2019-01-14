@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +31,8 @@ SOURCES += \
     locomotive.cpp \
     tracksection.cpp \
     makeuptrain.cpp \
-    railcar.cpp
+    railcar.cpp \
+    database.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
     locomotive.h \
     tracksection.h \
     makeuptrain.h \
-    railcar.h
+    railcar.h \
+    database.h
 
 FORMS += \
         mainwindow.ui \
@@ -49,3 +51,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
