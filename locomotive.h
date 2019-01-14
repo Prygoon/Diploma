@@ -9,7 +9,7 @@ private:
     QString *type; //Название локомотива
     int mass; //Масса локомотива P
     int constructionVelocity; //Конструкционная скорость локомотива v_констр
-    float calcVelocity; //Расчетная скорость локомотива v_р
+    double calcVelocity; //Расчетная скорость локомотива v_р
     QVector<int> currentVelocity; //Текущая скорость локомотива v
     QVector<double> unitTractionModeMotionResist; //Удельное сопротивление движению локомотива в режиме w_0'
     QVector<double> tractionModeMotionResist; //Сопротивление движению локомотива в режиме тяги W_0'
@@ -18,15 +18,12 @@ private:
     QVector<double> adhesionCoefficient; //Коэффициент сцепления локомотива φ_кр
 
 public:
-    Locomotive(QString *type, int mass, int constructionVelocity, float calcVelocity);
+    Locomotive(QString *type, int mass, int constructionVelocity, double calcVelocity);
 
     QString getType() const;
-
     int getMass() const;
-
     int getConstructionVelocity() const;
-
-    float getCalcVelocity() const;
+    double getCalcVelocity() const;
 };
 
 #endif // LOCOMOTIVE_H

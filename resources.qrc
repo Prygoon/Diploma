@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>img/011-train.png</file>
+        <file>img/011-train.svg</file>
+    </qresource>
+</RCC>

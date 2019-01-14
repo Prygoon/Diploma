@@ -1,13 +1,12 @@
 #define g 9.81
 #include "locomotive.h"
 
-Locomotive::Locomotive(QString *type, int mass, int constructionVelocity, float calcVelocity) :
+Locomotive::Locomotive(QString *type, int mass, int constructionVelocity, double calcVelocity) :
     type(type),
     mass(mass),
     constructionVelocity(constructionVelocity),
     calcVelocity(calcVelocity)
 {
-
     double currentUnitTractionModeMotionResist;
     double currentTractionModeMotionResist;
     double currentUnitIdleModeMotionResist;
@@ -44,7 +43,7 @@ int Locomotive::getMass() const {
     return mass;
 }
 
-float Locomotive::getCalcVelocity() const {
+double Locomotive::getCalcVelocity() const {
     return calcVelocity;
 }
 
