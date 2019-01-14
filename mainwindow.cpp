@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
                      << ("Констр. скорость")
                      << ("Расчетная скорость"));
 
-    this->createUI();
+    createUI();
 
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
     connect(wInputWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
