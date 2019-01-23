@@ -1,7 +1,14 @@
 #include "railcar.h"
 
-Railcar::Railcar(QString *type, double proportion, int axelCount, double axelLoad) :
-    type(type), proportion(proportion), axelCount(axelCount), axelLoad(axelLoad)
+Railcar::Railcar(QString *type, int mass, int axleCount, double proportion) :
+    TYPE(type), AXLE_COUNT(axleCount), MASS(mass), PROPORTION(proportion)
+{
+
+}
+
+/* Конструктор копирования*/
+Railcar::Railcar(const Railcar &other) :
+    TYPE(other.TYPE), AXLE_COUNT(other.AXLE_COUNT), MASS(other.MASS), PROPORTION(other.PROPORTION)
 {
 
 }
@@ -10,19 +17,14 @@ double Railcar::unitMotionResist(int velocity) {
     double result;
 
     result = this->k + (this->a + this->b * velocity + this->c * velocity * velocity) \
-            /(this->axelLoad/this->axelCount); // w0" = k + (a + b * v + c * v * v)/(axelLoad/axelCount)
+            / (this->MASS / this->AXLE_COUNT); // w0" = k + (a + b * v + c * v * v)/(axelLoad/axelCount)
 
     return result;
 }
 
 QString Railcar::getType() const
 {
-    return *type;
-}
-
-Railcar::Railcar(const Railcar &other){
-    type = other.type;
-    proportion = other.proportion;
+    return *TYPE;
 }
 
 /*
@@ -32,8 +34,8 @@ Railcar& Railcar::operator=(const Railcar &other){
     return *ret;
 }*/
 
-bool Railcar::operator==(const Railcar &other) const{
-    return type == other.type;
+bool Railcar::operator==(const Railcar &other) const {
+    return TYPE == other.TYPE;
 }
 
 /*

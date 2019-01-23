@@ -1,31 +1,31 @@
 #ifndef RAILCAR_H
 #define RAILCAR_H
-#include <QString>
+
 #include <QDebug>
 
 
 class Railcar
 {
 private:
-
-    QString *type;
-    double proportion; //доля вагонов данного типа
-    int axelCount;
-    double axelLoad; // w0" = k + (a + b * v + c * v * v)/(axelLoad/axelCount)
-    double k;
-    double a;
-    double b;
-    double c;
+    int id;
+    const QString *TYPE; //Тип вагона
+    const int AXLE_COUNT; //Количество осей вагона
+    const int MASS; //Масса вагона
+    double k; //
+    double a; //Коэффициенты для расчета
+    double b; //удельного сопротивления
+    double c; //
+    const double PROPORTION; //доля вагонов данного типа
 
 public:
-    Railcar(QString *type, double proportion, int axelCount, double axelLoad);
+    Railcar(QString *type, int mass, int axleCount, double proportion);
 
     Railcar(const Railcar &other);
     Railcar &operator=(const Railcar &other);
     bool operator==(const Railcar &other) const;
 
 
-    double unitMotionResist(int velocity); //Удельное сопротивление движению
+    double unitMotionResist(int velocity); //Удельное сопротивление движению w0" = k + (a + b * v + c * v * v)/(mass/axelCount)
     QString getType() const;
 };
 

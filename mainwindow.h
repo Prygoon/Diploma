@@ -7,6 +7,8 @@
 
 #include "database.h"
 #include "inputwindow.h"
+#include "locomotivedbwindow.h"
+#include "railcardbwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,22 +23,20 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_actionClose_triggered();
-    void on_actionNew_triggered();
+
+
+    void on_action_new_triggered();
+    void on_action_close_triggered();
+    void on_action_loco_triggered();
+
+    void on_railcars_triggered();
 
 private:
     Ui::MainWindow *ui;
     InputWindow *wInputWindow;
-    /* В проекте используются объекты для взаимодействия с информацией в базе данных
-     * и моделью представления таблицы базы данных */
-    DataBase *db;
-    QSqlTableModel *model;
+    LocomotiveDbWindow *wLocomotiveDbWindow;
+    RailcarDbWindow *wRailcarDbWindow;
 
-    void setLocoImage();
-    /* Также присутствуют два метода, которые формируют модель
-     * и внешний вид TableView */
-    void setupModel(const QString &tableName, const QStringList &headers);
-    void createUI();
 };
 
 #endif // MAINWINDOW_H
