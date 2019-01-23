@@ -15,34 +15,59 @@
 #define DATABASE_NAME       "Diploma.db"
 #define DATABASE_PATH       "./data/"
 
-#define TABLE                       "Locomotives"
-#define TABLE_TYPE                  "Type"
-#define TABLE_MASS                  "Mass"
-#define TABLE_CONSTRUCTION_VELOCITY "ConstructionVelocity"
-#define TABLE_CALC_VELOCITY         "CalcVelocity"
+//Таблица локомотивов
+#define TABLE_LOCO_NAME                  "locomotives"
+#define TABLE_LOCO_TYPE                  "type"
+#define TABLE_LOCO_CALC_THRUST_FORCE     "calc_thrust_force"
+#define TABLE_LOCO_MASS                  "mass"
+#define TABLE_LOCO_CONSTRUCTION_VELOCITY "construction_velocity"
+#define TABLE_LOCO_CALC_VELOCITY         "calc_velocity"
 
-class DataBase : public QObject
+//Таблица вагонов
+#define TABLE_RAILCAR_NAME       "railcars"
+#define TABLE_RAILCAR_TYPE       "type"
+#define TABLE_RAILCAR_AXLE_COUNT "axle_count"
+#define TABLE_RAILCAR_K_COEF     "k_coefficient"
+#define TABLE_RAILCAR_A_COEF     "a_coefficient"
+#define TABLE_RAILCAR_B_COEF     "b_coefficient"
+#define TABLE_RAILCAR_C_COEF     "c_coefficient"
+
+class DataBase
 {
-    Q_OBJECT
 
 public:
-    explicit DataBase(QObject *parent = nullptr);
-    //~DataBase();
+    static DataBase& Instance()
+        {
+            // согласно стандарту, этот код ленивый и потокобезопасный
+            static DataBase db;
+            return db;
+        }
 
     /* Методы для непосредственной работы с классом
      * Подключение к базе данных и вставка записей в таблицу */
     void connectToDataBase();
     bool inserIntoTable(const QVariantList &data);
+    bool updateTable(const QVariantList &data);
 
 private:
+    explicit DataBase(); // конструктор недоступен
+    ~DataBase(); // и деструктор тоже
+
+    DataBase(DataBase const&) = delete;
+    DataBase& operator= (DataBase const&) = delete;
+
     //Oбъект базы данных, с которым будет производиться работа
     QSqlDatabase db;
 
     //Внутренние методы для работы с базой данных
     bool openDataBase();
-    bool restoreDataBase();
     void closeDataBase();
-    bool createTable();
+
+    bool createLocoTable();
+    bool restoreDataBase();
+
+    bool createRailcarTable();
+    bool restoreRailcarTable();
 };
 
 #endif // DATABASE_H

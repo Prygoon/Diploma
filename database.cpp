@@ -1,8 +1,10 @@
 #include "database.h"
 
-DataBase::DataBase(QObject *parent) :
-    QObject (parent)
-{
+DataBase::DataBase() {
+
+}
+
+DataBase::~DataBase() {
 
 }
 
@@ -22,11 +24,11 @@ void DataBase::connectToDataBase()
     }
 }
 
-// Методы восстановления базы данных
+// Методы восстановления базы данных локомотивов
 bool DataBase::restoreDataBase()
 {
     if(this->openDataBase()){
-        if(!this->createTable()){
+        if(!(this->createLocoTable() && this->createRailcarTable())) {
             return false;
         } else {
             return true;
@@ -43,9 +45,12 @@ bool DataBase::openDataBase()
 {
     /* База данных открывается по заданному пути
      * и имени базы данных, если она существует */
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setHostName(DATABASE_HOSTNAME);
-    db.setDatabaseName(DATABASE_PATH DATABASE_NAME);
+    if(!db.isOpen()) {
+        db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setHostName(DATABASE_HOSTNAME);
+        db.setDatabaseName(DATABASE_PATH DATABASE_NAME);
+    }
+
     if(db.open()){
         return true;
     } else {
@@ -60,21 +65,47 @@ void DataBase::closeDataBase()
     db.close();
 }
 
-// Метод для создания таблицы в базе данных
-bool DataBase::createTable()
+// Метод для создания таблицы локомотивов в базе данных
+bool DataBase::createLocoTable()
 {
     /* В данном случае используется формирование сырого SQL-запроса
      * с последующим его выполнением. */
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " TABLE " ("
+    if(!query.exec( "CREATE TABLE " TABLE_LOCO_NAME " ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    TABLE_TYPE                    " TEXT       NOT NULL,"
-                    TABLE_MASS                    " INTEGER    NOT NULL,"
-                    TABLE_CONSTRUCTION_VELOCITY   " INTEGER    NOT NULL,"
-                    TABLE_CALC_VELOCITY           " REAL       NOT NULL"
+                    TABLE_LOCO_TYPE                    " TEXT       NOT NULL,"
+                    TABLE_LOCO_CALC_THRUST_FORCE       " INTEGER    NOT NULL,"
+                    TABLE_LOCO_MASS                    " INTEGER    NOT NULL,"
+                    TABLE_LOCO_CONSTRUCTION_VELOCITY   " INTEGER    NOT NULL,"
+                    TABLE_LOCO_CALC_VELOCITY           " REAL       NOT NULL"
                     " )"
                     )){
-        qDebug() << "DataBase: error of create " << TABLE;
+        qDebug() << "DataBase: error of create " << TABLE_LOCO_NAME;
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    //return false;
+}
+
+// Метод для создания таблицы вагонов в базе данных
+bool DataBase::createRailcarTable()
+{
+    /* В данном случае используется формирование сырого SQL-запроса
+     * с последующим его выполнением. */
+    QSqlQuery query;
+    if(!query.exec( "CREATE TABLE " TABLE_RAILCAR_NAME " ("
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    TABLE_RAILCAR_TYPE        " TEXT       NOT NULL,"
+                    TABLE_RAILCAR_AXLE_COUNT  " INTEGER    NOT NULL,"
+                    TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
+                    TABLE_RAILCAR_A_COEF      " REAL       NOT NULL,"
+                    TABLE_RAILCAR_B_COEF      " REAL       NOT NULL,"
+                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL"
+                    " )"
+                    )){
+        qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
         qDebug() << query.lastError().text();
         return false;
     } else {
