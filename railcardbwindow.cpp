@@ -22,6 +22,10 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
                      << ("c"));
 
     showTableView();
+
+    wRailcarEditForm = new RailcarEditForm();
+    wRailcarEditForm->setParent(this, Qt::Window);
+    wRailcarEditForm->setModel(model);
 }
 
 RailcarDbWindow::~RailcarDbWindow()
@@ -37,7 +41,9 @@ void RailcarDbWindow::on_pushButton_quit_clicked()
 
 void RailcarDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "Works!!" << index.row();
+    wRailcarEditForm->getMapper()->setCurrentModelIndex(index);
+    wRailcarEditForm->show();
+    //qDebug() << "Works!!" << index.row();
 }
 
 /* Метод для инициализации модеи представления данных */

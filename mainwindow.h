@@ -28,8 +28,7 @@ private slots:
     void on_action_new_triggered();
     void on_action_close_triggered();
     void on_action_loco_triggered();
-
-    void on_railcars_triggered();
+    void on_action_railcars_triggered();
 
 private:
     Ui::MainWindow *ui;

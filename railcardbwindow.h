@@ -6,6 +6,7 @@
 #include <QSqlTableModel>
 #include <QDebug>
 #include "database.h"
+#include "railcareditform.h"
 
 namespace Ui {
 class RailcarDbWindow;
@@ -21,6 +22,7 @@ public:
 
 private:
     Ui::RailcarDbWindow *ui;
+    RailcarEditForm *wRailcarEditForm;
 
     /* В проекте используются объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */

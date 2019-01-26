@@ -35,7 +35,9 @@ SOURCES += \
     project.cpp \
     train.cpp \
     locomotivedbwindow.cpp \
-    railcardbwindow.cpp
+    railcardbwindow.cpp \
+    locoeditform.cpp \
+    railcareditform.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,13 +49,17 @@ HEADERS += \
     project.h \
     train.h \
     locomotivedbwindow.h \
-    railcardbwindow.h
+    railcardbwindow.h \
+    locoeditform.h \
+    railcareditform.h
 
 FORMS += \
         mainwindow.ui \
     inputwindow.ui \
     locomotivedbwindow.ui \
-    railcardbwindow.ui
+    railcardbwindow.ui \
+    locoeditform.ui \
+    railcareditform.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
