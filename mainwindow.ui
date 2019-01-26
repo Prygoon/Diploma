@@ -55,7 +55,7 @@
      <string>База данных ПС</string>
     </property>
     <addaction name="action_loco"/>
-    <addaction name="railcars"/>
+    <addaction name="action_railcars"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -111,7 +111,7 @@
     <string>Локомотивы</string>
    </property>
   </action>
-  <action name="railcars">
+  <action name="action_railcars">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/resources/img/026-gas-truck.svg</normaloff>:/resources/img/026-gas-truck.svg</iconset>

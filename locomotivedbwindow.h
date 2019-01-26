@@ -6,6 +6,7 @@
 #include <QSqlTableModel>
 #include <QDebug>
 #include "database.h"
+#include "locoeditform.h"
 
 namespace Ui {
 class LocomotiveDbWindow;
@@ -26,6 +27,7 @@ private slots:
 
 private:
     Ui::LocomotiveDbWindow *ui;
+    LocoEditForm *wLocoEditForm;
 
     /* В проекте используются объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */

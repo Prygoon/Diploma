@@ -21,6 +21,10 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
                      << ("Расчетная скорость"));
 
     showTableView();
+
+    wLocoEditForm = new LocoEditForm();
+    wLocoEditForm->setParent(this, Qt::Window);
+    wLocoEditForm->setModel(model);
 }
 
 LocomotiveDbWindow::~LocomotiveDbWindow()
@@ -36,7 +40,9 @@ void LocomotiveDbWindow::on_pushButton_qiut_clicked()
 
 void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "Works!!" << index.row();
+    wLocoEditForm->getMapper()->setCurrentModelIndex(index);
+    wLocoEditForm->show();
+    //qDebug() << "Works!!" << index.row();
 }
 /* Метод для инициализации модеи представления данных */
 void LocomotiveDbWindow::setupModel(const QString &tableName, const QStringList &headers)

@@ -40,7 +40,7 @@ void MainWindow::on_action_loco_triggered()
     this->hide();
 }
 
-void MainWindow::on_railcars_triggered()
+void MainWindow::on_action_railcars_triggered()
 {
     wRailcarDbWindow = new RailcarDbWindow(this);
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
