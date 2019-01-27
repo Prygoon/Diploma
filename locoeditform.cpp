@@ -27,7 +27,7 @@ void LocoEditForm::setModel(QAbstractItemModel *model)
 }
 
 void LocoEditForm::on_buttonBox_accepted()
-{
+{    
     mapper->submit();
 }
 

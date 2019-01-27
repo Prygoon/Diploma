@@ -42,6 +42,7 @@ void LocomotiveDbWindow::on_pushButton_qiut_clicked()
 
 void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    //TODO: Тут какой-то ужас
     wLocoEditForm->showDeleteButton();
     QModelIndex *qIndex = new QModelIndex();
     *qIndex = index;
@@ -53,19 +54,20 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void LocomotiveDbWindow::on_pushButton_add_clicked()
 {
-    model->insertRow(model->rowCount());
-    wLocoEditForm->getMapper()->toLast();
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->show();
+    model->insertRow(model->rowCount());
+    wLocoEditForm->getMapper()->toLast();
+
+    model->submit();
 }
 
 void LocomotiveDbWindow::deleteLoco()
 {
-    //wLocoEditForm->getMapper()->setCurrentModelIndex(index);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->removeRows(wLocoEditForm->getWIndex()->row(), 1);
     model->submitAll();
-    //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
 }
 
 /* Метод для инициализации модеи представления данных */
@@ -83,6 +85,7 @@ void LocomotiveDbWindow::setupModel(const QString &tableName, const QStringList 
     }
     // Устанавливаем сортировку по возрастанию данных по нулевой колонке
     model->setSort(0, Qt::AscendingOrder);
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
 }
 
 void LocomotiveDbWindow::showTableView()
