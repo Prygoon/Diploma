@@ -25,6 +25,10 @@ private slots:
 
     void on_tableView_doubleClicked(const QModelIndex &index);
 
+    void on_pushButton_add_clicked();
+
+    void deleteLoco();
+
 private:
     Ui::LocomotiveDbWindow *ui;
     LocoEditForm *wLocoEditForm;

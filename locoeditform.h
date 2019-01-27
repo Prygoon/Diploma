@@ -19,15 +19,29 @@ public:
     void setModel(QAbstractItemModel *model);
 
     QDataWidgetMapper *getMapper() const;
+    void hideDeleteButton();
+    void showDeleteButton();
+
+    void setWIndex(QModelIndex *value);
+
+    QModelIndex *getWIndex() const;
+
+private:
+    Ui::LocoEditForm *ui;
+    QDataWidgetMapper* mapper;
+
+    QModelIndex *wIndex;
+
+signals:
+    void deleteLocoSignal();
 
 private slots:
     void on_buttonBox_accepted();
 
     void on_buttonBox_rejected();
 
-private:
-    Ui::LocoEditForm *ui;
-    QDataWidgetMapper* mapper;
+    void on_delete_pushButton_clicked();
+
 };
 
 #endif // LOCOEDITFORM_H

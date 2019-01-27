@@ -36,7 +36,34 @@ void LocoEditForm::on_buttonBox_rejected()
     close();
 }
 
+void LocoEditForm::setWIndex(QModelIndex *value)
+{
+    wIndex = value;
+}
+
+QModelIndex *LocoEditForm::getWIndex() const
+{
+    return wIndex;
+}
+
+
 QDataWidgetMapper *LocoEditForm::getMapper() const
 {
     return mapper;
+}
+
+void LocoEditForm::hideDeleteButton()
+{
+    ui->delete_pushButton->setHidden(true);
+}
+
+void LocoEditForm::showDeleteButton()
+{
+    ui->delete_pushButton->setHidden(false);
+}
+
+void LocoEditForm::on_delete_pushButton_clicked()
+{
+    emit deleteLocoSignal();
+    close();
 }
