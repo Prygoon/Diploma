@@ -21,6 +21,7 @@ public:
     QDataWidgetMapper *getMapper() const;
     void hideDeleteButton();
     void showDeleteButton();
+    void createBlankForm();
 
     void setWIndex(QModelIndex *value);
 
@@ -34,6 +35,8 @@ private:
 
 signals:
     void deleteLocoSignal();
+    void submitTableModel();
+    void revertTableModel();
 
 private slots:
     void on_buttonBox_accepted();

@@ -28,11 +28,14 @@ void LocoEditForm::setModel(QAbstractItemModel *model)
 
 void LocoEditForm::on_buttonBox_accepted()
 {    
-    mapper->submit();
+    //mapper->submit();
+    emit submitTableModel();
 }
 
 void LocoEditForm::on_buttonBox_rejected()
 {
+    //mapper->revert();
+    emit revertTableModel();
     close();
 }
 
@@ -60,6 +63,15 @@ void LocoEditForm::hideDeleteButton()
 void LocoEditForm::showDeleteButton()
 {
     ui->delete_pushButton->setHidden(false);
+}
+
+void LocoEditForm::createBlankForm()
+{
+    ui->loco_type_lineEdit->setText("");
+    ui->thrust_force_lineEdit->setText("");
+    ui->mass_lineEdit->setText("");
+    ui->constr_velocity_lineEdit->setText("");
+    ui->calc_velocity_lineEdit->setText("");
 }
 
 void LocoEditForm::on_delete_pushButton_clicked()

@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QSqlTableModel>
+#include <QDataWidgetMapper>
 #include <QDebug>
 #include "database.h"
 #include "locoeditform.h"
@@ -28,6 +29,8 @@ private slots:
     void on_pushButton_add_clicked();
 
     void deleteLoco();
+    void submitModel();
+    void revertModel();
 
 private:
     Ui::LocomotiveDbWindow *ui;
