@@ -27,6 +27,8 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
     wLocoEditForm->setModel(model);
 
     connect(wLocoEditForm, SIGNAL(deleteLocoSignal()), this, SLOT(deleteLoco()));
+    connect(wLocoEditForm, SIGNAL(submitTableModel()), this, SLOT(submitModel()));
+    connect(wLocoEditForm, SIGNAL(revertTableModel()), this, SLOT(revertModel()));
 }
 
 LocomotiveDbWindow::~LocomotiveDbWindow()
@@ -54,20 +56,33 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void LocomotiveDbWindow::on_pushButton_add_clicked()
 {
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    wLocoEditForm->getMapper()->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->show();
-    model->insertRow(model->rowCount());
+    model->insertRows(model->rowCount(QModelIndex()), 1);
     wLocoEditForm->getMapper()->toLast();
-
-    model->submit();
+    wLocoEditForm->createBlankForm();
+    //model->submitAll();
 }
 
 void LocomotiveDbWindow::deleteLoco()
 {
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->removeRows(wLocoEditForm->getWIndex()->row(), 1);
     model->submitAll();
-    model->setEditStrategy(QSqlTableModel::OnRowChange);
+}
+
+void LocomotiveDbWindow::submitModel()
+{
+    wLocoEditForm->getMapper()->submit();
+    model->submitAll();
+}
+
+void LocomotiveDbWindow::revertModel()
+{
+    wLocoEditForm->getMapper()->revert();
+    model->revertAll();
 }
 
 /* Метод для инициализации модеи представления данных */
@@ -85,7 +100,7 @@ void LocomotiveDbWindow::setupModel(const QString &tableName, const QStringList 
     }
     // Устанавливаем сортировку по возрастанию данных по нулевой колонке
     model->setSort(0, Qt::AscendingOrder);
-    model->setEditStrategy(QSqlTableModel::OnRowChange);
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
 void LocomotiveDbWindow::showTableView()
