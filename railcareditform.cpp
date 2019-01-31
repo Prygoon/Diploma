@@ -27,17 +27,54 @@ void RailcarEditForm::setModel(QAbstractItemModel *model)
     mapper->addMapping(ui->c_lineEdit, 6);
 }
 
+void RailcarEditForm::on_buttonBox_accepted()
+{
+    emit submitTableModel();
+}
+
+void RailcarEditForm::on_buttonBox_rejected()
+{
+    emit revertTableModel();
+    close();
+}
+
+void RailcarEditForm::on_delete_pushButton_clicked()
+{
+    emit deleteRailcarSignal();
+    close();
+}
+
 QDataWidgetMapper *RailcarEditForm::getMapper() const
 {
     return mapper;
 }
 
-void RailcarEditForm::on_buttonBox_accepted()
+void RailcarEditForm::hideDeleteButton()
 {
-    mapper->submit();
+    ui->delete_pushButton->setHidden(true);
 }
 
-void RailcarEditForm::on_buttonBox_rejected()
+void RailcarEditForm::showDeleteButton()
 {
-    close();
+    ui->delete_pushButton->setHidden(false);
+}
+
+void RailcarEditForm::createBlankForm()
+{
+    ui->railcar_type_lineEdit->setText("");
+    ui->axle_count_lineEdit->setText("");
+    ui->k_lineEdit->setText("");
+    ui->a_lineEdit->setText("");
+    ui->b_lineEdit->setText("");
+    ui->c_lineEdit->setText("");
+}
+
+QModelIndex *RailcarEditForm::getWIndex() const
+{
+    return wIndex;
+}
+
+void RailcarEditForm::setWIndex(QModelIndex *value)
+{
+    wIndex = value;
 }

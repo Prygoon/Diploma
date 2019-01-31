@@ -19,16 +19,28 @@ public:
     void setModel(QAbstractItemModel *model);
 
     QDataWidgetMapper *getMapper() const;
+    void hideDeleteButton();
+    void showDeleteButton();
+    void createBlankForm();
 
-private slots:
-    void on_buttonBox_accepted();
-
-    void on_buttonBox_rejected();
+    QModelIndex *getWIndex() const;
+    void setWIndex(QModelIndex *value);
 
 private:
     Ui::RailcarEditForm *ui;
 
     QDataWidgetMapper* mapper;
+    QModelIndex *wIndex;
+
+signals:
+    void deleteRailcarSignal();
+    void submitTableModel();
+    void revertTableModel();
+
+private slots:
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
+    void on_delete_pushButton_clicked();
 };
 
 #endif // RAILCAREDITFORM_H
