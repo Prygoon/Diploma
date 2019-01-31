@@ -26,10 +26,15 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
     wRailcarEditForm = new RailcarEditForm();
     wRailcarEditForm->setParent(this, Qt::Window);
     wRailcarEditForm->setModel(model);
+
+    connect(wRailcarEditForm, SIGNAL(deleteRailcarSignal()), this, SLOT(deleteRailcar()));
+    connect(wRailcarEditForm, SIGNAL(submitTableModel()), this, SLOT(submitModel()));
+    connect(wRailcarEditForm, SIGNAL(revertTableModel()), this, SLOT(revertModel()));
 }
 
 RailcarDbWindow::~RailcarDbWindow()
 {
+    delete wRailcarEditForm->getWIndex();
     delete ui;
 }
 
@@ -41,9 +46,38 @@ void RailcarDbWindow::on_pushButton_quit_clicked()
 
 void RailcarDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    wRailcarEditForm->showDeleteButton();
+    wRailcarEditForm->setWIndex(new QModelIndex(index));
     wRailcarEditForm->getMapper()->setCurrentModelIndex(index);
     wRailcarEditForm->show();
     //qDebug() << "Works!!" << index.row();
+}
+
+void RailcarDbWindow::on_pushButton_add_clicked()
+{
+    wRailcarEditForm->hideDeleteButton();
+    wRailcarEditForm->createBlankForm();
+    wRailcarEditForm->show();
+    model->insertRow(model->rowCount(QModelIndex()));
+    wRailcarEditForm->getMapper()->toLast();
+}
+
+void RailcarDbWindow::deleteRailcar()
+{
+    model->removeRow(wRailcarEditForm->getWIndex()->row());
+    model->submitAll();
+}
+
+void RailcarDbWindow::submitModel()
+{
+    wRailcarEditForm->getMapper()->submit();
+    model->submitAll();
+}
+
+void RailcarDbWindow::revertModel()
+{
+    wRailcarEditForm->getMapper()->revert();
+    model->revertAll();
 }
 
 /* Метод для инициализации модеи представления данных */
@@ -61,6 +95,8 @@ void RailcarDbWindow::setupModel(const QString &tableName, const QStringList &he
     }
     // Устанавливаем сортировку по возрастанию данных по нулевой колонке
     model->setSort(0, Qt::AscendingOrder);
+
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
 void RailcarDbWindow::showTableView()

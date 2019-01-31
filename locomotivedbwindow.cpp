@@ -33,6 +33,7 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
 
 LocomotiveDbWindow::~LocomotiveDbWindow()
 {
+    delete wLocoEditForm->getWIndex();
     delete ui;
 }
 
@@ -44,11 +45,8 @@ void LocomotiveDbWindow::on_pushButton_qiut_clicked()
 
 void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    //TODO: Тут какой-то ужас
     wLocoEditForm->showDeleteButton();
-    QModelIndex *qIndex = new QModelIndex();
-    *qIndex = index;
-    wLocoEditForm->setWIndex(qIndex);
+    wLocoEditForm->setWIndex(new QModelIndex(index));
     wLocoEditForm->getMapper()->setCurrentModelIndex(index);
     wLocoEditForm->show();
     //qDebug() << "Works!!" << index.row();
@@ -56,20 +54,19 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void LocomotiveDbWindow::on_pushButton_add_clicked()
 {
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    wLocoEditForm->getMapper()->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    //wLocoEditForm->getMapper()->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     wLocoEditForm->hideDeleteButton();
-    wLocoEditForm->show();
-    model->insertRows(model->rowCount(QModelIndex()), 1);
-    wLocoEditForm->getMapper()->toLast();
     wLocoEditForm->createBlankForm();
-    //model->submitAll();
+    wLocoEditForm->show();
+    model->insertRow(model->rowCount(QModelIndex()));
+    wLocoEditForm->getMapper()->toLast();
 }
 
 void LocomotiveDbWindow::deleteLoco()
 {
     //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model->removeRows(wLocoEditForm->getWIndex()->row(), 1);
+    model->removeRow(wLocoEditForm->getWIndex()->row());
     model->submitAll();
 }
 

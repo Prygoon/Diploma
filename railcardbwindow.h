@@ -36,9 +36,15 @@ private:
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
+
 private slots:
     void on_pushButton_quit_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_pushButton_add_clicked();
+
+    void deleteRailcar();
+    void submitModel();
+    void revertModel();
 };
 
 #endif // RAILCARDBWINDOW_H
