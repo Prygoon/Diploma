@@ -27,14 +27,13 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
     wRailcarEditForm->setParent(this, Qt::Window);
     wRailcarEditForm->setModel(model);
 
-    connect(wRailcarEditForm, SIGNAL(deleteRailcarSignal()), this, SLOT(deleteRailcar()));
-    connect(wRailcarEditForm, SIGNAL(submitTableModel()), this, SLOT(submitModel()));
-    connect(wRailcarEditForm, SIGNAL(revertTableModel()), this, SLOT(revertModel()));
+    connect(wRailcarEditForm, &RailcarEditForm::deleteRailcarSignal, this, &RailcarDbWindow::deleteRailcar);
+    connect(wRailcarEditForm, &RailcarEditForm::submitTableModel, this, &RailcarDbWindow::submitModel);
+    connect(wRailcarEditForm, &RailcarEditForm::revertTableModel, this, &RailcarDbWindow::revertModel);
 }
 
 RailcarDbWindow::~RailcarDbWindow()
 {
-    delete wRailcarEditForm->getWIndex();
     delete ui;
 }
 
@@ -47,6 +46,7 @@ void RailcarDbWindow::on_pushButton_quit_clicked()
 void RailcarDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
     wRailcarEditForm->showDeleteButton();
+    wRailcarEditForm->enableSaveButton();
     wRailcarEditForm->setWIndex(new QModelIndex(index));
     wRailcarEditForm->getMapper()->setCurrentModelIndex(index);
     wRailcarEditForm->show();
@@ -57,6 +57,7 @@ void RailcarDbWindow::on_pushButton_add_clicked()
 {
     wRailcarEditForm->hideDeleteButton();
     wRailcarEditForm->createBlankForm();
+    wRailcarEditForm->disableSaveButton();
     wRailcarEditForm->show();
     model->insertRow(model->rowCount(QModelIndex()));
     wRailcarEditForm->getMapper()->toLast();
@@ -115,4 +116,10 @@ void RailcarDbWindow::showTableView()
     //ui->tableView->setColumnWidth(1, 50);
 
     model->select(); // Делаем выборку данных из таблицы
+}
+
+void RailcarDbWindow::closeEvent(QCloseEvent *event)
+{
+    emit showMainWindow();
+    event->accept();
 }

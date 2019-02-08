@@ -23,9 +23,7 @@ public:
 
 private slots:
     void on_pushButton_qiut_clicked();
-
     void on_tableView_doubleClicked(const QModelIndex &index);
-
     void on_pushButton_add_clicked();
 
     void deleteLoco();
@@ -45,6 +43,7 @@ private:
      * и внешний вид TableView */
     void setupModel(const QString &tableName, const QStringList &headers);
     void showTableView();
+    void closeEvent(QCloseEvent *event); // Переопределим нажатие на крестик
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие

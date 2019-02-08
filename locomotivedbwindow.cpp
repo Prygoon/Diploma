@@ -26,14 +26,13 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
     wLocoEditForm->setParent(this, Qt::Window);
     wLocoEditForm->setModel(model);
 
-    connect(wLocoEditForm, SIGNAL(deleteLocoSignal()), this, SLOT(deleteLoco()));
-    connect(wLocoEditForm, SIGNAL(submitTableModel()), this, SLOT(submitModel()));
-    connect(wLocoEditForm, SIGNAL(revertTableModel()), this, SLOT(revertModel()));
+    connect(wLocoEditForm, &LocoEditForm::deleteLocoSignal, this, &LocomotiveDbWindow::deleteLoco);
+    connect(wLocoEditForm, &LocoEditForm::submitTableModel, this, &LocomotiveDbWindow::submitModel);
+    connect(wLocoEditForm, &LocoEditForm::revertTableModel, this, &LocomotiveDbWindow::revertModel);
 }
 
 LocomotiveDbWindow::~LocomotiveDbWindow()
 {
-    delete wLocoEditForm->getWIndex();
     delete ui;
 }
 
@@ -46,6 +45,7 @@ void LocomotiveDbWindow::on_pushButton_qiut_clicked()
 void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
     wLocoEditForm->showDeleteButton();
+    wLocoEditForm->enableSaveButton();
     wLocoEditForm->setWIndex(new QModelIndex(index));
     wLocoEditForm->getMapper()->setCurrentModelIndex(index);
     wLocoEditForm->show();
@@ -58,6 +58,7 @@ void LocomotiveDbWindow::on_pushButton_add_clicked()
     //wLocoEditForm->getMapper()->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->createBlankForm();
+    wLocoEditForm->disableSaveButton();
     wLocoEditForm->show();
     model->insertRow(model->rowCount(QModelIndex()));
     wLocoEditForm->getMapper()->toLast();
@@ -116,5 +117,11 @@ void LocomotiveDbWindow::showTableView()
     //ui->tableView->setColumnWidth(1, 50);
 
     model->select(); // Делаем выборку данных из таблицы
+}
+
+void LocomotiveDbWindow::closeEvent(QCloseEvent *event)
+{
+    emit showMainWindow();
+    event->accept();
 }
 

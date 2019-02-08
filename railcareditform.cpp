@@ -7,8 +7,40 @@ RailcarEditForm::RailcarEditForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Валидатор для поля ввода типа вагона
+    validator = new QRegExpValidator(QRegExp("^[А-Я,а-я,0-9]+&"), this);
+    ui->railcar_type_lineEdit->setValidator(validator);
+
+    // Валидатор для поля ввода количества осей
+    validator = new QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
+    ui->axle_count_lineEdit->setValidator(validator);
+
+    // Валидторы для полей ввода коэффициентов
+    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->k_lineEdit->setValidator(validator);
+
+    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->a_lineEdit->setValidator(validator);
+
+    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->b_lineEdit->setValidator(validator);
+
+    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->c_lineEdit->setValidator(validator);
+
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+
+    if(isAllLineEditsEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    }
+
+    connect(ui->railcar_type_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
+    connect(ui->axle_count_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
+    connect(ui->k_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
+    connect(ui->a_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
+    connect(ui->b_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
+    connect(ui->c_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &RailcarEditForm::onTextEdited);
 }
 
 RailcarEditForm::~RailcarEditForm()
@@ -59,14 +91,36 @@ void RailcarEditForm::showDeleteButton()
     ui->delete_pushButton->setHidden(false);
 }
 
+void RailcarEditForm::disableSaveButton()
+{
+    ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+}
+
+void RailcarEditForm::enableSaveButton()
+{
+    ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+}
+
 void RailcarEditForm::createBlankForm()
 {
-    ui->railcar_type_lineEdit->setText("");
-    ui->axle_count_lineEdit->setText("");
-    ui->k_lineEdit->setText("");
-    ui->a_lineEdit->setText("");
-    ui->b_lineEdit->setText("");
-    ui->c_lineEdit->setText("");
+    //TODO: Придумать нормальные плейсхолдеры
+    ui->railcar_type_lineEdit->setText(BLANK_TEXT);
+    ui->railcar_type_lineEdit->setPlaceholderText("Грузовой");
+
+    ui->axle_count_lineEdit->setText(BLANK_TEXT);
+    ui->axle_count_lineEdit->setPlaceholderText("4");
+
+    ui->k_lineEdit->setText(BLANK_TEXT);
+    ui->k_lineEdit->setPlaceholderText("0.7");
+
+    ui->a_lineEdit->setText(BLANK_TEXT);
+    ui->a_lineEdit->setPlaceholderText("8");
+
+    ui->b_lineEdit->setText(BLANK_TEXT);
+    ui->b_lineEdit->setPlaceholderText("0.1");
+
+    ui->c_lineEdit->setText(BLANK_TEXT);
+    ui->c_lineEdit->setPlaceholderText("0.0025");
 }
 
 QModelIndex *RailcarEditForm::getWIndex() const
@@ -77,4 +131,39 @@ QModelIndex *RailcarEditForm::getWIndex() const
 void RailcarEditForm::setWIndex(QModelIndex *value)
 {
     wIndex = value;
+}
+
+void RailcarEditForm::closeEvent(QCloseEvent *event)
+{
+    emit revertTableModel();
+    event->accept();
+}
+
+bool RailcarEditForm::isAllLineEditsEmpty()
+{
+    return ui->railcar_type_lineEdit->text().isEmpty() \
+            || ui->axle_count_lineEdit->text().isEmpty() \
+            || ui->k_lineEdit->text().isEmpty() \
+            || ui->a_lineEdit->text().isEmpty() \
+            || ui->b_lineEdit->text().isEmpty() \
+            || ui->c_lineEdit->text().isEmpty();
+}
+
+void RailcarEditForm::onTextEdited(const QString &arg1)
+{
+    if(static_cast<QLineEdit*>(sender())->objectName() == "railcar_type_lineEdit") {
+        ui->railcar_type_lineEdit->setText(arg1.left(1).toUpper() + arg1.mid(1));
+    } else {
+        QString line = arg1;
+        int commaIndex = arg1.indexOf(',');
+        line.replace(commaIndex, 1, '.');
+        static_cast<QLineEdit*>(sender())->setText(line);
+    }
+
+    //Пока все поля не заполнены, кнопка ОК неактивна
+    if(isAllLineEditsEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+    }
 }
