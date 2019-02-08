@@ -10,8 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     wInputWindow = new InputWindow(this);
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
-    connect(wInputWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
-    //setLocoImage();
+    connect(wInputWindow, &InputWindow::showMainWindow, this, &MainWindow::show);
 
 }
 

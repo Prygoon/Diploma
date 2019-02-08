@@ -33,6 +33,7 @@ private:
      * и внешний вид TableView */
     void setupModel(const QString &tableName, const QStringList &headers);
     void showTableView();
+    void closeEvent(QCloseEvent *event); // Переопределим нажатие на крестик
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
