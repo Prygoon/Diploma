@@ -22,7 +22,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_action_new_triggered()
 {
     wInputWindow->show();
-    //this->hide();
+    this->hide();
 }
 
 void MainWindow::on_action_close_triggered()
@@ -33,6 +33,7 @@ void MainWindow::on_action_close_triggered()
 void MainWindow::on_action_loco_triggered()
 {
     wLocomotiveDbWindow = new LocomotiveDbWindow(this);
+    wLocomotiveDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
     connect(wLocomotiveDbWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
     wLocomotiveDbWindow->show();
@@ -42,16 +43,9 @@ void MainWindow::on_action_loco_triggered()
 void MainWindow::on_action_railcars_triggered()
 {
     wRailcarDbWindow = new RailcarDbWindow(this);
+    wRailcarDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
     connect(wRailcarDbWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
     wRailcarDbWindow->show();
     this->hide();
 }
-
-/*void MainWindow::setLocoImage()
-{
-    QPixmap pix(":/resources/img/011-train.svg");
-    int w = ui->image->width();
-    int h = ui->image->height();
-    ui->image->setPixmap(pix.scaled(w, h, Qt::KeepAspectRatio));
-}*/

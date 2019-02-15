@@ -54,8 +54,6 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void LocomotiveDbWindow::on_pushButton_add_clicked()
 {
-    //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    //wLocoEditForm->getMapper()->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->createBlankForm();
     wLocoEditForm->disableSaveButton();
@@ -66,7 +64,6 @@ void LocomotiveDbWindow::on_pushButton_add_clicked()
 
 void LocomotiveDbWindow::deleteLoco()
 {
-    //model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->removeRow(wLocoEditForm->getWIndex()->row());
     model->submitAll();
 }
@@ -89,7 +86,7 @@ void LocomotiveDbWindow::setupModel(const QString &tableName, const QStringList 
     /* Производим инициализацию модели представления данных
      * с установкой имени таблицы в базе данных, по которому
      * будет производится обращение в таблице */
-    model = new QSqlTableModel(this);
+    model = new QSqlRelationalTableModel(this);
     model->setTable(tableName);
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
@@ -111,10 +108,9 @@ void LocomotiveDbWindow::showTableView()
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
     ui->tableView->resizeColumnsToContents();
+
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->setColumnWidth(1, 50);
 
     model->select(); // Делаем выборку данных из таблицы
 }

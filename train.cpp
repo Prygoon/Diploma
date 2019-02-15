@@ -1,6 +1,6 @@
 #include "train.h"
 
-Train::Train(Locomotive *locomotive, QSet<Railcar> *carriages) :
+Train::Train(Locomotive *locomotive, QMap<Railcar, double> *carriages) :
     locomotive(locomotive), carriages(carriages)
 {
 
@@ -12,7 +12,7 @@ Train::Train(Train &other) :
 
 }
 
-void Train::addRailcar(const Railcar &railcar) {
+void Train::addRailcar(const Railcar &railcar, const double percent) {
 
-    this->carriages->insert(railcar);
+    this->carriages->insert(railcar, percent);
 }

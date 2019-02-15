@@ -2,6 +2,7 @@
 #define RAILCAR_H
 
 #include <QDebug>
+#include <QAbstractItemModel>
 
 
 class Railcar
@@ -21,18 +22,20 @@ public:
     Railcar(QString *type, int mass, int axleCount, double proportion);
 
     Railcar(const Railcar &other);
-    Railcar &operator=(const Railcar &other);
-    bool operator==(const Railcar &other) const;
+    inline Railcar operator=(const Railcar &other);
+    inline bool operator==(const Railcar& other) const;
+    inline bool operator<(Railcar& other) const;
 
 
     double unitMotionResist(int velocity); //Удельное сопротивление движению w0" = k + (a + b * v + c * v * v)/(mass/axelCount)
     QString getType() const;
+    int getId() const;
 };
 
 inline uint qHash(const Railcar &key, uint seed) {
     return qHash(key.getType(), seed);
 }
 
-/*
-QDebug operator<<(QDebug dbg, const Railcar &data);*/
+bool operator<(const Railcar& rc1, const Railcar& rc2);
+
 #endif // RAILCAR_H

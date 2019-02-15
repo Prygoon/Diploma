@@ -126,13 +126,13 @@ void LocoEditForm::createBlankForm()
     ui->loco_type_lineEdit->setText(BLANK_TEXT);
     ui->loco_type_lineEdit->setPlaceholderText("4ТЭ10С");
     ui->thrust_force_lineEdit->setText(BLANK_TEXT);
-    ui->thrust_force_lineEdit->setPlaceholderText("992");
+    ui->thrust_force_lineEdit->setPlaceholderText("в кН");
     ui->mass_lineEdit->setText(BLANK_TEXT);
-    ui->mass_lineEdit->setPlaceholderText("552");
+    ui->mass_lineEdit->setPlaceholderText("в тоннах");
     ui->constr_velocity_lineEdit->setText(BLANK_TEXT);
-    ui->constr_velocity_lineEdit->setPlaceholderText("100");
+    ui->constr_velocity_lineEdit->setPlaceholderText("в км/ч");
     ui->calc_velocity_lineEdit->setText(BLANK_TEXT);
-    ui->calc_velocity_lineEdit->setPlaceholderText("24.6");
+    ui->calc_velocity_lineEdit->setPlaceholderText("в км/ч");
 }
 
 void LocoEditForm::onTextEdited(const QString &arg1)

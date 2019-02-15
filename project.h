@@ -10,6 +10,7 @@ private:
     QString *name;
     Train *train;
     QVector<TrackSection> *track;
+
 public:
     Project(QString *name, Train *train, QVector<TrackSection> *track);
 

@@ -1,5 +1,10 @@
 #include "railcar.h"
 
+int Railcar::getId() const
+{
+    return id;
+}
+
 Railcar::Railcar(QString *type, int mass, int axleCount, double proportion) :
     TYPE(type), AXLE_COUNT(axleCount), MASS(mass), PROPORTION(proportion)
 {
@@ -27,21 +32,11 @@ QString Railcar::getType() const
     return *TYPE;
 }
 
-/*
-Railcar& Railcar::operator=(const Railcar &other){
-    Railcar *ret = new Railcar();
-    ret->type = other.type;
-    return *ret;
-}*/
-
 bool Railcar::operator==(const Railcar &other) const {
     return TYPE == other.TYPE;
 }
 
-/*
-QDebug operator<<(QDebug dbg, const Railcar &data){
-    dbg.nospace() << "Railcar(" << data.type << ")";
-    return dbg.maybeSpace();
-}*/
-
-
+bool operator<(const Railcar &rc1, const Railcar &rc2)
+{
+    return rc1.getId() < rc2.getId();
+}
