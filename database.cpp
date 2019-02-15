@@ -28,7 +28,7 @@ void DataBase::connectToDataBase()
 bool DataBase::restoreDataBase()
 {
     if(this->openDataBase()){
-        if(!(this->createLocoTable() && this->createRailcarTable())) {
+        if(!(this->createLocoTable() && this->createRailcarTable() && this->createRailcarMapTable() && this->createProjectTable())) {
             return false;
         } else {
             return true;
@@ -37,7 +37,6 @@ bool DataBase::restoreDataBase()
         qDebug() << "Не удалось восстановить базу данных";
         return false;
     }
-    //return false;
 }
 
 // Метод для открытия базы данных
@@ -52,6 +51,8 @@ bool DataBase::openDataBase()
     }
 
     if(db.open()){
+        QSqlQuery query;
+        query.exec("PRAGMA foreign_keys = ON;");
         return true;
     } else {
         return false;
@@ -71,8 +72,9 @@ bool DataBase::createLocoTable()
     /* В данном случае используется формирование сырого SQL-запроса
      * с последующим его выполнением. */
     QSqlQuery query;
+
     if(!query.exec( "CREATE TABLE " TABLE_LOCO_NAME " ("
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     TABLE_LOCO_TYPE                    " TEXT       NOT NULL,"
                     TABLE_LOCO_CALC_THRUST_FORCE       " INTEGER    NOT NULL,"
                     TABLE_LOCO_MASS                    " INTEGER    NOT NULL,"
@@ -86,7 +88,6 @@ bool DataBase::createLocoTable()
     } else {
         return true;
     }
-    //return false;
 }
 
 // Метод для создания таблицы вагонов в базе данных
@@ -95,8 +96,9 @@ bool DataBase::createRailcarTable()
     /* В данном случае используется формирование сырого SQL-запроса
      * с последующим его выполнением. */
     QSqlQuery query;
+
     if(!query.exec( "CREATE TABLE " TABLE_RAILCAR_NAME " ("
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     TABLE_RAILCAR_TYPE        " TEXT       NOT NULL,"
                     TABLE_RAILCAR_AXLE_COUNT  " INTEGER    NOT NULL,"
                     TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
@@ -111,5 +113,49 @@ bool DataBase::createRailcarTable()
     } else {
         return true;
     }
-    //return false;
+}
+
+// Метод для создания таблицы карты(с указанием массы брутто и долей в составе) вагонов в базе данных
+bool DataBase::createRailcarMapTable()
+{
+    /* В данном случае используется формирование сырого SQL-запроса
+     * с последующим его выполнением. */
+    QSqlQuery query;
+
+    if(!query.exec( "CREATE TABLE " TABLE_RAILCAR_MAP_NAME " ("
+                    "id                          INTEGER    PRIMARY  KEY    AUTOINCREMENT ,"
+                    "railcar_id                  INTEGER    NOT NULL                      ,"
+                    TABLE_RAILCAR_MAP_MASS     " INTEGER    NOT NULL                      ,"
+                    TABLE_RAILCAR_MAP_PERCENT  " REAL       NOT NULL                      ,"
+                    "FOREIGN KEY (railcar_id) REFERENCES " TABLE_RAILCAR_NAME"(id)"
+                    " )"
+                    )) {
+        qDebug() << "DataBase: error of create " << TABLE_RAILCAR_MAP_NAME;
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+}
+
+// Метод для создания таблицы проектов в базе данных
+bool DataBase::createProjectTable()
+{
+    /* В данном случае используется формирование сырого SQL-запроса
+     * с последующим его выполнением. */
+    QSqlQuery query;
+
+    if(!query.exec( "CREATE TABLE " TABLE_PROJECT_NAME " ("
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    "railcar_map_id              INTEGER    NOT NULL UNIQUE,"
+                    TABLE_PROJECT_TITLE        " TEXT       NOT NULL       ,"
+                    "FOREIGN KEY (railcar_map_id) REFERENCES " TABLE_RAILCAR_MAP_NAME"(id)"
+                    " )"
+                    )) {
+        qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
 }

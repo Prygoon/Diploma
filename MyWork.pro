@@ -37,7 +37,8 @@ SOURCES += \
     locomotivedbwindow.cpp \
     railcardbwindow.cpp \
     locoeditform.cpp \
-    railcareditform.cpp
+    railcareditform.cpp \
+    inputeditform.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -51,7 +52,8 @@ HEADERS += \
     locomotivedbwindow.h \
     railcardbwindow.h \
     locoeditform.h \
-    railcareditform.h
+    railcareditform.h \
+    inputeditform.h
 
 FORMS += \
         mainwindow.ui \
@@ -59,7 +61,8 @@ FORMS += \
     locomotivedbwindow.ui \
     railcardbwindow.ui \
     locoeditform.ui \
-    railcareditform.ui
+    railcareditform.ui \
+    inputeditform.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -68,3 +71,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES +=

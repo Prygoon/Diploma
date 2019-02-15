@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-#include <QSqlTableModel>
+#include <QSqlRelationalTableModel>
 #include <QDataWidgetMapper>
 #include <QDebug>
 #include "database.h"
@@ -34,10 +34,10 @@ private:
     Ui::LocomotiveDbWindow *ui;
     LocoEditForm *wLocoEditForm;
 
-    /* В проекте используются объекты для взаимодействия с информацией в базе данных
+    /* Объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */
     DataBase *db;
-    QSqlTableModel *model;
+    QSqlRelationalTableModel *model;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */

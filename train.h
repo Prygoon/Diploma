@@ -1,5 +1,5 @@
-#ifndef MAKEUPTRAIN_H
-#define MAKEUPTRAIN_H
+#ifndef TRAIN_H
+#define TRAIN_H
 #include <QSet>
 #include "railcar.h"
 #include "locomotive.h"
@@ -8,13 +8,13 @@ class Train
 {
 private:
     Locomotive *locomotive;
-    QSet<Railcar> *carriages;
+    QMap<Railcar, double> *carriages;
 
 public:
-    Train(Locomotive *locomotive, QSet<Railcar> *carriages);
+    Train(Locomotive *locomotive, QMap<Railcar, double> *carriages);
     Train(Train &other);
 
-    void addRailcar(const Railcar &railcar);
+    void addRailcar(const Railcar &railcar, const double percent);
 };
 
-#endif // MAKEUPTRAIN_H
+#endif // TRAIN_H

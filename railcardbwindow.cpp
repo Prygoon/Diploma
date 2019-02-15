@@ -110,10 +110,9 @@ void RailcarDbWindow::showTableView()
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
     ui->tableView->resizeColumnsToContents();
+
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->setColumnWidth(1, 50);
 
     model->select(); // Делаем выборку данных из таблицы
 }

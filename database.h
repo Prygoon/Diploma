@@ -32,6 +32,15 @@
 #define TABLE_RAILCAR_B_COEF     "b_coefficient"
 #define TABLE_RAILCAR_C_COEF     "c_coefficient"
 
+//Таблица карты вагонов
+#define TABLE_RAILCAR_MAP_NAME    "railcars_map"
+#define TABLE_RAILCAR_MAP_MASS    "mass"
+#define TABLE_RAILCAR_MAP_PERCENT "percent"
+
+//Таблица проектов
+#define TABLE_PROJECT_NAME   "projects"
+#define TABLE_PROJECT_TITLE  "title"
+
 class DataBase
 {
 
@@ -62,12 +71,12 @@ private:
     //Внутренние методы для работы с базой данных
     bool openDataBase();
     void closeDataBase();
-
-    bool createLocoTable();
     bool restoreDataBase();
 
-    bool createRailcarTable();
-    bool restoreRailcarTable();
+    bool createLocoTable();
+    bool createRailcarTable();    
+    bool createRailcarMapTable();
+    bool createProjectTable();
 };
 
 #endif // DATABASE_H

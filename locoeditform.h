@@ -37,8 +37,8 @@ private:
     Ui::LocoEditForm *ui;
 
     QDataWidgetMapper* mapper;
-    QValidator *validator;
-    QModelIndex *wIndex;
+    QValidator* validator;
+    QModelIndex* wIndex;
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     bool isAllLineEditsEmpty();
