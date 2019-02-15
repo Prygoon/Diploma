@@ -13,7 +13,7 @@ InputWindow::InputWindow(QWidget *parent) :
     db->connectToDataBase();
 
     this->setupModel(SQL_QUERY_FOR_RAILCAR_MODEL,
-                     QStringList() << ("Тип вагона")
+                     QStringList()<< ("Тип вагона")
                      << ("Количество осей")
                      << ("Масса брутто")
                      << ("Доля в составе"));
@@ -52,7 +52,7 @@ void InputWindow::setupModel(const QString &query, const QStringList &headers)
     /* Производим инициализацию модели представления данных
      * с установкой имени таблицы в базе данных, по которому
      * будет производится обращение в таблице */
-    railcarsMapModel = new QSqlRelationalTableModel(this);
+    railcarsMapModel = new QSqlQueryModel(this);
     railcarsMapModel->setQuery(query);
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
