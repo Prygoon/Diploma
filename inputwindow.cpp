@@ -13,8 +13,7 @@ InputWindow::InputWindow(QWidget *parent) :
     db->connectToDataBase();
 
     this->setupModel(SQL_QUERY_FOR_RAILCAR_MODEL,
-                     QStringList() << ("Id")
-                     << ("Тип вагона")
+                     QStringList()<< ("Тип вагона")
                      << ("Количество осей")
                      << ("Масса брутто")
                      << ("Доля в составе"));
