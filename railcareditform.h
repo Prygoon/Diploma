@@ -4,6 +4,7 @@
 #define BLANK_TEXT ""
 
 #include <QDialog>
+#include <QSqlTableModel>
 #include <QDataWidgetMapper>
 #include <QCloseEvent>
 #include <QValidator>
@@ -45,6 +46,7 @@ signals:
     void deleteRailcarSignal();
     void submitTableModel();
     void revertTableModel();
+    void setNameplateData(const QVariant &data);
 
 private slots:
     void on_buttonBox_accepted();

@@ -101,10 +101,11 @@ bool DataBase::createRailcarTable()
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     TABLE_RAILCAR_TYPE        " TEXT       NOT NULL,"
                     TABLE_RAILCAR_AXLE_COUNT  " INTEGER    NOT NULL,"
+                    TABLE_RAILCAR_NAMEPLATE	  " TEXT       NOT NULL    UNIQUE,"
                     TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_A_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_B_COEF      " REAL       NOT NULL,"
-                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL"
+                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL "
                     " )"
                     )){
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;

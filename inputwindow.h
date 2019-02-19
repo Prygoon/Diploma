@@ -1,8 +1,6 @@
 #ifndef INPUTWINDOW_H
 #define INPUTWINDOW_H
 
-#define SQL_QUERY_FOR_RAILCAR_MODEL "SELECT type, axle_count, mass, percent FROM railcars rc INNER JOIN railcars_map rc_m ON rc.id = rc_m.railcar_id;"
-
 #include <QDialog>
 #include <QCloseEvent>
 #include <QSqlQueryModel>
@@ -29,7 +27,7 @@ private:
     /* Объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */
     DataBase *db;
-    QSqlQueryModel *railcarsMapModel;
+    QSqlRelationalTableModel *railcarsMapModel;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
@@ -44,6 +42,11 @@ signals:
 private slots:
     void on_pushButton_cancel_clicked();
     void on_pushButton_addRailcar_clicked();
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void deleteLoco();
+    void submitModel();
+    void revertModel();
 };
 
 #endif // INPUTWINDOW_H

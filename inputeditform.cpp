@@ -21,8 +21,10 @@ InputEditForm::InputEditForm(QWidget *parent) :
     horizontalLayout->addItem(horizontalSpacer);
 
     railcar_comboBox = new QComboBox(this);
-    railcar_comboBox->setObjectName(QString::fromUtf8("railcar_comboBox"));
-    railcar_comboBox->setModelColumn(1);
+    railcar_comboBox->setObjectName("railcar_comboBox");
+
+
+
 
     horizontalLayout->addWidget(railcar_comboBox);
 
@@ -72,6 +74,13 @@ InputEditForm::InputEditForm(QWidget *parent) :
 
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+
+    if(isAllLineEditsEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    }
+
+    connect(mass_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(percent_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
 }
 
 InputEditForm::~InputEditForm()
@@ -81,10 +90,100 @@ InputEditForm::~InputEditForm()
 
 void InputEditForm::setModel(QAbstractItemModel *model)
 {
+    int railcarId1Index = static_cast<QSqlRelationalTableModel*>(model)->fieldIndex("nameplate");
+    QSqlTableModel *relModel = static_cast<QSqlRelationalTableModel*>(model)->relationModel(railcarId1Index);
+
+    //railcar_comboBox->setModelColumn(1);
+    railcar_comboBox->setModel(relModel);
+    railcar_comboBox->setModelColumn(relModel->fieldIndex("nameplate"));
+
     mapper->setModel(model);
-    mapper->addMapping(railcarType_comboBox, 1);
-    mapper->addMapping(railcarMass_lineEdit, 2);
-    mapper->addMapping(railcarPercent_lineEdit, 3);
+    mapper->setItemDelegate(new QSqlRelationalDelegate(this));
+    mapper->addMapping(railcar_comboBox, 1);
+    mapper->addMapping(mass_lineEdit, 2);
+    mapper->addMapping(percent_lineEdit, 3);
+}
+
+QDataWidgetMapper *InputEditForm::getMapper() const
+{
+    return mapper;
+}
+
+void InputEditForm::hideDeleteButton()
+{
+    ui->delete_pushButton->setHidden(true);
+}
+
+void InputEditForm::showDeleteButton()
+{
+    ui->delete_pushButton->setHidden(false);
+}
+
+void InputEditForm::disableSaveButton()
+{
+    ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+}
+
+void InputEditForm::enableSaveButton()
+{
+    ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+}
+
+void InputEditForm::createBlankForm()
+{
+    mass_lineEdit->setText("");
+    percent_lineEdit->setText("");
+}
+
+void InputEditForm::setWIndex(QModelIndex *value)
+{
+    wIndex = value;
+}
+
+QModelIndex *InputEditForm::getWIndex() const
+{
+    return wIndex;
+}
+
+void InputEditForm::closeEvent(QCloseEvent *event)
+{
+    event->accept();
+}
+
+bool InputEditForm::isAllLineEditsEmpty()
+{
+    return mass_lineEdit->text().isEmpty() || percent_lineEdit->text().isEmpty();
 }
 
 
+
+void InputEditForm::on_buttonBox_accepted()
+{
+    emit submitTableModel();
+    //mapper->submit();
+    close();
+}
+
+void InputEditForm::on_buttonBox_rejected()
+{
+    emit revertTableModel();
+    //mapper->revert();
+    close();
+}
+
+void InputEditForm::on_delete_pushButton_clicked()
+{
+    emit deleteLocoSignal();
+    //mapper->submit();
+    close();
+}
+
+void InputEditForm::onTextEdited()
+{
+    //Пока все поля не заполнены, кнопка ОК неактивна
+    if(isAllLineEditsEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+    }
+}
