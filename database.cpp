@@ -124,10 +124,12 @@ bool DataBase::createRailcarMapTable()
 
     if(!query.exec( "CREATE TABLE " TABLE_RAILCAR_MAP_NAME " ("
                     "id                          INTEGER    PRIMARY  KEY    AUTOINCREMENT ,"
-                    "railcar_id                  INTEGER    NOT NULL                      ,"
+                    "railcar_id1                 INTEGER    NOT NULL                      ,"
+                    "railcar_id2                 INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_MASS     " INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_PERCENT  " REAL       NOT NULL                      ,"
-                    "FOREIGN KEY (railcar_id) REFERENCES " TABLE_RAILCAR_NAME"(id)"
+                    "FOREIGN KEY (railcar_id1) REFERENCES " TABLE_RAILCAR_NAME"(id)       ,"
+                    "FOREIGN KEY (railcar_id2) REFERENCES " TABLE_RAILCAR_NAME"(id)"
                     " )"
                     )) {
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_MAP_NAME;

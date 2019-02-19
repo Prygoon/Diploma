@@ -2,6 +2,7 @@
 #define INPUTEDITFORM_H
 
 #include <QDialog>
+#include <QCloseEvent>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -15,6 +16,7 @@
 #include <QAbstractItemModel>
 #include "database.h"
 #include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
 
 namespace Ui {
 class InputEditForm;
@@ -30,10 +32,18 @@ public:
 
     void setModel(QAbstractItemModel *mapModel);
 
+    QDataWidgetMapper *getMapper() const;
+    void hideDeleteButton();
+    void showDeleteButton();
+    void disableSaveButton();
+    void enableSaveButton();
+    void createBlankForm();
+
+    void setWIndex(QModelIndex *value);
+    QModelIndex *getWIndex() const;
+
 private:
     Ui::InputEditForm *ui;
-
-    DataBase *db;
 
     //QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
@@ -57,6 +67,22 @@ private:
     QLineEdit* railcarPercent_lineEdit;
 
     QDataWidgetMapper* mapper;
+    QValidator* validator;
+    QModelIndex* wIndex;
+
+    void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
+    bool isAllLineEditsEmpty();
+
+signals:
+    void deleteLocoSignal();
+    void submitTableModel();
+    void revertTableModel();
+
+private slots:
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
+    void on_delete_pushButton_clicked();
+    void onTextEdited();
 
 };
 
