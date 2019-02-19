@@ -90,16 +90,18 @@ InputEditForm::~InputEditForm()
 
 void InputEditForm::setModel(QAbstractItemModel *model)
 {
-    int railcarId1Index = static_cast<QSqlRelationalTableModel*>(model)->fieldIndex("type");
+    int railcarId1Index = static_cast<QSqlRelationalTableModel*>(model)->fieldIndex("nameplate");
     QSqlTableModel *relModel = static_cast<QSqlRelationalTableModel*>(model)->relationModel(railcarId1Index);
+
+    //railcar_comboBox->setModelColumn(1);
     railcar_comboBox->setModel(relModel);
-    railcar_comboBox->setModelColumn(relModel->fieldIndex("type"));
+    railcar_comboBox->setModelColumn(relModel->fieldIndex("nameplate"));
 
     mapper->setModel(model);
     mapper->setItemDelegate(new QSqlRelationalDelegate(this));
     mapper->addMapping(railcar_comboBox, 1);
-    mapper->addMapping(mass_lineEdit, 3);
-    mapper->addMapping(percent_lineEdit, 4);
+    mapper->addMapping(mass_lineEdit, 2);
+    mapper->addMapping(percent_lineEdit, 3);
 }
 
 QDataWidgetMapper *InputEditForm::getMapper() const
@@ -158,7 +160,7 @@ bool InputEditForm::isAllLineEditsEmpty()
 void InputEditForm::on_buttonBox_accepted()
 {
     emit submitTableModel();
-    mapper->submit();
+    //mapper->submit();
     close();
 }
 

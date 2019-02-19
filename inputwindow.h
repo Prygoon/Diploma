@@ -1,8 +1,6 @@
 #ifndef INPUTWINDOW_H
 #define INPUTWINDOW_H
 
-//#define SQL_QUERY_FOR_RAILCAR_MODEL "SELECT rc.id, rc_m.id, type, axle_count, mass, percent FROM railcars rc INNER JOIN railcars_map rc_m ON rc.id = rc_m.railcar_id;"
-
 #include <QDialog>
 #include <QCloseEvent>
 #include <QSqlQueryModel>

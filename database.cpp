@@ -101,10 +101,11 @@ bool DataBase::createRailcarTable()
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     TABLE_RAILCAR_TYPE        " TEXT       NOT NULL,"
                     TABLE_RAILCAR_AXLE_COUNT  " INTEGER    NOT NULL,"
+                    TABLE_RAILCAR_NAMEPLATE	  " TEXT       NOT NULL    UNIQUE,"
                     TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_A_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_B_COEF      " REAL       NOT NULL,"
-                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL"
+                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL "
                     " )"
                     )){
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
@@ -124,12 +125,10 @@ bool DataBase::createRailcarMapTable()
 
     if(!query.exec( "CREATE TABLE " TABLE_RAILCAR_MAP_NAME " ("
                     "id                          INTEGER    PRIMARY  KEY    AUTOINCREMENT ,"
-                    "railcar_id1                 INTEGER    NOT NULL                      ,"
-                    "railcar_id2                 INTEGER    NOT NULL                      ,"
+                    "railcar_id                  INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_MASS     " INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_PERCENT  " REAL       NOT NULL                      ,"
-                    "FOREIGN KEY (railcar_id1) REFERENCES " TABLE_RAILCAR_NAME"(id)       ,"
-                    "FOREIGN KEY (railcar_id2) REFERENCES " TABLE_RAILCAR_NAME"(id)"
+                    "FOREIGN KEY (railcar_id) REFERENCES " TABLE_RAILCAR_NAME"(id)"
                     " )"
                     )) {
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_MAP_NAME;

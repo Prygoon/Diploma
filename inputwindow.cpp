@@ -15,7 +15,6 @@ InputWindow::InputWindow(QWidget *parent) :
     this->setupModel(TABLE_RAILCAR_MAP_NAME,
                      QStringList() << ("id")
                      << ("Тип вагона")
-                     << ("Количество осей")
                      << ("Масса брутто")
                      << ("Доля в составе"));
 
@@ -93,8 +92,7 @@ void InputWindow::setupModel(const QString &tableName, const QStringList &header
      * будет производится обращение в таблице */
     railcarsMapModel = new QSqlRelationalTableModel(this);
     railcarsMapModel->setTable(tableName);
-    railcarsMapModel->setRelation(1, (QSqlRelation(TABLE_RAILCAR_NAME, "id", TABLE_RAILCAR_TYPE)));
-    railcarsMapModel->setRelation(2, (QSqlRelation(TABLE_RAILCAR_NAME, "id", TABLE_RAILCAR_AXLE_COUNT)));
+    railcarsMapModel->setRelation(1, (QSqlRelation(TABLE_RAILCAR_NAME, "id", TABLE_RAILCAR_NAMEPLATE)));
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
     for(int i = 0; i < railcarsMapModel->columnCount(); i++){
@@ -120,6 +118,6 @@ void InputWindow::showTableView()
 
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableView->show();
+    //ui->tableView->show();
     railcarsMapModel->select(); // Делаем выборку данных из таблицы
 }

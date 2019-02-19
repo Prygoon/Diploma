@@ -27,6 +27,7 @@
 #define TABLE_RAILCAR_NAME       "railcars"
 #define TABLE_RAILCAR_TYPE       "type"
 #define TABLE_RAILCAR_AXLE_COUNT "axle_count"
+#define TABLE_RAILCAR_NAMEPLATE  "nameplate"
 #define TABLE_RAILCAR_K_COEF     "k_coefficient"
 #define TABLE_RAILCAR_A_COEF     "a_coefficient"
 #define TABLE_RAILCAR_B_COEF     "b_coefficient"

@@ -16,6 +16,7 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
                      QStringList() << ("id")
                      << ("Тип вагона")
                      << ("Количество осей")
+                     << ("nameplate")
                      << ("k")
                      << ("a")
                      << ("b")
@@ -30,6 +31,7 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
     connect(wRailcarEditForm, &RailcarEditForm::deleteRailcarSignal, this, &RailcarDbWindow::deleteRailcar);
     connect(wRailcarEditForm, &RailcarEditForm::submitTableModel, this, &RailcarDbWindow::submitModel);
     connect(wRailcarEditForm, &RailcarEditForm::revertTableModel, this, &RailcarDbWindow::revertModel);
+    connect(wRailcarEditForm, static_cast<void (RailcarEditForm::*)(QVariant const&)>(&RailcarEditForm::setNameplateData), this, &RailcarDbWindow::setNameplateData);
 }
 
 RailcarDbWindow::~RailcarDbWindow()
@@ -60,6 +62,7 @@ void RailcarDbWindow::on_pushButton_add_clicked()
     wRailcarEditForm->disableSaveButton();
     wRailcarEditForm->show();
     model->insertRow(model->rowCount(QModelIndex()));
+
     wRailcarEditForm->getMapper()->toLast();
 }
 
@@ -79,6 +82,14 @@ void RailcarDbWindow::revertModel()
 {
     wRailcarEditForm->getMapper()->revert();
     model->revertAll();
+}
+
+void RailcarDbWindow::setNameplateData(const QVariant &data)
+{
+    int aRow = model->rowCount() - 1;
+    QModelIndex localIndex = model->index(aRow, 3);
+    //model.
+    model->setData(localIndex, data);
 }
 
 /* Метод для инициализации модеи представления данных */
@@ -104,6 +115,7 @@ void RailcarDbWindow::showTableView()
 {
     ui->tableView->setModel(model);     // Устанавливаем модель на TableView
     ui->tableView->setColumnHidden(0, true);    // Скрываем колонку с id записей
+    ui->tableView->setColumnHidden(3, true);
     // Разрешаем выделение строк
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Устанавливаем режим выделения лишь одно строки в таблице

@@ -53,14 +53,19 @@ void RailcarEditForm::setModel(QAbstractItemModel *model)
     mapper->setModel(model);
     mapper->addMapping(ui->railcar_type_lineEdit, 1);
     mapper->addMapping(ui->axle_count_lineEdit, 2);
-    mapper->addMapping(ui->k_lineEdit, 3);
-    mapper->addMapping(ui->a_lineEdit, 4);
-    mapper->addMapping(ui->b_lineEdit, 5);
-    mapper->addMapping(ui->c_lineEdit, 6);
+
+    mapper->addMapping(ui->k_lineEdit, 4);
+    mapper->addMapping(ui->a_lineEdit, 5);
+    mapper->addMapping(ui->b_lineEdit, 6);
+    mapper->addMapping(ui->c_lineEdit, 7);
 }
 
 void RailcarEditForm::on_buttonBox_accepted()
 {
+
+    QString nameplate = ui->railcar_type_lineEdit->text() + ", " + ui->axle_count_lineEdit->text() + "-осный";
+    emit setNameplateData(nameplate);
+
     emit submitTableModel();
 }
 
