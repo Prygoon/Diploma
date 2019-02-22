@@ -38,6 +38,14 @@
 #define TABLE_RAILCAR_MAP_MASS    "mass"
 #define TABLE_RAILCAR_MAP_PERCENT "percent"
 
+//Таблица участков пути
+#define TABLE_TRACK_SECTION_NAME         "track_sections"
+#define TABLE_TRACK_SECTION_INDEX        "index"
+#define TABLE_TRACK_SECTION_LENGTH       "length"
+#define TABLE_TRACK_SECTION_SLOPE        "slope"
+#define TABLE_TRACK_SECTION_CURVE_LENGTH "curve_length"
+#define TABLE_TRACK_SECTION_CURVE_RADIUS "curve_radius"
+
 //Таблица проектов
 #define TABLE_PROJECT_NAME   "projects"
 #define TABLE_PROJECT_TITLE  "title"
@@ -77,7 +85,10 @@ private:
     bool createLocoTable();
     bool createRailcarTable();    
     bool createRailcarMapTable();
+    bool createTrackSectionsTable();
     bool createProjectTable();
+
+    bool createAllTables();
 };
 
 #endif // DATABASE_H

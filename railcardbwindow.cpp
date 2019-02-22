@@ -132,5 +132,6 @@ void RailcarDbWindow::showTableView()
 void RailcarDbWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
+    wRailcarEditForm->close();
     event->accept();
 }

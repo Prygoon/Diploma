@@ -28,7 +28,7 @@ void DataBase::connectToDataBase()
 bool DataBase::restoreDataBase()
 {
     if(this->openDataBase()){
-        if(!(this->createLocoTable() && this->createRailcarTable() && this->createRailcarMapTable() && this->createProjectTable())) {
+        if(!createAllTables()) {
             return false;
         } else {
             return true;
@@ -139,6 +139,33 @@ bool DataBase::createRailcarMapTable()
     }
 }
 
+//Метод для создания таблицы участков пути
+bool DataBase::createTrackSectionsTable()
+{
+    /* В данном случае используется формирование сырого SQL-запроса
+     * с последующим его выполнением. */
+    QSqlQuery query;
+
+    if(!query.exec( "CREATE TABLE " TABLE_TRACK_SECTION_NAME " ( "
+                    "id	                               INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    TABLE_TRACK_SECTION_INDEX        " INTEGER NOT NULL,"
+                    TABLE_TRACK_SECTION_LENGTH       " INTEGER NOT NULL,"
+                    TABLE_TRACK_SECTION_SLOPE        " REAL    NOT NULL,"
+                    TABLE_TRACK_SECTION_CURVE_LENGTH " INTEGER NOT NULL,"
+                    TABLE_TRACK_SECTION_CURVE_RADIUS " INTEGER NOT NULL,"
+                    "project_id	                       INTEGER NOT NULL,"
+                    "FOREIGN KEY (project_id) REFERENCES " TABLE_PROJECT_NAME"(id)"
+                    " )"
+                    )) {
+        qDebug() << "DataBase: error of create " << TABLE_TRACK_SECTION_NAME;
+        qDebug() << query.lastError().text();
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 // Метод для создания таблицы проектов в базе данных
 bool DataBase::createProjectTable()
 {
@@ -159,4 +186,13 @@ bool DataBase::createProjectTable()
     } else {
         return true;
     }
+}
+
+bool DataBase::createAllTables()
+{
+    return this->createLocoTable()
+            && this->createRailcarTable()
+            && this->createRailcarMapTable()
+            && this->createProjectTable()
+            && this->createTrackSectionsTable();
 }

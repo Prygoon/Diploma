@@ -22,8 +22,7 @@ InputWindow::InputWindow(QWidget *parent) :
 
     wInputEditForm = new InputEditForm();
     wInputEditForm->setParent(this, Qt::Window);
-    wInputEditForm->setModel(railcarsMapModel);
-
+    wInputEditForm->setModel(railcarsMapModel);    
     connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
     connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
     connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
@@ -37,6 +36,7 @@ InputWindow::~InputWindow()
 void InputWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
+    wInputEditForm->close();
     event->accept();
 }
 
