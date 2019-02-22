@@ -38,7 +38,8 @@ SOURCES += \
     railcardbwindow.cpp \
     locoeditform.cpp \
     railcareditform.cpp \
-    inputeditform.cpp
+    inputeditform.cpp \
+    tracksectionproxymodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     railcardbwindow.h \
     locoeditform.h \
     railcareditform.h \
-    inputeditform.h
+    inputeditform.h \
+    tracksectionproxymodel.h
 
 FORMS += \
         mainwindow.ui \

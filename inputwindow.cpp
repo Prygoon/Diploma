@@ -12,17 +12,30 @@ InputWindow::InputWindow(QWidget *parent) :
     db = &DataBase::Instance();
     db->connectToDataBase();
 
-    this->setupModel(TABLE_RAILCAR_MAP_NAME,
-                     QStringList() << ("id")
-                     << ("Тип вагона")
-                     << ("Масса брутто")
-                     << ("Доля в составе"));
+    this->setupRailcarTableModel(TABLE_RAILCAR_MAP_NAME,
+                                 QStringList() << ("id")
+                                 << ("Тип вагона")
+                                 << ("Масса брутто")
+                                 << ("Доля в составе")
+                                 << ("project_id"));
 
-    showTableView();
+    showRailcarTableView();
+
+    this->setupTrackModel(TABLE_TRACK_SECTION_NAME,
+                          QStringList() << ("id")
+                          << ("index")
+                          << ("Уклон")
+                          << ("Длина")
+                          << ("Длина кривой")
+                          << ("Радиус кривой")
+                          << ("project_id"));
+
+    showTrackTableView();
 
     wInputEditForm = new InputEditForm();
     wInputEditForm->setParent(this, Qt::Window);
-    wInputEditForm->setModel(railcarsMapModel);    
+    wInputEditForm->setModel(railcarsMapModel);
+
     connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
     connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
     connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
@@ -84,8 +97,8 @@ void InputWindow::revertModel()
     railcarsMapModel->revertAll();
 }
 
-/* Метод для инициализации модеи представления данных */
-void InputWindow::setupModel(const QString &tableName, const QStringList &headers)
+/* Метод для инициализации модеи представления данных вагонов*/
+void InputWindow::setupRailcarTableModel(const QString &tableName, const QStringList &headers)
 {
     /* Производим инициализацию модели представления данных
      * с установкой имени таблицы в базе данных, по которому
@@ -104,10 +117,11 @@ void InputWindow::setupModel(const QString &tableName, const QStringList &header
     railcarsMapModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
-void InputWindow::showTableView()
+void InputWindow::showRailcarTableView()
 {
     ui->tableView->setModel(railcarsMapModel);     // Устанавливаем модель на TableView
     ui->tableView->setColumnHidden(0, true);       // Скрываем колонку с id записей
+    ui->tableView->setColumnHidden(4, true);
 
     // Разрешаем выделение строк
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -120,4 +134,47 @@ void InputWindow::showTableView()
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->tableView->show();
     railcarsMapModel->select(); // Делаем выборку данных из таблицы
+}
+
+/* Метод для инициализации модеи представления данных участков пути */
+void InputWindow::setupTrackModel(const QString &tableName, const QStringList &headers)
+{
+    /* Производим инициализацию модели представления данных
+     * с установкой имени таблицы в базе данных, по которому
+     * будет производится обращение в таблице */
+    trackModel = new QSqlRelationalTableModel(this);
+    trackModel->setTable(tableName);
+
+    /* Устанавливаем названия колонок в таблице с сортировкой данных */
+    for(int i = 0; i < trackModel->columnCount(); i++){
+        trackModel->setHeaderData(i, Qt::Horizontal, headers[i]);
+    }
+
+    // Устанавливаем сортировку по возрастанию данных по нулевой колонке
+    railcarsMapModel->setSort(0, Qt::AscendingOrder);
+    railcarsMapModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+}
+
+void InputWindow::showTrackTableView()
+{
+    TrackSectionProxyModel *proxyModel = new TrackSectionProxyModel(this);
+    proxyModel->setSourceModel(trackModel);   // Кладем табличку на бок
+    ui->tableView_2->setModel(proxyModel);     // Устанавливаем модель на TableView
+    ui->tableView_2->setRowHidden(0, true);       // Скрываем колонку с id записей
+    ui->tableView_2->setRowHidden(1, true);
+    ui->tableView_2->setRowHidden(6, true);
+
+    // Разрешаем выделение строк
+    ui->tableView_2->setSelectionBehavior(QAbstractItemView::SelectColumns);
+    // Устанавливаем режим выделения лишь одно строки в таблице
+    ui->tableView_2->setSelectionMode(QAbstractItemView::SingleSelection);
+    // Устанавливаем размер колонок по содержимому
+    ui->tableView_2->resizeColumnsToContents();
+
+    ui->tableView_2->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView_2->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView_2->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableView_2->horizontalHeader()->setMinimumSectionSize(50);
+    //ui->tableView->show();
+    trackModel->select(); // Делаем выборку данных из таблицы
 }

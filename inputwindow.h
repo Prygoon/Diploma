@@ -5,6 +5,7 @@
 #include <QCloseEvent>
 #include <QSqlQueryModel>
 #include "inputeditform.h"
+#include "tracksectionproxymodel.h"
 #include "database.h"
 
 namespace Ui {
@@ -28,11 +29,15 @@ private:
      * и моделью представления таблицы базы данных */
     DataBase *db;
     QSqlRelationalTableModel *railcarsMapModel;
+    QSqlRelationalTableModel *trackModel;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
-    void setupModel(const QString &tableName, const QStringList &headers);
-    void showTableView();
+    void setupRailcarTableModel(const QString &tableName, const QStringList &headers);
+    void showRailcarTableView();
+
+    void setupTrackModel(const QString &tableName, const QStringList &headers);
+    void showTrackTableView();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
 

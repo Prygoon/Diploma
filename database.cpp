@@ -105,7 +105,9 @@ bool DataBase::createRailcarTable()
                     TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_A_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_B_COEF      " REAL       NOT NULL,"
-                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL "
+                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL,"
+                    "project_id	                   INTEGER NOT NULL,"
+                    "FOREIGN KEY (project_id) REFERENCES " TABLE_PROJECT_NAME"(id)"
                     " )"
                     )){
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
@@ -149,8 +151,8 @@ bool DataBase::createTrackSectionsTable()
     if(!query.exec( "CREATE TABLE " TABLE_TRACK_SECTION_NAME " ( "
                     "id	                               INTEGER PRIMARY KEY AUTOINCREMENT,"
                     TABLE_TRACK_SECTION_INDEX        " INTEGER NOT NULL,"
-                    TABLE_TRACK_SECTION_LENGTH       " INTEGER NOT NULL,"
                     TABLE_TRACK_SECTION_SLOPE        " REAL    NOT NULL,"
+                    TABLE_TRACK_SECTION_LENGTH       " INTEGER NOT NULL,"
                     TABLE_TRACK_SECTION_CURVE_LENGTH " INTEGER NOT NULL,"
                     TABLE_TRACK_SECTION_CURVE_RADIUS " INTEGER NOT NULL,"
                     "project_id	                       INTEGER NOT NULL,"

@@ -90,8 +90,8 @@ InputEditForm::~InputEditForm()
 
 void InputEditForm::setModel(QAbstractItemModel *model)
 {
-    int railcarId1Index = static_cast<QSqlRelationalTableModel*>(model)->fieldIndex("nameplate");
-    QSqlTableModel *relModel = static_cast<QSqlRelationalTableModel*>(model)->relationModel(railcarId1Index);
+    int railcarIdIndex = static_cast<QSqlRelationalTableModel*>(model)->fieldIndex("nameplate");
+    QSqlTableModel *relModel = static_cast<QSqlRelationalTableModel*>(model)->relationModel(railcarIdIndex);
 
     //railcar_comboBox->setModelColumn(1);
     railcar_comboBox->setModel(relModel);
@@ -147,6 +147,7 @@ QModelIndex *InputEditForm::getWIndex() const
 
 void InputEditForm::closeEvent(QCloseEvent *event)
 {
+    emit revertTableModel();
     event->accept();
 }
 
