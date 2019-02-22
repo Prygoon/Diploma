@@ -8,10 +8,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    wInputWindow = new InputWindow(this);
-    /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
-    connect(wInputWindow, &InputWindow::showMainWindow, this, &MainWindow::show);
-
 }
 
 MainWindow::~MainWindow()
@@ -21,6 +17,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_new_triggered()
 {
+    wInputWindow = new InputWindow(this);
+    wInputWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+
+    /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
+    connect(wInputWindow, &InputWindow::showMainWindow, this, &MainWindow::show);
     wInputWindow->show();
     this->hide();
 }
@@ -34,8 +35,9 @@ void MainWindow::on_action_loco_triggered()
 {
     wLocomotiveDbWindow = new LocomotiveDbWindow(this);
     wLocomotiveDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
-    connect(wLocomotiveDbWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
+    connect(wLocomotiveDbWindow, &LocomotiveDbWindow::showMainWindow, this, &MainWindow::show);
     wLocomotiveDbWindow->show();
     this->hide();
 }
@@ -44,8 +46,9 @@ void MainWindow::on_action_railcars_triggered()
 {
     wRailcarDbWindow = new RailcarDbWindow(this);
     wRailcarDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
+
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
-    connect(wRailcarDbWindow, SIGNAL(showMainWindow()), this, SLOT(show()));
+    connect(wRailcarDbWindow, &RailcarDbWindow::showMainWindow, this, &MainWindow::show);
     wRailcarDbWindow->show();
     this->hide();
 }

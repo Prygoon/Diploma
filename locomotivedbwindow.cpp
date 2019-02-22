@@ -118,6 +118,7 @@ void LocomotiveDbWindow::showTableView()
 void LocomotiveDbWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
+    wLocoEditForm->close();
     event->accept();
 }
 

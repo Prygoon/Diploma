@@ -1,10 +1,21 @@
 #include "tracksection.h"
 
-TrackSection::TrackSection(int length, double slope) :
-    length(length), slope(slope), calcClimb(false), curveLength(0), curveRadius(0)
+TrackSection::TrackSection(int index, int length, double slope) :
+    index(index), length(length), slope(slope), /*calcClimb(false),*/ curveLength(0), curveRadius(0)
 {
 
 }
+
+int TrackSection::getIndex() const
+{
+    return index;
+}
+
+void TrackSection::setIndex(int value)
+{
+    index = value;
+}
+
 
 int TrackSection::getLength() const
 {
@@ -26,15 +37,15 @@ void TrackSection::setSlope(double value)
     slope = value;
 }
 
-bool TrackSection::getCalcClimb() const
-{
-    return calcClimb;
-}
+//bool TrackSection::getCalcClimb() const
+//{
+//    return calcClimb;
+//}
 
-void TrackSection::setCalcClimb(bool value)
-{
-    calcClimb = value;
-}
+//void TrackSection::setCalcClimb(bool value)
+//{
+//    calcClimb = value;
+//}
 
 int TrackSection::getCurveLength() const
 {
