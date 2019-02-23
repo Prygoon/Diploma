@@ -32,13 +32,7 @@ InputWindow::InputWindow(QWidget *parent) :
 
     showTrackTableView();
 
-    wInputEditForm = new InputEditForm();
-    wInputEditForm->setParent(this, Qt::Window);
-    wInputEditForm->setModel(railcarsMapModel);
 
-    connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
-    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
-    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
 }
 
 InputWindow::~InputWindow()
@@ -49,7 +43,6 @@ InputWindow::~InputWindow()
 void InputWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
-    wInputEditForm->close();
     event->accept();
 }
 
@@ -61,21 +54,30 @@ void InputWindow::on_pushButton_cancel_clicked()
 
 void InputWindow::on_pushButton_addRailcar_clicked()
 {
+    setupInputEditForm();
+
+    wInputEditForm->setIsRailcalTableButtonsClicked(true);
     wInputEditForm->hideDeleteButton();
     wInputEditForm->createBlankForm();
     wInputEditForm->disableSaveButton();
     wInputEditForm->show();
     railcarsMapModel->insertRow(railcarsMapModel->rowCount(QModelIndex()));
     wInputEditForm->getMapper()->toLast();
+    wInputEditForm->setIsRailcalTableButtonsClicked(false);
+
 }
 
 void InputWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    setupInputEditForm();
+
+    wInputEditForm->setIsRailcalTableButtonsClicked(true);
     wInputEditForm->showDeleteButton();
     wInputEditForm->enableSaveButton();
     wInputEditForm->setWIndex(new QModelIndex(index));
     wInputEditForm->getMapper()->setCurrentModelIndex(index);
     wInputEditForm->show();
+    wInputEditForm->setIsRailcalTableButtonsClicked(false);
 }
 
 void InputWindow::deleteLoco()
@@ -136,6 +138,18 @@ void InputWindow::showRailcarTableView()
     railcarsMapModel->select(); // Делаем выборку данных из таблицы
 }
 
+void InputWindow::setupInputEditForm()
+{
+    wInputEditForm = new InputEditForm();
+    wInputEditForm->setParent(this, Qt::Window);
+    wInputEditForm->setAttribute(Qt::WA_DeleteOnClose);
+    wInputEditForm->setModel(railcarsMapModel);
+
+    connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
+    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
+    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
+}
+
 /* Метод для инициализации модеи представления данных участков пути */
 void InputWindow::setupTrackModel(const QString &tableName, const QStringList &headers)
 {
@@ -160,13 +174,13 @@ void InputWindow::showTrackTableView()
     TrackSectionProxyModel *proxyModel = new TrackSectionProxyModel(this);
     proxyModel->setSourceModel(trackModel);   // Кладем табличку на бок
     ui->tableView_2->setModel(proxyModel);     // Устанавливаем модель на TableView
-    ui->tableView_2->setRowHidden(0, true);       // Скрываем колонку с id записей
+    ui->tableView_2->setRowHidden(0, true);       // Скрываем ряд с id записей
     ui->tableView_2->setRowHidden(1, true);
     ui->tableView_2->setRowHidden(6, true);
 
-    // Разрешаем выделение строк
+    // Разрешаем выделение колонок
     ui->tableView_2->setSelectionBehavior(QAbstractItemView::SelectColumns);
-    // Устанавливаем режим выделения лишь одно строки в таблице
+    // Устанавливаем режим выделения лишь одной колонки в таблице
     ui->tableView_2->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
     ui->tableView_2->resizeColumnsToContents();
@@ -175,6 +189,6 @@ void InputWindow::showTrackTableView()
     ui->tableView_2->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView_2->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableView_2->horizontalHeader()->setMinimumSectionSize(50);
-    //ui->tableView->show();
+
     trackModel->select(); // Делаем выборку данных из таблицы
 }

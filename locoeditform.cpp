@@ -26,6 +26,8 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
+    this->setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
+
     if(isAllLineEditsEmpty()) {
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
