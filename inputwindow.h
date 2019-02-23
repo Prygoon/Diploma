@@ -36,6 +36,7 @@ private:
     void setupRailcarTableModel(const QString &tableName, const QStringList &headers);
     void showRailcarTableView();
 
+    void setupInputEditForm();
     void setupTrackModel(const QString &tableName, const QStringList &headers);
     void showTrackTableView();
 

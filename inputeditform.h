@@ -14,9 +14,9 @@
 #include <QVBoxLayout>
 #include <QDataWidgetMapper>
 #include <QAbstractItemModel>
-#include "database.h"
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
+//#include "inputwindow.h"
 
 namespace Ui {
 class InputEditForm;
@@ -42,20 +42,21 @@ public:
     void setWIndex(QModelIndex *value);
     QModelIndex *getWIndex() const;
 
+    void setIsRailcalTableButtonsClicked(bool value);
+
 private:
     Ui::InputEditForm *ui;
 
-    //QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout;
+    QHBoxLayout *railcarHorizontalLayout;
     QLabel *railcar_label;
     QSpacerItem *horizontalSpacer;
     QComboBox *railcar_comboBox;
-    QHBoxLayout *horizontalLayout_2;
+    QHBoxLayout *massHorizontalLayout;
     QLabel *mass_label;
     QSpacerItem *horizontalSpacer_2;
     QLineEdit *mass_lineEdit;
-    QHBoxLayout *horizontalLayout_3;
+    QHBoxLayout *percentHorizontalLayout;
     QLabel *percent_label;
     QSpacerItem *horizontalSpacer_3;
     QLineEdit *percent_lineEdit;
@@ -69,6 +70,12 @@ private:
     QDataWidgetMapper* mapper;
     QValidator* validator;
     QModelIndex* wIndex;
+
+    bool isRailcarTableButtonsClicked;
+
+    void setupRaicarLayout();
+    void setupMassLayout();
+    void setupPercentLayout();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     bool isAllLineEditsEmpty();

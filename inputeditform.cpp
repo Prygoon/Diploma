@@ -9,68 +9,16 @@ InputEditForm::InputEditForm(QWidget *parent) :
 
     verticalLayout = new QVBoxLayout();
     verticalLayout->setObjectName("verticalLayout");
-    horizontalLayout = new QHBoxLayout();
-    horizontalLayout->setObjectName("horizontalLayout");
-    railcar_label = new QLabel(this);
-    railcar_label->setObjectName("railcar_label");
 
-    horizontalLayout->addWidget(railcar_label);
-
-    horizontalSpacer = new QSpacerItem(13, 17, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    horizontalLayout->addItem(horizontalSpacer);
-
-    railcar_comboBox = new QComboBox(this);
-    railcar_comboBox->setObjectName("railcar_comboBox");
-
-
-
-
-    horizontalLayout->addWidget(railcar_comboBox);
-
-
-    verticalLayout->addLayout(horizontalLayout);
-
-    horizontalLayout_2 = new QHBoxLayout();
-    horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-    mass_label = new QLabel(this);
-    mass_label->setObjectName(QString::fromUtf8("mass_label"));
-
-    horizontalLayout_2->addWidget(mass_label);
-
-    horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    horizontalLayout_2->addItem(horizontalSpacer_2);
-
-    mass_lineEdit = new QLineEdit(this);
-    mass_lineEdit->setObjectName(QString::fromUtf8("mass_lineEdit"));
-
-    horizontalLayout_2->addWidget(mass_lineEdit);
-
-
-    verticalLayout->addLayout(horizontalLayout_2);
-
-    horizontalLayout_3 = new QHBoxLayout();
-    horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-    percent_label = new QLabel(this);
-    percent_label->setObjectName(QString::fromUtf8("percent_label"));
-
-    horizontalLayout_3->addWidget(percent_label);
-
-    horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    horizontalLayout_3->addItem(horizontalSpacer_3);
-
-    percent_lineEdit = new QLineEdit(this);
-    percent_lineEdit->setObjectName(QString::fromUtf8("percent_lineEdit"));
-
-    horizontalLayout_3->addWidget(percent_lineEdit);
-
-
-    verticalLayout->addLayout(horizontalLayout_3);
+    if(isRailcarTableButtonsClicked) {
+        setupRaicarLayout();
+        setupMassLayout();
+        setupPercentLayout();
+    }
 
     ui->gridLayout->addLayout(verticalLayout, 0, 0, 1, 1);
 
+    this->setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
 
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -143,6 +91,79 @@ void InputEditForm::setWIndex(QModelIndex *value)
 QModelIndex *InputEditForm::getWIndex() const
 {
     return wIndex;
+}
+
+void InputEditForm::setIsRailcalTableButtonsClicked(bool value)
+{
+    isRailcarTableButtonsClicked = value;
+}
+
+void InputEditForm::setupRaicarLayout()
+{
+    railcarHorizontalLayout = new QHBoxLayout();
+    railcarHorizontalLayout->setObjectName("railcarLayout");
+
+    railcar_label = new QLabel(this);
+    railcar_label->setObjectName("railcar_label");
+    railcar_label->setText("Тип вагона");
+
+    railcarHorizontalLayout->addWidget(railcar_label);
+
+    horizontalSpacer = new QSpacerItem(13, 17, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+    railcarHorizontalLayout->addItem(horizontalSpacer);
+
+    railcar_comboBox = new QComboBox(this);
+    railcar_comboBox->setObjectName("railcar_comboBox");
+
+    railcarHorizontalLayout->addWidget(railcar_comboBox);
+
+    verticalLayout->addLayout(railcarHorizontalLayout);
+}
+
+void InputEditForm::setupMassLayout()
+{
+    massHorizontalLayout = new QHBoxLayout();
+    massHorizontalLayout->setObjectName("mass_layout");
+
+    mass_label = new QLabel(this);
+    mass_label->setObjectName(QString::fromUtf8("mass_label"));
+    mass_label->setText("Масса");
+
+    massHorizontalLayout->addWidget(mass_label);
+
+    horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+    massHorizontalLayout->addItem(horizontalSpacer_2);
+
+    mass_lineEdit = new QLineEdit(this);
+    mass_lineEdit->setObjectName(QString::fromUtf8("mass_lineEdit"));
+
+    massHorizontalLayout->addWidget(mass_lineEdit);
+
+    verticalLayout->addLayout(massHorizontalLayout);
+}
+
+void InputEditForm::setupPercentLayout()
+{
+    percentHorizontalLayout = new QHBoxLayout();
+    percentHorizontalLayout->setObjectName("horizontalLayout_3");
+    percent_label = new QLabel(this);
+    percent_label->setObjectName("percent_label");
+    percent_label->setText("Доля вагонов в составе");
+
+    percentHorizontalLayout->addWidget(percent_label);
+
+    horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+    percentHorizontalLayout->addItem(horizontalSpacer_3);
+
+    percent_lineEdit = new QLineEdit(this);
+    percent_lineEdit->setObjectName("percent_lineEdit");
+
+    percentHorizontalLayout->addWidget(percent_lineEdit);
+
+    verticalLayout->addLayout(percentHorizontalLayout);
 }
 
 void InputEditForm::closeEvent(QCloseEvent *event)
