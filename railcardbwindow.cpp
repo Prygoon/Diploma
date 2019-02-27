@@ -23,15 +23,6 @@ RailcarDbWindow::RailcarDbWindow(QWidget *parent) :
                      << ("c"));
 
     showTableView();
-
-    wRailcarEditForm = new RailcarEditForm();
-    wRailcarEditForm->setParent(this, Qt::Window);
-    wRailcarEditForm->setModel(model);
-
-    connect(wRailcarEditForm, &RailcarEditForm::deleteRailcarSignal, this, &RailcarDbWindow::deleteRailcar);
-    connect(wRailcarEditForm, &RailcarEditForm::submitTableModel, this, &RailcarDbWindow::submitModel);
-    connect(wRailcarEditForm, &RailcarEditForm::revertTableModel, this, &RailcarDbWindow::revertModel);
-    connect(wRailcarEditForm, static_cast<void (RailcarEditForm::*)(QVariant const&)>(&RailcarEditForm::setNameplateData), this, &RailcarDbWindow::setNameplateData);
 }
 
 RailcarDbWindow::~RailcarDbWindow()
@@ -47,6 +38,8 @@ void RailcarDbWindow::on_pushButton_quit_clicked()
 
 void RailcarDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    setupRailcarEditForm();
+
     wRailcarEditForm->showDeleteButton();
     wRailcarEditForm->enableSaveButton();
     wRailcarEditForm->setWIndex(new QModelIndex(index));
@@ -57,6 +50,8 @@ void RailcarDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void RailcarDbWindow::on_pushButton_add_clicked()
 {
+    setupRailcarEditForm();
+
     wRailcarEditForm->hideDeleteButton();
     wRailcarEditForm->createBlankForm();
     wRailcarEditForm->disableSaveButton();
@@ -129,9 +124,22 @@ void RailcarDbWindow::showTableView()
     model->select(); // Делаем выборку данных из таблицы
 }
 
+void RailcarDbWindow::setupRailcarEditForm()
+{
+    wRailcarEditForm = new RailcarEditForm();
+    wRailcarEditForm->setParent(this, Qt::Window);
+    wRailcarEditForm->setAttribute(Qt::WA_DeleteOnClose);
+    wRailcarEditForm->setModal(true);
+    wRailcarEditForm->setModel(model);
+
+    connect(wRailcarEditForm, &RailcarEditForm::deleteRailcarSignal, this, &RailcarDbWindow::deleteRailcar);
+    connect(wRailcarEditForm, &RailcarEditForm::submitTableModel, this, &RailcarDbWindow::submitModel);
+    connect(wRailcarEditForm, &RailcarEditForm::revertTableModel, this, &RailcarDbWindow::revertModel);
+    connect(wRailcarEditForm, static_cast<void (RailcarEditForm::*)(QVariant const&)>(&RailcarEditForm::setNameplateData), this, &RailcarDbWindow::setNameplateData);
+}
+
 void RailcarDbWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
-    wRailcarEditForm->close();
     event->accept();
 }

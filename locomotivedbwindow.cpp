@@ -22,13 +22,6 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
 
     showTableView();
 
-    wLocoEditForm = new LocoEditForm();
-    wLocoEditForm->setParent(this, Qt::Window);
-    wLocoEditForm->setModel(model);
-
-    connect(wLocoEditForm, &LocoEditForm::deleteLocoSignal, this, &LocomotiveDbWindow::deleteLoco);
-    connect(wLocoEditForm, &LocoEditForm::submitTableModel, this, &LocomotiveDbWindow::submitModel);
-    connect(wLocoEditForm, &LocoEditForm::revertTableModel, this, &LocomotiveDbWindow::revertModel);
 }
 
 LocomotiveDbWindow::~LocomotiveDbWindow()
@@ -44,6 +37,8 @@ void LocomotiveDbWindow::on_pushButton_qiut_clicked()
 
 void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+    setupLocoEditForm();
+
     wLocoEditForm->showDeleteButton();
     wLocoEditForm->enableSaveButton();
     wLocoEditForm->setWIndex(new QModelIndex(index));
@@ -54,6 +49,8 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 void LocomotiveDbWindow::on_pushButton_add_clicked()
 {
+    setupLocoEditForm();
+
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->createBlankForm();
     wLocoEditForm->disableSaveButton();
@@ -115,10 +112,22 @@ void LocomotiveDbWindow::showTableView()
     model->select(); // Делаем выборку данных из таблицы
 }
 
+void LocomotiveDbWindow::setupLocoEditForm()
+{
+    wLocoEditForm = new LocoEditForm();
+    wLocoEditForm->setParent(this, Qt::Window);
+    wLocoEditForm->setAttribute(Qt::WA_DeleteOnClose);
+    wLocoEditForm->setModal(true);
+    wLocoEditForm->setModel(model);
+
+    connect(wLocoEditForm, &LocoEditForm::deleteLocoSignal, this, &LocomotiveDbWindow::deleteLoco);
+    connect(wLocoEditForm, &LocoEditForm::submitTableModel, this, &LocomotiveDbWindow::submitModel);
+    connect(wLocoEditForm, &LocoEditForm::revertTableModel, this, &LocomotiveDbWindow::revertModel);
+}
+
 void LocomotiveDbWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
-    wLocoEditForm->close();
     event->accept();
 }
 

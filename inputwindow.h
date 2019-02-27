@@ -29,16 +29,19 @@ private:
      * и моделью представления таблицы базы данных */
     DataBase *db;
     QSqlRelationalTableModel *railcarsMapModel;
-    QSqlRelationalTableModel *trackModel;
+    QSqlRelationalTableModel *trackSectionModel;
+    TrackSectionProxyModel *proxyModel;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
     void setupRailcarTableModel(const QString &tableName, const QStringList &headers);
     void showRailcarTableView();
 
-    void setupInputEditForm();
-    void setupTrackModel(const QString &tableName, const QStringList &headers);
-    void showTrackTableView();
+    void setupRailcarEditForm(QWidget *sender);
+    void setupTracSectionEditForm(QWidget *sender);
+
+    void setupTrackSectionModel(const QString &tableName, const QStringList &headers);
+    void showTrackSectionTableView();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
 
@@ -48,11 +51,13 @@ signals:
 private slots:
     void on_pushButton_cancel_clicked();
     void on_pushButton_addRailcar_clicked();
-    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_railcars_tableView_doubleClicked(const QModelIndex &index);
+    void on_trackSection_tableView_doubleClicked(const QModelIndex &index);
 
     void deleteLoco();
     void submitModel();
     void revertModel();
+    void on_addTrackSection_pushButton_clicked();
 };
 
 #endif // INPUTWINDOW_H
