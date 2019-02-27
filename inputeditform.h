@@ -12,11 +12,11 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QVBoxLayout>
+#include <QMessageBox>
 #include <QDataWidgetMapper>
 #include <QAbstractItemModel>
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
-//#include "inputwindow.h"
 
 namespace Ui {
 class InputEditForm;
@@ -27,58 +27,98 @@ class InputEditForm : public QDialog
     Q_OBJECT
 
 public:
-    explicit InputEditForm(QWidget *parent = nullptr);
+    explicit InputEditForm(QString *sendersName, QWidget *parent = nullptr);
     ~InputEditForm();
 
-    void setModel(QAbstractItemModel *mapModel);
+    void setRailcarModel(QAbstractItemModel *railcarMapModel);
+    void setTrackSectionModel(QAbstractItemModel *trackSectionModel);
 
     QDataWidgetMapper *getMapper() const;
     void hideDeleteButton();
     void showDeleteButton();
     void disableSaveButton();
     void enableSaveButton();
-    void createBlankForm();
+    void createRailcarBlankForm();
+    void createTrackSectionBlankForm();
 
     void setWIndex(QModelIndex *value);
     QModelIndex *getWIndex() const;
 
-    void setIsRailcalTableButtonsClicked(bool value);
-
 private:
     Ui::InputEditForm *ui;
 
-    QVBoxLayout *verticalLayout;
+    //Общий лэйаут
+    //QVBoxLayout *generalVerticalLayout;
+
+    //Лэйаут ввода типа вагона
     QHBoxLayout *railcarHorizontalLayout;
     QLabel *railcar_label;
     QSpacerItem *horizontalSpacer;
     QComboBox *railcar_comboBox;
+
+    //Лэйаут ввода массы вагона
     QHBoxLayout *massHorizontalLayout;
     QLabel *mass_label;
-    QSpacerItem *horizontalSpacer_2;
+    QSpacerItem *massHorizontalSpacer;
     QLineEdit *mass_lineEdit;
+
+    //Лэйаут ввода доли вагона
     QHBoxLayout *percentHorizontalLayout;
     QLabel *percent_label;
-    QSpacerItem *horizontalSpacer_3;
+    QSpacerItem *percentHorizontalSpacer;
     QLineEdit *percent_lineEdit;
 
-    QComboBox* railcarType_comboBox;
-    QLabel* railcarMass_label;
-    QLineEdit* railcarMass_lineEdit;
-    QLabel* railcarPercent_label_;
-    QLineEdit* railcarPercent_lineEdit;
+    //Лэйаут ввода порядкового номера участка пути
+    QHBoxLayout *trackSectionIndexHorizontalLayout;
+    QLabel *trackSectionIndex_label;
+    QSpacerItem *trackSectionIndexHorizontalSpacer;
+    QLineEdit *trackSectionIndex_lineEdit;
+
+    //Лэйаут ввода уклона участка пути
+    QHBoxLayout *trackSectionSlopeHorizontalLayout;
+    QLabel *trackSectionSlope_label;
+    QSpacerItem *trackSectionSlopeHorizontalSpacer;
+    QLineEdit *trackSectionSlope_lineEdit;
+
+    //Лэйаут ввода длины участка пути
+    QHBoxLayout *trackSectionLengthHorizontalLayout;
+    QLabel *trackSectionLength_label;
+    QSpacerItem *trackSectionLengthHorizontalSpacer;
+    QLineEdit *trackSectionLength_lineEdit;
+
+    //Лэйаут ввода длины кривой участка пути
+    QHBoxLayout *trackSectionCurveLengthHorizontalLayout;
+    QLabel *trackSectionCurveLength_label;
+    QSpacerItem *trackSectionCurveLengthHorizontalSpacer;
+    QLineEdit *trackSectionCurveLength_lineEdit;
+
+    //Лэйаут ввода порядкового номер участка пути
+    QHBoxLayout *trackSectionCurveRadiusHorizontalLayout;
+    QLabel *trackSectionCurveRadius_label;
+    QSpacerItem *trackSectionCurveRadiusHorizontalSpacer;
+    QLineEdit *trackSectionCurveRadius_lineEdit;
 
     QDataWidgetMapper* mapper;
     QValidator* validator;
     QModelIndex* wIndex;
 
-    bool isRailcarTableButtonsClicked;
-
+    //Методы установки формы ввода таблицы вагонов
     void setupRaicarLayout();
-    void setupMassLayout();
-    void setupPercentLayout();
+    void setupRailcarMassLayout();
+    void setupRailcarPercentLayout();
+    void setupRailcarForm();
+
+    //Методы установки формы ввода таблицы участков пути
+    void setupTrackSectionIndexLayout();
+    void setupTrackSectionSlopeLayout();
+    void setupTrackSectionLengthLayout();
+    void setupTrackSectionCurveLengthLayout();
+    void setupTrackSectionCurveRadiusLayout();
+    void setupTrackSectionForm();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
-    bool isAllLineEditsEmpty();
+    bool isRailcarFormEmpty();
+    bool isTrackSectionFormEmpty();
 
 signals:
     void deleteLocoSignal();
@@ -89,8 +129,7 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_delete_pushButton_clicked();
-    void onTextEdited();
-
+    void onTextEdited();  
 };
 
 #endif // INPUTEDITFORM_H

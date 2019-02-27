@@ -67,7 +67,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QTableView" name="tableView">
+             <widget class="QTableView" name="railcars_tableView">
               <property name="minimumSize">
                <size>
                 <width>500</width>
@@ -214,7 +214,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="addTrackSection_pushButton">
               <property name="text">
                <string>Добавить участок пути</string>
               </property>
@@ -223,7 +223,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableView" name="tableView_2"/>
+           <widget class="QTableView" name="trackSection_tableView"/>
           </item>
          </layout>
         </item>
