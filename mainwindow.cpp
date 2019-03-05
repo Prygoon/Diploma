@@ -52,3 +52,11 @@ void MainWindow::on_action_railcars_triggered()
     wRailcarDbWindow->show();
     this->hide();
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    TestLogic *test = new TestLogic(this);
+    test->setParent(this, Qt::Window);
+
+    test->show();
+}

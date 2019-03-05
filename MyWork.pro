@@ -39,7 +39,8 @@ SOURCES += \
     locoeditform.cpp \
     railcareditform.cpp \
     inputeditform.cpp \
-    tracksectionproxymodel.cpp
+    tracksectionproxymodel.cpp \
+    testlogic.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     locoeditform.h \
     railcareditform.h \
     inputeditform.h \
-    tracksectionproxymodel.h
+    tracksectionproxymodel.h \
+    testlogic.h
 
 FORMS += \
         mainwindow.ui \
@@ -64,7 +66,8 @@ FORMS += \
     railcardbwindow.ui \
     locoeditform.ui \
     railcareditform.ui \
-    inputeditform.ui
+    inputeditform.ui \
+    testlogic.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
