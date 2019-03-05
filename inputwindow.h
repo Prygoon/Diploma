@@ -54,7 +54,8 @@ private slots:
     void on_railcars_tableView_doubleClicked(const QModelIndex &index);
     void on_trackSection_tableView_doubleClicked(const QModelIndex &index);
 
-    void deleteLoco();
+    void deleteRailcar();
+    void deleteTrackSection();
     void submitModel();
     void revertModel();
     void on_addTrackSection_pushButton_clicked();

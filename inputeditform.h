@@ -16,7 +16,9 @@
 #include <QDataWidgetMapper>
 #include <QAbstractItemModel>
 #include <QSqlRelationalTableModel>
+#include <QSortFilterProxyModel>
 #include <QSqlRelationalDelegate>
+#include "tracksectionproxymodel.h"
 
 namespace Ui {
 class InputEditForm;
@@ -57,15 +59,15 @@ private:
     QComboBox *railcar_comboBox;
 
     //Лэйаут ввода массы вагона
-    QHBoxLayout *massHorizontalLayout;
-    QLabel *mass_label;
-    QSpacerItem *massHorizontalSpacer;
-    QLineEdit *mass_lineEdit;
+    QHBoxLayout *railcarMassHorizontalLayout;
+    QLabel *railcarMass_label;
+    QSpacerItem *railcarMassHorizontalSpacer;
+    QLineEdit *railcarMass_lineEdit;
 
     //Лэйаут ввода доли вагона
-    QHBoxLayout *percentHorizontalLayout;
-    QLabel *percent_label;
-    QSpacerItem *percentHorizontalSpacer;
+    QHBoxLayout *railcarPercentHorizontalLayout;
+    QLabel *railcarPercent_label;
+    QSpacerItem *railcarPercentHorizontalSpacer;
     QLineEdit *percent_lineEdit;
 
     //Лэйаут ввода порядкового номера участка пути
@@ -121,7 +123,7 @@ private:
     bool isTrackSectionFormEmpty();
 
 signals:
-    void deleteLocoSignal();
+    void deleteButtonSignal();
     void submitTableModel();
     void revertTableModel();
 

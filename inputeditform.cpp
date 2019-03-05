@@ -16,7 +16,7 @@ InputEditForm::InputEditForm(QString *senderName, QWidget *parent) :
         setupTrackSectionForm();
     }
 
-    setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
+    //setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
     setModal(true);
 
     mapper = new QDataWidgetMapper(this);
@@ -40,13 +40,14 @@ void InputEditForm::setRailcarModel(QAbstractItemModel *railcarMapModel)
     mapper->setModel(railcarMapModel);
     mapper->setItemDelegate(new QSqlRelationalDelegate(this));
     mapper->addMapping(railcar_comboBox, 1);
-    mapper->addMapping(mass_lineEdit, 2);
+    mapper->addMapping(railcarMass_lineEdit, 2);
     mapper->addMapping(percent_lineEdit, 3);
 }
 
-void InputEditForm::setTrackSectionModel(QAbstractItemModel *trackSectionModel)
+void InputEditForm::setTrackSectionModel(QAbstractItemModel *model)
 {
-    mapper->setModel(trackSectionModel);
+
+    mapper->setModel(model);
     mapper->addMapping(trackSectionIndex_lineEdit, 1);
     mapper->addMapping(trackSectionSlope_lineEdit, 2);
     mapper->addMapping(trackSectionLength_lineEdit, 3);
@@ -81,7 +82,7 @@ void InputEditForm::enableSaveButton()
 
 void InputEditForm::createRailcarBlankForm()
 {
-    mass_lineEdit->setText("");
+    railcarMass_lineEdit->setText("");
     percent_lineEdit->setText("");
 }
 
@@ -123,7 +124,7 @@ void InputEditForm::setupRailcarForm()
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
 
-    connect(mass_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(railcarMass_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
     connect(percent_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
 
     //ui->gridLayout->addLayout(ui->generalVerticalLayout, 0, 0, 1, 1);
@@ -151,6 +152,12 @@ void InputEditForm::setupTrackSectionForm()
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
 
+    connect(trackSectionIndex_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(trackSectionSlope_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(trackSectionLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(trackSectionCurveLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(trackSectionCurveRadius_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+
     //ui->gridLayout->addLayout(ui->generalVerticalLayout, 0, 0, 1, 1);
 }
 
@@ -176,42 +183,42 @@ void InputEditForm::setupRaicarLayout()
 
 void InputEditForm::setupRailcarMassLayout()
 {
-    massHorizontalLayout = new QHBoxLayout();
-    massHorizontalLayout->setObjectName("mass_layout");
+    railcarMassHorizontalLayout = new QHBoxLayout();
+    railcarMassHorizontalLayout->setObjectName("mass_layout");
 
-    mass_label = new QLabel(this);
-    mass_label->setObjectName("mass_label");
-    mass_label->setText("Масса");
-    massHorizontalLayout->addWidget(mass_label);
+    railcarMass_label = new QLabel(this);
+    railcarMass_label->setObjectName("mass_label");
+    railcarMass_label->setText("Масса");
+    railcarMassHorizontalLayout->addWidget(railcarMass_label);
 
-    massHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    massHorizontalLayout->addItem(massHorizontalSpacer);
+    railcarMassHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    railcarMassHorizontalLayout->addItem(railcarMassHorizontalSpacer);
 
-    mass_lineEdit = new QLineEdit(this);
-    mass_lineEdit->setObjectName("mass_lineEdit");
-    massHorizontalLayout->addWidget(mass_lineEdit);
+    railcarMass_lineEdit = new QLineEdit(this);
+    railcarMass_lineEdit->setObjectName("mass_lineEdit");
+    railcarMassHorizontalLayout->addWidget(railcarMass_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(1, massHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(1, railcarMassHorizontalLayout);
 }
 
 void InputEditForm::setupRailcarPercentLayout()
 {
-    percentHorizontalLayout = new QHBoxLayout();
-    percentHorizontalLayout->setObjectName("percent_horizontalLayout");
+    railcarPercentHorizontalLayout = new QHBoxLayout();
+    railcarPercentHorizontalLayout->setObjectName("percent_horizontalLayout");
 
-    percent_label = new QLabel(this);
-    percent_label->setObjectName("percent_label");
-    percent_label->setText("Доля вагонов в составе");
-    percentHorizontalLayout->addWidget(percent_label);
+    railcarPercent_label = new QLabel(this);
+    railcarPercent_label->setObjectName("percent_label");
+    railcarPercent_label->setText("Доля вагонов в составе");
+    railcarPercentHorizontalLayout->addWidget(railcarPercent_label);
 
-    percentHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    percentHorizontalLayout->addItem(percentHorizontalSpacer);
+    railcarPercentHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    railcarPercentHorizontalLayout->addItem(railcarPercentHorizontalSpacer);
 
     percent_lineEdit = new QLineEdit(this);
     percent_lineEdit->setObjectName("percent_lineEdit");
-    percentHorizontalLayout->addWidget(percent_lineEdit);
+    railcarPercentHorizontalLayout->addWidget(percent_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(2, percentHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(2, railcarPercentHorizontalLayout);
 }
 
 void InputEditForm::setupTrackSectionIndexLayout()
@@ -325,16 +332,16 @@ void InputEditForm::closeEvent(QCloseEvent *event)
 
 bool InputEditForm::isRailcarFormEmpty()
 {
-    return mass_lineEdit->text().isEmpty() || percent_lineEdit->text().isEmpty();
+    return railcarMass_lineEdit->text().isEmpty() || percent_lineEdit->text().isEmpty();
 }
 
 bool InputEditForm::isTrackSectionFormEmpty()
 {
     return trackSectionIndex_lineEdit->text().isEmpty()
             || trackSectionSlope_lineEdit->text().isEmpty()
-            || trackSectionLength_lineEdit->text().isEmpty()
-            || trackSectionCurveLength_lineEdit->text().isEmpty()
-            || trackSectionCurveRadius_lineEdit->text().isEmpty();
+            || trackSectionLength_lineEdit->text().isEmpty();
+            //|| trackSectionCurveLength_lineEdit->text().isEmpty()
+            //|| trackSectionCurveRadius_lineEdit->text().isEmpty();
 }
 
 
@@ -354,8 +361,8 @@ void InputEditForm::on_buttonBox_rejected()
 }
 
 void InputEditForm::on_delete_pushButton_clicked()
-{
-    emit deleteLocoSignal();
+{  
+    emit deleteButtonSignal();
     //mapper->submit();
     close();
 }
@@ -363,9 +370,17 @@ void InputEditForm::on_delete_pushButton_clicked()
 void InputEditForm::onTextEdited()
 {
     //Пока все поля не заполнены, кнопка ОК неактивна
-    if(isRailcarFormEmpty()) {
-        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
-    } else {
-        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+    if(sender()->objectName().contains("railcar")){
+        if(isRailcarFormEmpty()) {
+            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+        } else {
+            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+        }
+    } else if (sender()->objectName().contains("trackSection")) {
+        if(isTrackSectionFormEmpty()) {
+            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+        } else {
+            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+        }
     }
 }

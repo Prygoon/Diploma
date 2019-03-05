@@ -22,13 +22,13 @@ InputWindow::InputWindow(QWidget *parent) :
     showRailcarTableView();
 
     this->setupTrackSectionModel(TABLE_TRACK_SECTION_NAME,
-                          QStringList() << ("id")
-                          << ("index")
-                          << ("Уклон")
-                          << ("Длина")
-                          << ("Длина кривой")
-                          << ("Радиус кривой")
-                          << ("project_id"));
+                                 QStringList() << ("id")
+                                 << ("index")
+                                 << ("Уклон")
+                                 << ("Длина")
+                                 << ("Длина кривой")
+                                 << ("Радиус кривой")
+                                 << ("project_id"));
 
     showTrackSectionTableView();
 
@@ -60,7 +60,7 @@ void InputWindow::on_pushButton_addRailcar_clicked()
     wInputEditForm->createRailcarBlankForm();
     wInputEditForm->disableSaveButton();
     wInputEditForm->show();
-    railcarsMapModel->insertRow(railcarsMapModel->rowCount(QModelIndex()));
+    railcarsMapModel->insertColumn(railcarsMapModel->rowCount(QModelIndex()));
     wInputEditForm->getMapper()->toLast();
 }
 
@@ -70,6 +70,7 @@ void InputWindow::on_railcars_tableView_doubleClicked(const QModelIndex &index)
 
     wInputEditForm->showDeleteButton();
     wInputEditForm->enableSaveButton();
+
     wInputEditForm->setWIndex(new QModelIndex(index));
     wInputEditForm->getMapper()->setCurrentModelIndex(index);
     wInputEditForm->show();
@@ -83,33 +84,49 @@ void InputWindow::on_addTrackSection_pushButton_clicked()
     wInputEditForm->createTrackSectionBlankForm();
     wInputEditForm->disableSaveButton();
     wInputEditForm->show();
-    trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
+
+    proxyModel->insertRow(proxyModel->columnCount(QModelIndex()));
+    //trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
     wInputEditForm->getMapper()->toLast();
 }
 
 void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &index)
 {
+    QModelIndex proxyIndex = proxyModel->mapToSource(index);
+
     setupTracSectionEditForm(ui->trackSection_tableView);
 
     wInputEditForm->showDeleteButton();
     wInputEditForm->enableSaveButton();
 
-    wInputEditForm->getMapper()->setCurrentModelIndex(proxyModel->mapToSource(index)); //Где-то тут скрыта магия. НЕ ТРОГАТЬ!
+    wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
+    wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex); //Где-то тут скрыта магия. НЕ ТРОГАТЬ!
     wInputEditForm->show();
 }
 
-void InputWindow::deleteLoco()
+void InputWindow::deleteRailcar()
 {
-    //TODO: Починить
     railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
     wInputEditForm->getMapper()->submit();
     railcarsMapModel->submitAll();
 }
 
-void InputWindow::submitModel()
+void InputWindow::deleteTrackSection()
 {
+    proxyModel->sourceModel()->removeRow(wInputEditForm->getWIndex()->row());
     wInputEditForm->getMapper()->submit();
-    railcarsMapModel->submitAll();
+    proxyModel->sourceModel()->submit();
+}
+
+void InputWindow::submitModel()
+{ 
+    if (railcarsMapModel != nullptr) {
+        railcarsMapModel->submitAll();
+    } else if (proxyModel != nullptr) {
+        proxyModel->submit();
+    }
+
+    wInputEditForm->getMapper()->submit();
 }
 
 void InputWindow::revertModel()
@@ -163,9 +180,9 @@ void InputWindow::setupRailcarEditForm(QWidget *sender)
     wInputEditForm = new InputEditForm(widgetName);
     wInputEditForm->setParent(this, Qt::Window);
     wInputEditForm->setAttribute(Qt::WA_DeleteOnClose);
-    wInputEditForm->setRailcarModel(proxyModel);
+    wInputEditForm->setRailcarModel(railcarsMapModel);
 
-    connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
+    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::deleteRailcar);
     connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
     connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
 }
@@ -178,7 +195,7 @@ void InputWindow::setupTracSectionEditForm(QWidget *sender)
     wInputEditForm->setAttribute(Qt::WA_DeleteOnClose);
     wInputEditForm->setTrackSectionModel(trackSectionModel);
 
-    connect(wInputEditForm, &InputEditForm::deleteLocoSignal, this, &InputWindow::deleteLoco);
+    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::deleteTrackSection);
     connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
     connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
 }
