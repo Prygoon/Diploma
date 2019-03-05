@@ -9,6 +9,7 @@
 #include "inputwindow.h"
 #include "locomotivedbwindow.h"
 #include "railcardbwindow.h"
+#include "testlogic.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +30,8 @@ private slots:
     void on_action_close_triggered();
     void on_action_loco_triggered();
     void on_action_railcars_triggered();
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
