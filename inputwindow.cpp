@@ -111,13 +111,14 @@ void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &ind
 
 void InputWindow::onDeleteSignalRecieved()
 {
-    //wInputEditForm->getMapper()->submit();
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        wInputEditForm->getMapper()->submit();
         railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
         railcarsMapModel->submitAll();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        wInputEditForm->getMapper()->submit();
         trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
         trackSectionModel->submitAll();
     }
@@ -134,27 +135,29 @@ void InputWindow::onSubmitSignalReceived()
 { 
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
         setProjectId();
-        railcarsMapModel->submitAll();
+        //railcarsMapModel->submitAll();
+        wInputEditForm->getMapper()->submit();
+        qDebug() << railcarsMapModel->submitAll();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
         setProjectId();
+        wInputEditForm->getMapper()->submit();
         trackSectionModel->submitAll();
     }
-
-    wInputEditForm->getMapper()->submit();
 }
 
 void InputWindow::onRevertSignalReceived()
 {
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        wInputEditForm->getMapper()->revert();
         railcarsMapModel->revertAll();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        wInputEditForm->getMapper()->revert();
         trackSectionModel->revertAll();
     }
-    wInputEditForm->getMapper()->revert();
 }
 
 void InputWindow::setProjectId()

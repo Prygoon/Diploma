@@ -47,7 +47,6 @@ void InputEditForm::setRailcarModel(QAbstractItemModel *railcarMapModel)
 
 void InputEditForm::setTrackSectionModel(QAbstractItemModel *model)
 {
-
     mapper->setModel(model);
     mapper->addMapping(trackSectionIndex_lineEdit, 1);
     mapper->addMapping(trackSectionSlope_lineEdit, 2);
@@ -358,7 +357,7 @@ void InputEditForm::on_buttonBox_accepted()
 
     emit submitTableModel();
     //mapper->submit();
-    //close();
+    close();
 }
 
 void InputEditForm::on_buttonBox_rejected()
@@ -371,8 +370,8 @@ void InputEditForm::on_buttonBox_rejected()
 void InputEditForm::on_delete_pushButton_clicked()
 {  
     emit deleteButtonSignal();
-    mapper->submit();
-    //close();
+    //mapper->submit();
+    close();
 }
 
 void InputEditForm::onRailcarFormTextEdited()
