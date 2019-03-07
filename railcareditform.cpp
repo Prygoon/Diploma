@@ -64,7 +64,6 @@ void RailcarEditForm::setModel(QAbstractItemModel *model)
 
 void RailcarEditForm::on_buttonBox_accepted()
 {
-
     QString nameplate = ui->railcar_type_lineEdit->text() + ", " + ui->axle_count_lineEdit->text() + "-осный";
     emit setNameplateData(nameplate);
 

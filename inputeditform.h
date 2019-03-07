@@ -16,7 +16,9 @@
 #include <QDataWidgetMapper>
 #include <QAbstractItemModel>
 #include <QSqlRelationalTableModel>
+#include <QSortFilterProxyModel>
 #include <QSqlRelationalDelegate>
+#include "tracksectionproxymodel.h"
 
 namespace Ui {
 class InputEditForm;
@@ -44,6 +46,8 @@ public:
     void setWIndex(QModelIndex *value);
     QModelIndex *getWIndex() const;
 
+    QString *getSenderName() const;
+
 private:
     Ui::InputEditForm *ui;
 
@@ -57,15 +61,15 @@ private:
     QComboBox *railcar_comboBox;
 
     //Лэйаут ввода массы вагона
-    QHBoxLayout *massHorizontalLayout;
-    QLabel *mass_label;
-    QSpacerItem *massHorizontalSpacer;
-    QLineEdit *mass_lineEdit;
+    QHBoxLayout *railcarMassHorizontalLayout;
+    QLabel *railcarMass_label;
+    QSpacerItem *railcarMassHorizontalSpacer;
+    QLineEdit *railcarMass_lineEdit;
 
     //Лэйаут ввода доли вагона
-    QHBoxLayout *percentHorizontalLayout;
-    QLabel *percent_label;
-    QSpacerItem *percentHorizontalSpacer;
+    QHBoxLayout *railcarPercentHorizontalLayout;
+    QLabel *railcarPercent_label;
+    QSpacerItem *railcarPercentHorizontalSpacer;
     QLineEdit *percent_lineEdit;
 
     //Лэйаут ввода порядкового номера участка пути
@@ -101,6 +105,7 @@ private:
     QDataWidgetMapper* mapper;
     QValidator* validator;
     QModelIndex* wIndex;
+    QString *senderName;
 
     //Методы установки формы ввода таблицы вагонов
     void setupRaicarLayout();
@@ -121,15 +126,18 @@ private:
     bool isTrackSectionFormEmpty();
 
 signals:
-    void deleteLocoSignal();
+    void deleteButtonSignal();
     void submitTableModel();
     void revertTableModel();
+
+    //void writeProjectId();
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_delete_pushButton_clicked();
-    void onTextEdited();  
+    void onRailcarFormTextEdited();
+    void onTrackSectionFormTextEdited();
 };
 
 #endif // INPUTEDITFORM_H

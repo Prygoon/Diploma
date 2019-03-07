@@ -40,7 +40,7 @@
 
 //Таблица участков пути
 #define TABLE_TRACK_SECTION_NAME         "track_sections"
-#define TABLE_TRACK_SECTION_INDEX        "index"
+#define TABLE_TRACK_SECTION_INDEX        "serial number"
 #define TABLE_TRACK_SECTION_LENGTH       "length"
 #define TABLE_TRACK_SECTION_SLOPE        "slope"
 #define TABLE_TRACK_SECTION_CURVE_LENGTH "curve_length"

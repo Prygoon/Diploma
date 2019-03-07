@@ -120,11 +120,18 @@
              </layout>
             </item>
             <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Дополнительные параметры(если задано)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QLabel" name="label_5">
                 <property name="text">
-                 <string>TextLabel</string>
+                 <string>Длина ПО</string>
                 </property>
                </widget>
               </item>
@@ -151,7 +158,7 @@
               <item>
                <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>TextLabel</string>
+                 <string>Ограничение скорости</string>
                 </property>
                </widget>
               </item>

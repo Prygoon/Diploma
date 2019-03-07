@@ -105,9 +105,7 @@ bool DataBase::createRailcarTable()
                     TABLE_RAILCAR_K_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_A_COEF      " REAL       NOT NULL,"
                     TABLE_RAILCAR_B_COEF      " REAL       NOT NULL,"
-                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL,"
-                    "project_id	                   INTEGER NOT NULL,"
-                    "FOREIGN KEY (project_id) REFERENCES " TABLE_PROJECT_NAME"(id)"
+                    TABLE_RAILCAR_C_COEF      " REAL       NOT NULL "
                     " )"
                     )){
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
@@ -130,7 +128,9 @@ bool DataBase::createRailcarMapTable()
                     "railcar_id                  INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_MASS     " INTEGER    NOT NULL                      ,"
                     TABLE_RAILCAR_MAP_PERCENT  " REAL       NOT NULL                      ,"
-                    "FOREIGN KEY (railcar_id) REFERENCES " TABLE_RAILCAR_NAME"(id)"
+                    "project_id	                 INTEGER    NOT NULL                      ,"
+                    "FOREIGN KEY (railcar_id) REFERENCES " TABLE_RAILCAR_NAME"(id),"
+                    "FOREIGN KEY (project_id) REFERENCES " TABLE_PROJECT_NAME"(id)"
                     " )"
                     )) {
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_MAP_NAME;
@@ -153,8 +153,8 @@ bool DataBase::createTrackSectionsTable()
                     TABLE_TRACK_SECTION_INDEX        " INTEGER NOT NULL,"
                     TABLE_TRACK_SECTION_SLOPE        " REAL    NOT NULL,"
                     TABLE_TRACK_SECTION_LENGTH       " INTEGER NOT NULL,"
-                    TABLE_TRACK_SECTION_CURVE_LENGTH " INTEGER NOT NULL,"
-                    TABLE_TRACK_SECTION_CURVE_RADIUS " INTEGER NOT NULL,"
+                    TABLE_TRACK_SECTION_CURVE_LENGTH " INTEGER NOT NULL DEFAULT 0,"
+                    TABLE_TRACK_SECTION_CURVE_RADIUS " INTEGER NOT NULL DEFAULT 0,"
                     "project_id	                       INTEGER NOT NULL,"
                     "FOREIGN KEY (project_id) REFERENCES " TABLE_PROJECT_NAME"(id)"
                     " )"
@@ -177,9 +177,7 @@ bool DataBase::createProjectTable()
 
     if(!query.exec( "CREATE TABLE " TABLE_PROJECT_NAME " ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    "railcar_map_id              INTEGER    NOT NULL UNIQUE,"
-                    TABLE_PROJECT_TITLE        " TEXT       NOT NULL       ,"
-                    "FOREIGN KEY (railcar_map_id) REFERENCES " TABLE_RAILCAR_MAP_NAME"(id)"
+                    TABLE_PROJECT_TITLE        " TEXT       NOT NULL"
                     " )"
                     )) {
         qDebug() << "DataBase: error of create " << TABLE_RAILCAR_NAME;
@@ -192,9 +190,9 @@ bool DataBase::createProjectTable()
 
 bool DataBase::createAllTables()
 {
-    return this->createLocoTable()
-            && this->createRailcarTable()
-            && this->createRailcarMapTable()
-            && this->createProjectTable()
-            && this->createTrackSectionsTable();
+    return this->createProjectTable()
+            && createRailcarTable()
+            && createRailcarMapTable()
+            && createLocoTable()
+            && createTrackSectionsTable();
 }

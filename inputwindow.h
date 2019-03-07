@@ -5,7 +5,7 @@
 #include <QCloseEvent>
 #include <QSqlQueryModel>
 #include "inputeditform.h"
-#include "tracksectionproxymodel.h"
+//#include "tracksectionproxymodel.h"
 #include "database.h"
 
 namespace Ui {
@@ -30,7 +30,10 @@ private:
     DataBase *db;
     QSqlRelationalTableModel *railcarsMapModel;
     QSqlRelationalTableModel *trackSectionModel;
-    TrackSectionProxyModel *proxyModel;
+    //TrackSectionProxyModel *proxyModel;
+
+    QString *projectTitle;
+    int projectId;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
@@ -44,6 +47,7 @@ private:
     void showTrackSectionTableView();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
+    void setProjectId();
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
@@ -51,13 +55,14 @@ signals:
 private slots:
     void on_pushButton_cancel_clicked();
     void on_pushButton_addRailcar_clicked();
+    void on_addTrackSection_pushButton_clicked();
     void on_railcars_tableView_doubleClicked(const QModelIndex &index);
     void on_trackSection_tableView_doubleClicked(const QModelIndex &index);
 
-    void deleteLoco();
-    void submitModel();
-    void revertModel();
-    void on_addTrackSection_pushButton_clicked();
+    void onDeleteSignalRecieved();
+    //void deleteTrackSection();
+    void onSubmitSignalReceived();
+    void onRevertSignalReceived();
 };
 
 #endif // INPUTWINDOW_H
