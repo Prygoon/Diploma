@@ -48,8 +48,8 @@ void TestLogic::on_pushButton_clicked()
     // пока рандомный ввод для теста
     arIp.push_back(0);
     arLen.push_back(2000);
-    for (int i=1;i<10; i++){
-        arIp.push_back((qrand() % 150 - 50)*0.1);
+    for (int i = 1; i < 10; i++){
+        arIp.push_back((qrand() % 150 - 50) * 0.1);
         arLen.push_back(qrand() % 20000);
     }
     arTrack.push_back(arIp);
@@ -62,14 +62,14 @@ void TestLogic::on_pushButton_clicked()
     QVector <double> arCalcLen;
     QVector <double> arCalcNum;
     double maxIp;
-    int numIp;
+    int numIp = 0;
     QVector <double> arIpTemp = arIp;
 
 
-    for (int i=0; i< trackCount; i++)
+    for (int i = 0; i < trackCount; i++)
     {
         maxIp = -1000;
-        for (int j=0;j<arIpTemp.count();j++) {
+        for (int j = 0; j < arIpTemp.count(); j++) {
             if (arIpTemp[j] > maxIp){
                 numIp = j;
                 maxIp = arIpTemp[j];
@@ -89,33 +89,33 @@ void TestLogic::on_pushButton_clicked()
 
     // ------- //
     double w0lCurrent; // основное удельное сопротивление локомотива при расчетной скорости (потом нет)
-    w0lCurrent = w0l(calcVelocity);
+    w0lCurrent = w0l(CALC_VELOCITY);
     //qDebug() << w0lCurrent;
 
     // ------ //
     double w0llCurrent; //  основное удельное сопротивление состава при расчетной скорости (потом нет)
-    w0llCurrent = w0ll(calcVelocity);
+    w0llCurrent = w0ll(CALC_VELOCITY);
 
     // пока без алгоритма упрощения
-    double Q[trackCount] ; // масса для проверки
-    double ip ; // крутизна расчетного
+    double Q[trackCount]; // масса для проверки
+    double ip; // крутизна расчетного
 
-    double qMax;
+    double qMax = 0.0;
 
-    for (int experiment=0; experiment< trackCount; experiment++)
+    for (int experiment = 0; experiment < trackCount; experiment++)
     {
         qDebug() << "-----EXPIRIENCE-----" << experiment;
 
         ip = arCalcTrack[1][experiment];
-        trainMass = (CALC_THUST_FORCE - MASS*g*(w0lCurrent+ip))/((ip+w0llCurrent)*g);
-        trainMass = ceil(trainMass/50)*50; // округление до 50
+        trainMass = (CALC_THUST_FORCE - MASS * g * (w0lCurrent + ip)) / ((ip + w0llCurrent) * g);
+        trainMass = ceil(trainMass / 50) * 50; // округление до 50
 
         // ----- //
         // если задана длина П-О путей
-        if (lenStation>0) {
+        if (lenStation > 0) {
             double trainLenght;
             trainLenght = lenTrain(trainMass);
-            while (lenStation<trainLenght){
+            while (lenStation < trainLenght){
                 trainMass=trainMass - massAccuracy;
                 trainLenght = lenTrain(trainMass);
             }
@@ -128,7 +128,7 @@ void TestLogic::on_pushButton_clicked()
         do {
             checkMass = true;
 
-            double isec ; // крутизна
+            double isec; // крутизна
             double lengsec;  // длинна
 
             Q[experiment] = trainMass;
@@ -138,38 +138,38 @@ void TestLogic::on_pushButton_clicked()
 
             if (experiment != 0)
             {
-                for (int k=0; k < experiment; k++){
-                    isec = arCalcTrack[1][experiment-1-k];
-                    lengsec = arCalcTrack[2][experiment-1-k];
+                for (int k = 0; k < experiment; k++){
+                    isec = arCalcTrack[1][experiment - 1 - k];
+                    lengsec = arCalcTrack[2][experiment - 1 - k];
                     // qDebug() << "isec = " << isec;
                     //    qDebug() << "lengsec = " << lengsec;
 
 
-                    fW0 = tableS(trainMass,MASS);
+                    fW0 = tableS(trainMass, MASS);
                     calcVelParamUpdate(trainMass);
                     //  qDebug() << "calcVelParam= " << calcVelParam;
 
-                    double minSpeed = ceil(calcVelocity/10)*10;  // для пути
-                    double S = pathSum(minSpeed,calcVelocity,isec);
+                    double minSpeed = ceil(CALC_VELOCITY / 10) * 10;  // для пути
+                    double S = pathSum(minSpeed, CALC_VELOCITY, isec);
                     //   qDebug() << "Scalc= " << S << "/" << lengsec << "|" << minSpeed;
 
-                    do{
-                        if (minSpeed>testSpeed){
+                    do {
+                        if (minSpeed > testSpeed){
                             qDebug() << "Не въедет";
-                            trainMass=trainMass - massAccuracy*10;
+                            trainMass = trainMass - massAccuracy * 10;
                             if (trainMass > qMax)
                             {
                                 checkMass = false;
                             } else {
-                                Q[experiment]=0;
+                                Q[experiment] = 0;
                                 qDebug() << "Не въедет совсем";
                             }
                             break;
                         }
-                        S += pathSum(minSpeed+10,minSpeed,isec);
+                        S += pathSum(minSpeed + 10, minSpeed, isec);
                         minSpeed += 10;
                         //      qDebug() << "S= " << S << "/" << lengsec << "|" << minSpeed;
-                    } while (S<lengsec);
+                    } while (S < lengsec);
                     if (S > lengsec)
                     {
                         qMax = trainMass;
@@ -184,7 +184,7 @@ void TestLogic::on_pushButton_clicked()
 
     double maxQ = 0;
     // int numIp;
-    for (int i=0; i<trackCount; i++){
+    for (int i = 0; i < trackCount; i++){
         if (maxQ < Q[i])
         {
             numIp = static_cast<int>(arCalcTrack[0][i]);
@@ -195,18 +195,18 @@ void TestLogic::on_pushButton_clicked()
     // обновим данные таблицы
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ;
-    fW0 = tableS(trainMass,MASS);
+    fW0 = tableS(trainMass, MASS);
     showTable();
 
     QVector <double> deltaFW0;
-    for (int i=0; i<fW0.length()-1; i++) {
-        deltaFW0.push_back((fW0[i]+fW0[i+1])/2);
+    for (int i  = 0; i < fW0.length() - 1; i++) {
+        deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
     }
     qDebug() << "Дельта" << deltaFW0 ;
 
     double maxSpeed = 90; // пока без решения тормозной задачи
     double distanse = 0;
-    for (int i=0; i<arLen.length(); i++) {
+    for (int i  =0; i < arLen.length(); i++) {
         distanse += arLen[i];
     }
     qDebug() << "Весь путь" << distanse ;
@@ -230,33 +230,33 @@ void TestLogic::on_pushButton_clicked()
     do {
         currentS = 0;
         do {
-            FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed/10))] - arIp[currentSector];
-          //  qDebug() << "1" << deltaFW0[static_cast<int>(floor(currentSpeed/10))] << FwosrIp;
+            FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed / 10))] - arIp[currentSector];
+            //  qDebug() << "1" << deltaFW0[static_cast<int>(floor(currentSpeed/10))] << FwosrIp;
             if (FwosrIp > 0) {
                 stepV = abs(stepV);
             } else {
                 stepV = -abs(stepV);
             }
-           // qDebug() << "2" << stepV;
-            if ((currentSpeed+stepV) > maxSpeed) {
+            // qDebug() << "2" << stepV;
+            if ((currentSpeed + stepV) > maxSpeed) {
                 //currentSpeed -= stepV;
                 //addPoint = pathPoint(currentSpeed, currentSpeed, FwosrIp);
                 currentS = arLen[currentSector];
             } else {
-                addPoint = pathPoint(currentSpeed+stepV, currentSpeed, FwosrIp);
+                addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
                 currentSpeed += stepV;
                 currentS += addPoint;
             }
 
-          //  qDebug() << "S" << addPoint << arLen[currentSector];
+            //  qDebug() << "S" << addPoint << arLen[currentSector];
 
             pointV.push_back(currentSpeed);
 
-            pointS.push_back(currentS+S);
+            pointS.push_back(currentS + S);
         } while (currentS < arLen[currentSector]);
-        currentSector ++ ;
+        currentSector++ ;
         S += currentS;
-    } while (S<distanse);
+    } while (S < distanse);
 
     qDebug() << "S" << pointS;
     qDebug() << "V" << pointV;
@@ -280,9 +280,9 @@ double TestLogic::w0ll(const double v)
 
 
     // FIXME цикл для каждого из вагонов
-    for (int i=0; i<2; i++){
-        qUnit = MASSR[i]/AXLE_COUNT[i];
-        w = w + perc[i] * (k[i] + (a[i] + b[i]*v + c[i]*v*v)/qUnit);
+    for (int i = 0; i < 2; i++){
+        qUnit = MASSR[i] / AXLE_COUNT[i];
+        w = w + perc[i] * (k[i] + (a[i] + b[i] * v + c[i] * v * v) / qUnit);
     }
 
     return w;
@@ -294,21 +294,21 @@ double TestLogic::w0l(const double v)
     double b = 0.01;  // основное удельное сопротивление локомотива
     double c = 0.0003; //
 
-    return (a + b*v + c*v*v);
+    return (a + b * v + c * v * v);
 }
 
 double TestLogic::lenTrain(const double Q)
 {
     // из базы вагонов
-    int MASSR[2] = {88,176}; //Масса вагона
-    double perc[2] = {0.68,0.32}; // PROPORTION;
-    int lenght[2] = {15,20}; // Длины вагонов, добавить в базу
+    int MASSR[2] = {88, 176}; //Масса вагона
+    double perc[2] = {0.68, 0.32}; // PROPORTION;
+    int lenght[2] = {15, 20}; // Длины вагонов, добавить в базу
     // из базы локомотива
     double locoLenght = 74.4; // Длина локомотива
 
     double lenghtTrain = locoLenght + 10; // +10 - запас длины на неточность установки
-    for (int i=0;i<2;i++) {
-        lenghtTrain += floor(perc[i]*Q/MASSR[i])*lenght[i]; // вагоны не дробные, округляем-с
+    for (int i = 0; i < 2; i++) {
+        lenghtTrain += floor(perc[i] * Q / MASSR[i]) * lenght[i]; // вагоны не дробные, округляем-с
     }
     return lenghtTrain;
 }
@@ -317,17 +317,17 @@ double TestLogic::pathSum(const double vMax, const double vMin, const double ip)
 {
 
     double Fwosr; // для расчетов, не знаю, как обозвать
-    int numMax = static_cast<int>(floor(vMax/10));
-    int numMin = static_cast<int>(floor(vMin/10));
+    int numMax = static_cast<int>(floor(vMax / 10));
+    int numMin = static_cast<int>(floor(vMin / 10));
 
 
-    if (fabs(vMin - calcVelocity) < EPS) {
-        Fwosr = (fW0.value(numMax)+calcVelParam[6])/2;
+    if (fabs(vMin - CALC_VELOCITY) < EPS) {
+        Fwosr = (fW0.value(numMax) + calcVelParam[6]) / 2;
     } else {
-        Fwosr = (fW0.value(numMax)+fW0.value(numMin))/2;
+        Fwosr = (fW0.value(numMax) + fW0.value(numMin)) / 2;
     }
-    double path = 4.17 * ((vMin*vMin - vMax*vMax)/(Fwosr-ip));
-    path = path < 0 ?  0 : path ;
+    double path = 4.17 * ((vMin * vMin - vMax * vMax) / (Fwosr - ip));
+    path = path < 0 ?  0 : path;
 
     return path;
 
@@ -335,8 +335,8 @@ double TestLogic::pathSum(const double vMax, const double vMin, const double ip)
 
 double TestLogic::pathPoint(const double vMax, const double vMin, const double Fwosrip)
 {
-    double path = 4.17 * ((vMax*vMax - vMin*vMin)/(Fwosrip));
-  //  path = path < 0 ?  0 : path ;
+    double path = 4.17 * ((vMax * vMax - vMin * vMin) / (Fwosrip));
+    //  path = path < 0 ?  0 : path ;
 
     return path;
 }
@@ -361,22 +361,22 @@ QVector<double> TestLogic::tableS(double trainMass, int locoMass)
     double F[11] = {1458,1336,1154,830,613,491,410,351,312,274,239};
 
     for (int i = 0; i < 11; i++) {
-        bigTable[i][0] = i*10;
+        bigTable[i][0] = i  * 10;
         bigTable[i][1] = F[i];
         // тяга
-        bigTable[i][2] = w0l(bigTable[i][0])*g*locoMass;
-        bigTable[i][3] = w0ll(bigTable[i][0])*g*trainMass;
-        bigTable[i][4] = bigTable[i][2] +bigTable[i][3] ;
-        bigTable[i][5] = 1000 * bigTable[i][1] - bigTable[i][4] ;
-        bigTable[i][6] = bigTable[i][5]/((locoMass+trainMass)*g);
+        bigTable[i][2] = w0l(bigTable[i][0]) * g * locoMass;
+        bigTable[i][3] = w0ll(bigTable[i][0]) * g * trainMass;
+        bigTable[i][4] = bigTable[i][2] + bigTable[i][3];
+        bigTable[i][5] = 1000 * bigTable[i][1] - bigTable[i][4];
+        bigTable[i][6] = bigTable[i][5] / ((locoMass+trainMass) * g);
         fW0.push_back(bigTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
         // ХХ
-        bigTable[i][7] = k_hh + a_hh*bigTable[i][0] + b_hh*bigTable[i][0]*bigTable[i][0];
+        bigTable[i][7] = k_hh + a_hh * bigTable[i][0] + b_hh * bigTable[i][0] * bigTable[i][0];
         bigTable[i][8] = bigTable[i][7] * g * locoMass;
         bigTable[i][9] = bigTable[i][3] + bigTable[i][8];
-        bigTable[i][10] = bigTable[i][9]/((locoMass+trainMass)*g); // вторая для диаграммы
+        bigTable[i][10] = bigTable[i][9] / ((locoMass + trainMass) * g); // вторая для диаграммы
         // торможение
-        bigTable[i][11] = k_tt *((bigTable[i][0]*a_tt)/(b_tt*bigTable[i][0]+a_tt));
+        bigTable[i][11] = k_tt * ((bigTable[i][0] * a_tt) / (b_tt * bigTable[i][0] + a_tt));
         //  bigTable[i][12] =   еще не готово
         //  bigTable[i][13] =
         //   bigTable[i][14] =
@@ -393,13 +393,13 @@ void TestLogic::calcVelParamUpdate(double trainMass)
 {
     // ----- // параметры для расчетной скорости
     calcVelParam.clear();
-    calcVelParam.push_back(calcVelocity);
+    calcVelParam.push_back(CALC_VELOCITY);
     calcVelParam.push_back(992);  // F Изменить
-    calcVelParam.push_back(w0l(calcVelocity)*g*MASS);
-    calcVelParam.push_back(w0ll(calcVelocity)*g*trainMass);
-    calcVelParam.push_back(calcVelParam[2]+calcVelParam[3]);
-    calcVelParam.push_back(1000*calcVelParam[1]-calcVelParam[4]);
-    calcVelParam.push_back(calcVelParam[5]/((MASS+trainMass)*g));
+    calcVelParam.push_back(w0l(CALC_VELOCITY) * g * MASS);
+    calcVelParam.push_back(w0ll(CALC_VELOCITY) * g * trainMass);
+    calcVelParam.push_back(calcVelParam[2] + calcVelParam[3]);
+    calcVelParam.push_back(1000*calcVelParam[1] - calcVelParam[4]);
+    calcVelParam.push_back(calcVelParam[5] / ((MASS + trainMass) * g));
 
 }
 
@@ -408,12 +408,20 @@ void TestLogic::showTable()
     model = new QStandardItemModel();
     for (int i = 0; i < 15; i++) {
         for (int j = 0; j < 11; j++) {
-            item = new QStandardItem(QString::number(bigTable[j][i],'f',2));
+            item = new QStandardItem(QString::number(bigTable[j][i], 'f', 2));
             model->setItem(j, i, item);
         }
     }
-    ui->tableView->setModel(model);
 
+    ui->tableView->setModel(model);
+    //ui->tableView->resizeRowsToContents();
+    //ui->tableView->resizeColumnsToContents();
+
+    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
+    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
 
 }
 

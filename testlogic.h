@@ -6,18 +6,19 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QVector>
+#include <math.h>
 
-// ИНФО ЛОКОМОТИВ, ИЗ БАЗЫ
+// ИНФО ЛОКОМОТИВ, ИЗ БАЗЫ написано капсом специально для дебилов
 #define CALC_THUST_FORCE  992000
 #define CONSTRUCTION_VELOCITY  100
-#define calcVelocity  24.6 // CALC_VELOCITY
+#define CALC_VELOCITY  24.6 // CALC_VELOCITY
 #define MASS 552
 
 
 #define trackCount 3 // количество участков для проверки расчетного
 #define massAccuracy  50 // шаг снижения массы для рассчетов
 #define lenStation 0 // приемно-отправочные пути, если задано
-#define EPS 1e-12
+#define EPS 1e-12  // Его не надо подписывать
 #define testSpeed 70 // временно для проверки
 
 
@@ -44,7 +45,7 @@ private:
     QStandardItemModel *model;
     QStandardItem *item;
 
-    QVector <QVector <double> > arCalcTrack;
+    QVector <QVector <double>> arCalcTrack;
     double trainMass; // масса состава
     double mainIp; //расчетный подъем
     QVector <double> calcVelParam; // кусок таблицы для расчетной скорости
