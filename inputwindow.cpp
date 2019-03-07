@@ -98,7 +98,6 @@ void InputWindow::on_addTrackSection_pushButton_clicked()
 void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &index)
 {
     //QModelIndex proxyIndex = proxyModel->mapToSource(index);
-
     setupTracSectionEditForm(ui->trackSection_tableView);
 
     wInputEditForm->showDeleteButton();
@@ -118,6 +117,7 @@ void InputWindow::onDeleteSignalRecieved()
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+
         wInputEditForm->getMapper()->submit();
         trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
         trackSectionModel->submitAll();
@@ -135,9 +135,8 @@ void InputWindow::onSubmitSignalReceived()
 { 
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
         setProjectId();
-        //railcarsMapModel->submitAll();
         wInputEditForm->getMapper()->submit();
-        qDebug() << railcarsMapModel->submitAll();
+        railcarsMapModel->submitAll();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
@@ -259,8 +258,8 @@ void InputWindow::setupTrackSectionModel(const QString &tableName, const QString
     }
 
     // Устанавливаем сортировку по возрастанию данных по нулевой колонке
-    railcarsMapModel->setSort(0, Qt::AscendingOrder);
-    railcarsMapModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    trackSectionModel->setSort(0, Qt::AscendingOrder);
+    trackSectionModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 
 void InputWindow::showTrackSectionTableView()
@@ -276,7 +275,7 @@ void InputWindow::showTrackSectionTableView()
     // Устанавливаем режим выделения лишь одного ряда в таблице
     ui->trackSection_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
-    ui->trackSection_tableView->resizeRowsToContents();
+    ui->trackSection_tableView->resizeColumnsToContents();
 
     ui->trackSection_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);

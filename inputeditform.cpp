@@ -45,9 +45,9 @@ void InputEditForm::setRailcarModel(QAbstractItemModel *railcarMapModel)
     mapper->addMapping(percent_lineEdit, 3);
 }
 
-void InputEditForm::setTrackSectionModel(QAbstractItemModel *model)
+void InputEditForm::setTrackSectionModel(QAbstractItemModel *TrackSectionModel)
 {
-    mapper->setModel(model);
+    mapper->setModel(TrackSectionModel);
     mapper->addMapping(trackSectionIndex_lineEdit, 1);
     mapper->addMapping(trackSectionSlope_lineEdit, 2);
     mapper->addMapping(trackSectionLength_lineEdit, 3);
@@ -354,7 +354,6 @@ bool InputEditForm::isTrackSectionFormEmpty()
 void InputEditForm::on_buttonBox_accepted()
 {
     //emit writeProjectId();
-
     emit submitTableModel();
     //mapper->submit();
     close();
