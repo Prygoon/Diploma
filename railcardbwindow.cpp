@@ -79,7 +79,7 @@ void RailcarDbWindow::revertModel()
     model->revertAll();
 }
 
-void RailcarDbWindow::setNameplateData(const QVariant &data)
+void RailcarDbWindow::onSetNameplateDataSignalReceived(const QVariant &data)
 {
     int aRow = model->rowCount() - 1;
     QModelIndex localIndex = model->index(aRow, 3);
@@ -135,7 +135,7 @@ void RailcarDbWindow::setupRailcarEditForm()
     connect(wRailcarEditForm, &RailcarEditForm::deleteRailcarSignal, this, &RailcarDbWindow::deleteRailcar);
     connect(wRailcarEditForm, &RailcarEditForm::submitTableModel, this, &RailcarDbWindow::submitModel);
     connect(wRailcarEditForm, &RailcarEditForm::revertTableModel, this, &RailcarDbWindow::revertModel);
-    connect(wRailcarEditForm, static_cast<void (RailcarEditForm::*)(QVariant const&)>(&RailcarEditForm::setNameplateData), this, &RailcarDbWindow::setNameplateData);
+    connect(wRailcarEditForm, static_cast<void (RailcarEditForm::*)(QVariant const&)>(&RailcarEditForm::setNameplateData), this, &RailcarDbWindow::onSetNameplateDataSignalReceived);
 }
 
 void RailcarDbWindow::closeEvent(QCloseEvent *event)

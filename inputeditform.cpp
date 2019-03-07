@@ -3,14 +3,15 @@
 
 InputEditForm::InputEditForm(QString *senderName, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::InputEditForm)
+    ui(new Ui::InputEditForm),
+    senderName(senderName)
 {
     ui->setupUi(this);
 
     //generalVerticalLayout = new QVBoxLayout();
     //generalVerticalLayout->setObjectName("generalVerticalLayout");
 
-    if(senderName == QString("pushButton_addRailcar") || senderName == QString("railcars_tableView")) {
+    if(this->senderName == QString("pushButton_addRailcar") || this->senderName == QString("railcars_tableView")) {
         setupRailcarForm();
     } else {
         setupTrackSectionForm();
@@ -91,8 +92,8 @@ void InputEditForm::createTrackSectionBlankForm()
     trackSectionIndex_lineEdit->setText("");
     trackSectionSlope_lineEdit->setText("");
     trackSectionLength_lineEdit->setText("");
-    trackSectionCurveLength_lineEdit->setText("");
-    trackSectionCurveRadius_lineEdit->setText("");
+    trackSectionCurveLength_lineEdit->setText("0");
+    trackSectionCurveRadius_lineEdit->setText("0");
 }
 
 void InputEditForm::setWIndex(QModelIndex *value)
@@ -103,6 +104,11 @@ void InputEditForm::setWIndex(QModelIndex *value)
 QModelIndex *InputEditForm::getWIndex() const
 {
     return wIndex;
+}
+
+QString *InputEditForm::getSenderName() const
+{
+    return senderName;
 }
 
 void InputEditForm::setupRailcarForm()
@@ -124,8 +130,8 @@ void InputEditForm::setupRailcarForm()
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
 
-    connect(railcarMass_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
-    connect(percent_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(railcarMass_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onRailcarFormTextEdited);
+    connect(percent_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onRailcarFormTextEdited);
 
     //ui->gridLayout->addLayout(ui->generalVerticalLayout, 0, 0, 1, 1);
 }
@@ -152,11 +158,11 @@ void InputEditForm::setupTrackSectionForm()
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
 
-    connect(trackSectionIndex_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
-    connect(trackSectionSlope_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
-    connect(trackSectionLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
-    connect(trackSectionCurveLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
-    connect(trackSectionCurveRadius_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTextEdited);
+    connect(trackSectionIndex_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
+    connect(trackSectionSlope_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
+    connect(trackSectionLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
+    connect(trackSectionCurveLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
+    connect(trackSectionCurveRadius_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
 
     //ui->gridLayout->addLayout(ui->generalVerticalLayout, 0, 0, 1, 1);
 }
@@ -340,17 +346,19 @@ bool InputEditForm::isTrackSectionFormEmpty()
     return trackSectionIndex_lineEdit->text().isEmpty()
             || trackSectionSlope_lineEdit->text().isEmpty()
             || trackSectionLength_lineEdit->text().isEmpty();
-            //|| trackSectionCurveLength_lineEdit->text().isEmpty()
-            //|| trackSectionCurveRadius_lineEdit->text().isEmpty();
+    //|| trackSectionCurveLength_lineEdit->text().isEmpty()
+    //|| trackSectionCurveRadius_lineEdit->text().isEmpty();
 }
 
 
 
 void InputEditForm::on_buttonBox_accepted()
 {
+    //emit writeProjectId();
+
     emit submitTableModel();
     //mapper->submit();
-    close();
+    //close();
 }
 
 void InputEditForm::on_buttonBox_rejected()
@@ -363,24 +371,25 @@ void InputEditForm::on_buttonBox_rejected()
 void InputEditForm::on_delete_pushButton_clicked()
 {  
     emit deleteButtonSignal();
-    //mapper->submit();
-    close();
+    mapper->submit();
+    //close();
 }
 
-void InputEditForm::onTextEdited()
+void InputEditForm::onRailcarFormTextEdited()
 {
     //Пока все поля не заполнены, кнопка ОК неактивна
-    if(sender()->objectName().contains("railcar")){
-        if(isRailcarFormEmpty()) {
-            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
-        } else {
-            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
-        }
-    } else if (sender()->objectName().contains("trackSection")) {
-        if(isTrackSectionFormEmpty()) {
-            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
-        } else {
-            ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
-        }
+    if(isRailcarFormEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
+    }
+}
+
+void InputEditForm::onTrackSectionFormTextEdited()
+{
+    if(isTrackSectionFormEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
     }
 }

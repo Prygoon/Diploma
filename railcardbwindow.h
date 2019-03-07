@@ -47,7 +47,7 @@ private slots:
     void deleteRailcar();
     void submitModel();
     void revertModel();
-    void setNameplateData(const QVariant &data);
+    void onSetNameplateDataSignalReceived(const QVariant &data);
 };
 
 #endif // RAILCARDBWINDOW_H

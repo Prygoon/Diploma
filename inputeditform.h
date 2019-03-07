@@ -46,6 +46,8 @@ public:
     void setWIndex(QModelIndex *value);
     QModelIndex *getWIndex() const;
 
+    QString *getSenderName() const;
+
 private:
     Ui::InputEditForm *ui;
 
@@ -103,6 +105,7 @@ private:
     QDataWidgetMapper* mapper;
     QValidator* validator;
     QModelIndex* wIndex;
+    QString *senderName;
 
     //Методы установки формы ввода таблицы вагонов
     void setupRaicarLayout();
@@ -127,11 +130,14 @@ signals:
     void submitTableModel();
     void revertTableModel();
 
+    //void writeProjectId();
+
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_delete_pushButton_clicked();
-    void onTextEdited();  
+    void onRailcarFormTextEdited();
+    void onTrackSectionFormTextEdited();
 };
 
 #endif // INPUTEDITFORM_H

@@ -12,6 +12,11 @@ InputWindow::InputWindow(QWidget *parent) :
     db = &DataBase::Instance();
     db->connectToDataBase();
 
+    /* Поля проекта определены статически для тестов
+     * TODO: сделать подгрузку динамически из БД */
+    projectId = 1;
+    projectTitle = new QString("Test");
+
     this->setupRailcarTableModel(TABLE_RAILCAR_MAP_NAME,
                                  QStringList() << ("id")
                                  << ("Тип вагона")
@@ -23,7 +28,7 @@ InputWindow::InputWindow(QWidget *parent) :
 
     this->setupTrackSectionModel(TABLE_TRACK_SECTION_NAME,
                                  QStringList() << ("id")
-                                 << ("index")
+                                 << ("№ п/п")
                                  << ("Уклон")
                                  << ("Длина")
                                  << ("Длина кривой")
@@ -60,7 +65,8 @@ void InputWindow::on_pushButton_addRailcar_clicked()
     wInputEditForm->createRailcarBlankForm();
     wInputEditForm->disableSaveButton();
     wInputEditForm->show();
-    railcarsMapModel->insertColumn(railcarsMapModel->rowCount(QModelIndex()));
+
+    railcarsMapModel->insertRow(railcarsMapModel->rowCount(QModelIndex()));
     wInputEditForm->getMapper()->toLast();
 }
 
@@ -85,54 +91,85 @@ void InputWindow::on_addTrackSection_pushButton_clicked()
     wInputEditForm->disableSaveButton();
     wInputEditForm->show();
 
-    proxyModel->insertRow(proxyModel->columnCount(QModelIndex()));
-    //trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
+    trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
     wInputEditForm->getMapper()->toLast();
 }
 
 void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &index)
 {
-    QModelIndex proxyIndex = proxyModel->mapToSource(index);
+    //QModelIndex proxyIndex = proxyModel->mapToSource(index);
 
     setupTracSectionEditForm(ui->trackSection_tableView);
 
     wInputEditForm->showDeleteButton();
     wInputEditForm->enableSaveButton();
 
-    wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
-    wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex); //Где-то тут скрыта магия. НЕ ТРОГАТЬ!
+    wInputEditForm->setWIndex(new QModelIndex(index));
+    wInputEditForm->getMapper()->setCurrentModelIndex(index);
     wInputEditForm->show();
 }
 
-void InputWindow::deleteRailcar()
+void InputWindow::onDeleteSignalRecieved()
 {
-    railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
-    wInputEditForm->getMapper()->submit();
-    railcarsMapModel->submitAll();
-}
-
-void InputWindow::deleteTrackSection()
-{
-    proxyModel->sourceModel()->removeRow(wInputEditForm->getWIndex()->row());
-    wInputEditForm->getMapper()->submit();
-    proxyModel->sourceModel()->submit();
-}
-
-void InputWindow::submitModel()
-{ 
-    if (railcarsMapModel != nullptr) {
+    //wInputEditForm->getMapper()->submit();
+    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
         railcarsMapModel->submitAll();
-    } else if (proxyModel != nullptr) {
-        proxyModel->submit();
+    }
+
+    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
+        trackSectionModel->submitAll();
+    }
+}
+
+//void InputWindow::deleteTrackSection()
+//{
+//    trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
+//    wInputEditForm->getMapper()->submit();
+//    trackSectionModel->submit();
+//}
+
+void InputWindow::onSubmitSignalReceived()
+{ 
+    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        setProjectId();
+        railcarsMapModel->submitAll();
+    }
+
+    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        setProjectId();
+        trackSectionModel->submitAll();
     }
 
     wInputEditForm->getMapper()->submit();
 }
 
-void InputWindow::revertModel()
+void InputWindow::onRevertSignalReceived()
 {
+    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        railcarsMapModel->revertAll();
+    }
+
+    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        trackSectionModel->revertAll();
+    }
     wInputEditForm->getMapper()->revert();
-    railcarsMapModel->revertAll();
+}
+
+void InputWindow::setProjectId()
+{
+    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+        int aRow = railcarsMapModel->rowCount() - 1;
+        QModelIndex localIndex = railcarsMapModel->index(aRow, 4);
+        railcarsMapModel->setData(localIndex, projectId);
+    }
+
+    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+        int aRow = trackSectionModel->rowCount() - 1;
+        QModelIndex localIndex = trackSectionModel->index(aRow, 6);
+        trackSectionModel->setData(localIndex, projectId);
+    }
 }
 
 /* Метод для инициализации модеи представления данных вагонов*/
@@ -144,6 +181,7 @@ void InputWindow::setupRailcarTableModel(const QString &tableName, const QString
     railcarsMapModel = new QSqlRelationalTableModel(this);
     railcarsMapModel->setTable(tableName);
     railcarsMapModel->setRelation(1, (QSqlRelation(TABLE_RAILCAR_NAME, "id", TABLE_RAILCAR_NAMEPLATE)));
+    railcarsMapModel->setRelation(4, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
     for(int i = 0; i < railcarsMapModel->columnCount(); i++){
@@ -159,7 +197,7 @@ void InputWindow::showRailcarTableView()
 {
     ui->railcars_tableView->setModel(railcarsMapModel);     // Устанавливаем модель на TableView
     ui->railcars_tableView->setColumnHidden(0, true);       // Скрываем колонку с id записей
-    ui->railcars_tableView->setColumnHidden(4, true);
+    //ui->railcars_tableView->setColumnHidden(4, true);
 
     // Разрешаем выделение строк
     ui->railcars_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -182,9 +220,10 @@ void InputWindow::setupRailcarEditForm(QWidget *sender)
     wInputEditForm->setAttribute(Qt::WA_DeleteOnClose);
     wInputEditForm->setRailcarModel(railcarsMapModel);
 
-    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::deleteRailcar);
-    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
-    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
+    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::onDeleteSignalRecieved);
+    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::onSubmitSignalReceived);
+    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::onRevertSignalReceived);
+    //connect(wInputEditForm, &InputEditForm::writeProjectId, this, &InputWindow::onWriteProjectIdSignalReceived);
 }
 
 void InputWindow::setupTracSectionEditForm(QWidget *sender)
@@ -195,9 +234,10 @@ void InputWindow::setupTracSectionEditForm(QWidget *sender)
     wInputEditForm->setAttribute(Qt::WA_DeleteOnClose);
     wInputEditForm->setTrackSectionModel(trackSectionModel);
 
-    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::deleteTrackSection);
-    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::submitModel);
-    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::revertModel);
+    connect(wInputEditForm, &InputEditForm::deleteButtonSignal, this, &InputWindow::onDeleteSignalRecieved);
+    connect(wInputEditForm, &InputEditForm::submitTableModel, this, &InputWindow::onSubmitSignalReceived);
+    connect(wInputEditForm, &InputEditForm::revertTableModel, this, &InputWindow::onRevertSignalReceived);
+    //connect(wInputEditForm, &InputEditForm::writeProjectId, this, &InputWindow::onWriteProjectIdSignalReceived);
 }
 
 /* Метод для инициализации модеи представления данных участков пути */
@@ -208,6 +248,7 @@ void InputWindow::setupTrackSectionModel(const QString &tableName, const QString
      * будет производится обращение в таблице */
     trackSectionModel = new QSqlRelationalTableModel(this);
     trackSectionModel->setTable(tableName);
+    trackSectionModel->setRelation(6, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
     for(int i = 0; i < trackSectionModel->columnCount(); i++){
@@ -221,24 +262,23 @@ void InputWindow::setupTrackSectionModel(const QString &tableName, const QString
 
 void InputWindow::showTrackSectionTableView()
 {
-    proxyModel = new TrackSectionProxyModel(this);
-    proxyModel->setSourceModel(trackSectionModel);   // Кладем табличку на бок
-    ui->trackSection_tableView->setModel(proxyModel);     // Устанавливаем модель на TableView
-    ui->trackSection_tableView->setRowHidden(0, true);       // Скрываем ряд с id записей
-    ui->trackSection_tableView->setRowHidden(1, true);
-    ui->trackSection_tableView->setRowHidden(6, true);
+    //proxyModel = new TrackSectionProxyModel(this);
+    //proxyModel->setSourceModel(trackSectionModel);   // Кладем табличку на бок
+    ui->trackSection_tableView->setModel(trackSectionModel);     // Устанавливаем модель на TableView
+    ui->trackSection_tableView->setColumnHidden(0, true);       // Скрываем ряд с id записей
+    //ui->trackSection_tableView->setColumnHidden(6, true);
 
-    // Разрешаем выделение колонок
-    ui->trackSection_tableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
-    // Устанавливаем режим выделения лишь одной колонки в таблице
+    // Разрешаем выделение рядов
+    ui->trackSection_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // Устанавливаем режим выделения лишь одного ряда в таблице
     ui->trackSection_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
-    ui->trackSection_tableView->resizeColumnsToContents();
+    ui->trackSection_tableView->resizeRowsToContents();
 
     ui->trackSection_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->trackSection_tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->trackSection_tableView->horizontalHeader()->setMinimumSectionSize(50);
+    ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //ui->trackSection_tableView->horizontalHeader()->setMinimumSectionSize(50);
 
     trackSectionModel->select(); // Делаем выборку данных из таблицы
 }
