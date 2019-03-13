@@ -6,7 +6,7 @@
 
 QT       += core gui sql
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = MyWork
 TEMPLATE = app
@@ -40,7 +40,8 @@ SOURCES += \
     railcareditform.cpp \
     inputeditform.cpp \
     tracksectionproxymodel.cpp \
-    testlogic.cpp
+    testlogic.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -57,7 +58,8 @@ HEADERS += \
     railcareditform.h \
     inputeditform.h \
     tracksectionproxymodel.h \
-    testlogic.h
+    testlogic.h \
+    qcustomplot.h
 
 FORMS += \
         mainwindow.ui \

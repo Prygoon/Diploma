@@ -220,7 +220,7 @@ void TestLogic::on_pushButton_clicked()
     pointV.push_back(0);
 
     // FIXME блок
-    int stepV = 5; //шаг скоростей
+    int stepV = 1; //шаг скоростей
     double currentSpeed = 0;
     int currentSector = 0;
     double addPoint;
@@ -262,6 +262,12 @@ void TestLogic::on_pushButton_clicked()
     qDebug() << "V" << pointV;
 
 
+    ui->plotWidget->clearGraphs(); // Очистка предыдущих графиков
+    ui->plotWidget->addGraph();
+    ui->plotWidget->graph(0)->setData(pointS, pointV);
+    ui->plotWidget->xAxis->setRange(0, distanse + 50);
+    ui->plotWidget->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
+    ui->plotWidget->replot();
 }
 
 double TestLogic::w0ll(const double v)
