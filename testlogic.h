@@ -20,6 +20,7 @@
 #define lenStation 0 // приемно-отправочные пути, если задано
 #define EPS 1e-12  // Его не надо подписывать
 #define testSpeed 70 // временно для проверки
+#define railcarsTypeCount 2 // количество типов вагонов
 
 
 namespace Ui {
@@ -49,12 +50,26 @@ private:
     double trainMass; // масса состава
     double mainIp; //расчетный подъем
     QVector <double> calcVelParam; // кусок таблицы для расчетной скорости
-    QVector <double> fW0; // столбец таблицы
+    QVector <double> fW0; // столбец таблицы, тяга
+    QVector <double> w0xbt; // столбец таблицы, торможение
 
     QVector <double> pointS;
     QVector <double> pointV;
 
     double bigTable[11][15];  // таблица
+
+
+    // массив для пути
+    QVector <QVector <double> > arTrack;
+    QVector <double> arIp;
+    QVector <double> arLen;
+
+
+    // где-то тут должен быть массив данных о вагончиках
+    QVector <double> railcarsCount;  // пока только количество
+    QVector <double> railcarsMass; // и масса
+    QVector <double> railcarsProportions;  // и пропорции понадобились
+    // добавить длину как минимум, мб и коэффициенты сюда, но не факт
 
     double w0ll(const double v); // основное удельное сопротивление поезда
     double w0l(const double v); // основное удельное сопротивление локомотива
@@ -64,10 +79,12 @@ private:
 
     QVector<double> tableS (double trainMass, int locoMass); // вектор
 
-    void calcVelParamUpdate(double trainMass);
+    void calcVelParamUpdate();
+    void railcarsCountUpdate();
+    void trainMassUpdate();
     void showTable();
 
-
+    void setValues();
 
 };
 

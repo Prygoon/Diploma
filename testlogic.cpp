@@ -39,23 +39,7 @@ TestLogic::~TestLogic()
 
 void TestLogic::on_pushButton_clicked()
 {
-
-    // тест крутизна расчетного
-    QVector <QVector <double> > arTrack;
-    QVector <double> arIp;
-    QVector <double> arLen;
-
-    // пока рандомный ввод для теста
-    arIp.push_back(0);
-    arLen.push_back(2000);
-    for (int i = 1; i < 10; i++){
-        arIp.push_back((qrand() % 150 - 50) * 0.1);
-        arLen.push_back(qrand() % 20000);
-    }
-    arTrack.push_back(arIp);
-    arTrack.push_back(arLen);
-    qDebug() << arTrack;
-    // конец рандомного ввода, внести из исходных данных
+    setValues();
 
     // вспомогательные массивы для нахождения расчетного
     QVector <double> arCalcIp;
@@ -110,6 +94,7 @@ void TestLogic::on_pushButton_clicked()
         trainMass = (CALC_THUST_FORCE - MASS * g * (w0lCurrent + ip)) / ((ip + w0llCurrent) * g);
         trainMass = ceil(trainMass / 50) * 50; // округление до 50
 
+        railcarsCountUpdate();
         // ----- //
         // если задана длина П-О путей
         if (lenStation > 0) {
@@ -133,7 +118,7 @@ void TestLogic::on_pushButton_clicked()
 
             Q[experiment] = trainMass;
             qDebug() << "trainMass = " << trainMass;
-            calcVelParamUpdate(trainMass);
+            calcVelParamUpdate();
 
 
             if (experiment != 0)
@@ -146,7 +131,7 @@ void TestLogic::on_pushButton_clicked()
 
 
                     fW0 = tableS(trainMass, MASS);
-                    calcVelParamUpdate(trainMass);
+                    calcVelParamUpdate();
                     //  qDebug() << "calcVelParam= " << calcVelParam;
 
                     double minSpeed = ceil(CALC_VELOCITY / 10) * 10;  // для пути
@@ -197,12 +182,16 @@ void TestLogic::on_pushButton_clicked()
     qDebug() << "trainMass" << trainMass ;
     fW0 = tableS(trainMass, MASS);
     showTable();
+   // qDebug() << "Тормозная часть" << w0xbt;
 
     QVector <double> deltaFW0;
+    QVector <double> deltaw0xbt;
     for (int i  = 0; i < fW0.length() - 1; i++) {
         deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
+        deltaw0xbt.push_back((w0xbt[i] + w0xbt[i + 1]) / 2);
     }
-    qDebug() << "Дельта" << deltaFW0 ;
+   // qDebug() << "Дельта тяга" << deltaFW0 ;
+   // qDebug() << "Дельта тормоза" << deltaw0xbt ;
 
     double maxSpeed = 90; // пока без решения тормозной задачи
     double distanse = 0;
@@ -220,7 +209,7 @@ void TestLogic::on_pushButton_clicked()
     pointV.push_back(0);
 
     // FIXME блок
-    int stepV = 1; //шаг скоростей
+    double stepV = 0.2; //шаг скоростей
     double currentSpeed = 0;
     int currentSector = 0;
     double addPoint;
@@ -233,9 +222,9 @@ void TestLogic::on_pushButton_clicked()
             FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed / 10))] - arIp[currentSector];
             //  qDebug() << "1" << deltaFW0[static_cast<int>(floor(currentSpeed/10))] << FwosrIp;
             if (FwosrIp > 0) {
-                stepV = abs(stepV);
+                stepV = fabs(stepV);
             } else {
-                stepV = -abs(stepV);
+                stepV = -fabs(stepV);
             }
             // qDebug() << "2" << stepV;
             if ((currentSpeed + stepV) > maxSpeed) {
@@ -248,23 +237,60 @@ void TestLogic::on_pushButton_clicked()
                 currentS += addPoint;
             }
 
-            //  qDebug() << "S" << addPoint << arLen[currentSector];
+
 
             pointV.push_back(currentSpeed);
-
+            if (currentS > arLen[currentSector])
+            {
+                currentS = arLen[currentSector];
+            }
             pointS.push_back(currentS + S);
+
+         //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
+
         } while (currentS < arLen[currentSector]);
         currentSector++ ;
         S += currentS;
+      //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
     qDebug() << "S" << pointS;
     qDebug() << "V" << pointV;
 
+    QVector <double> pointSTor;
+    QVector <double> pointVTor;
+    pointSTor.push_back(distanse);
+    pointVTor.push_back(0);
+    // построение отрезка торможения
+    S = 0;
+    currentS = 0;
+    currentSector = arIp.count() - 1;
+    currentSpeed = 0;
+    stepV = 10;
+   do {
+        FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
+        addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
+        currentSpeed += stepV;
+        currentS += addPoint;
+     /*   if (arLen[currentSector] > currentS)
+        {
+           S += currentS;
+           currentS = 0;
+           currentSector--;
+           // not tested :)
+        }*/
+        pointSTor.push_front(distanse - currentS - S);
+        pointVTor.push_front(currentSpeed);
+    } while (currentSpeed < maxSpeed);
+
+    qDebug() << "STor" << pointSTor;
+    qDebug() << "VTor" << pointVTor;
 
     ui->plotWidget->clearGraphs(); // Очистка предыдущих графиков
     ui->plotWidget->addGraph();
     ui->plotWidget->graph(0)->setData(pointS, pointV);
+    ui->plotWidget->addGraph();
+    ui->plotWidget->graph(1)->setData(pointSTor, pointVTor);
     ui->plotWidget->xAxis->setRange(0, distanse + 50);
     ui->plotWidget->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
     ui->plotWidget->replot();
@@ -274,7 +300,7 @@ double TestLogic::w0ll(const double v)
 {
     // из базы вагонов
     int AXLE_COUNT[2] = {4,8}; //Количество осей вагона
-    int MASSR[2] = {88,176}; //Масса вагона
+  //  int MASSR[2] = {88,176}; //Масса вагона
     double k[2] = {0.7,0.7}; //
     double a[2] = {3,6}; //Коэффициенты для расчета
     double b[2] = {0.1,0.038}; //удельного сопротивления
@@ -287,7 +313,7 @@ double TestLogic::w0ll(const double v)
 
     // FIXME цикл для каждого из вагонов
     for (int i = 0; i < 2; i++){
-        qUnit = MASSR[i] / AXLE_COUNT[i];
+        qUnit = railcarsMass[i] / AXLE_COUNT[i];
         w = w + perc[i] * (k[i] + (a[i] + b[i] * v + c[i] * v * v) / qUnit);
     }
 
@@ -306,15 +332,16 @@ double TestLogic::w0l(const double v)
 double TestLogic::lenTrain(const double Q)
 {
     // из базы вагонов
-    int MASSR[2] = {88, 176}; //Масса вагона
-    double perc[2] = {0.68, 0.32}; // PROPORTION;
+    //int MASSR[2] = {88, 176}; //Масса вагона
+    //double perc[2] = {0.68, 0.32}; // PROPORTION;
     int lenght[2] = {15, 20}; // Длины вагонов, добавить в базу
     // из базы локомотива
     double locoLenght = 74.4; // Длина локомотива
 
     double lenghtTrain = locoLenght + 10; // +10 - запас длины на неточность установки
     for (int i = 0; i < 2; i++) {
-        lenghtTrain += floor(perc[i] * Q / MASSR[i]) * lenght[i]; // вагоны не дробные, округляем-с
+        // подправить, количество отдельный метод
+        lenghtTrain += floor(railcarsProportions[i] * Q / railcarsMass[i]) * lenght[i]; // вагоны не дробные, округляем-с
     }
     return lenghtTrain;
 }
@@ -342,8 +369,6 @@ double TestLogic::pathSum(const double vMax, const double vMin, const double ip)
 double TestLogic::pathPoint(const double vMax, const double vMin, const double Fwosrip)
 {
     double path = 4.17 * ((vMax * vMax - vMin * vMin) / (Fwosrip));
-    //  path = path < 0 ?  0 : path ;
-
     return path;
 }
 
@@ -351,7 +376,8 @@ double TestLogic::pathPoint(const double vMax, const double vMin, const double F
 
 QVector<double> TestLogic::tableS(double trainMass, int locoMass)
 {
-    QVector <double> fW0;
+    QVector <double> fW0cur;
+    QVector <double> w0xbtcur;
     const double k_hh =  2.4;    // коэффициенты для
     const double a_hh =  0.011;  // основого удельного на ХХ
     const double b_hh = 0.0003;  // постоянные или меняются (???)
@@ -360,11 +386,14 @@ QVector<double> TestLogic::tableS(double trainMass, int locoMass)
     const double a_tt =  150;  // основого удельного торможение
     const double b_tt = 2;  // как минимум 2 вида под колодки
 
+    double okr = 0; //  расчетный тормозной коэффициент состава
+    const double k_okr = 41.5; // коэффициент к нему, расчетные силы нажатия тормозных колодок
 
     // построим табличку, см эксель
 
-
     double F[11] = {1458,1336,1154,830,613,491,410,351,312,274,239};
+   // упрощено
+    okr =  (k_okr * 4 * railcarsCount[0] + k_okr * 8 * railcarsCount[1])/trainMass/g;
 
     for (int i = 0; i < 11; i++) {
         bigTable[i][0] = i  * 10;
@@ -375,29 +404,28 @@ QVector<double> TestLogic::tableS(double trainMass, int locoMass)
         bigTable[i][4] = bigTable[i][2] + bigTable[i][3];
         bigTable[i][5] = 1000 * bigTable[i][1] - bigTable[i][4];
         bigTable[i][6] = bigTable[i][5] / ((locoMass+trainMass) * g);
-        fW0.push_back(bigTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
+        fW0cur.push_back(bigTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
         // ХХ
         bigTable[i][7] = k_hh + a_hh * bigTable[i][0] + b_hh * bigTable[i][0] * bigTable[i][0];
         bigTable[i][8] = bigTable[i][7] * g * locoMass;
         bigTable[i][9] = bigTable[i][3] + bigTable[i][8];
         bigTable[i][10] = bigTable[i][9] / ((locoMass + trainMass) * g); // вторая для диаграммы
         // торможение
-        bigTable[i][11] = k_tt * ((bigTable[i][0] * a_tt) / (b_tt * bigTable[i][0] + a_tt));
-        //  bigTable[i][12] =   еще не готово
-        //  bigTable[i][13] =
-        //   bigTable[i][14] =
+        bigTable[i][11] = k_tt * ((bigTable[i][0] + a_tt) / (b_tt * bigTable[i][0] + a_tt));
+        bigTable[i][12] = okr * bigTable[i][11] * 1000;
+        bigTable[i][13] = bigTable[i][10] + 0.5 * bigTable[i][12];
+        bigTable[i][14] = bigTable[i][10] + bigTable[i][12];
+        w0xbtcur.push_back(bigTable[i][14]);
 
     }
 
-
-
-
-    return fW0;
+    w0xbt = w0xbtcur;
+    return fW0cur;
 }
 
-void TestLogic::calcVelParamUpdate(double trainMass)
+void TestLogic::calcVelParamUpdate()
 {
-    // ----- // параметры для расчетной скорости
+    // параметры для расчетной скорости
     calcVelParam.clear();
     calcVelParam.push_back(CALC_VELOCITY);
     calcVelParam.push_back(992);  // F Изменить
@@ -407,6 +435,21 @@ void TestLogic::calcVelParamUpdate(double trainMass)
     calcVelParam.push_back(1000*calcVelParam[1] - calcVelParam[4]);
     calcVelParam.push_back(calcVelParam[5] / ((MASS + trainMass) * g));
 
+}
+
+void TestLogic::railcarsCountUpdate()
+{
+    railcarsCount.clear();
+    for (int i = 0; i < railcarsTypeCount; i++) {
+        railcarsCount.push_back( floor(railcarsProportions[i] * trainMass / railcarsMass[i])); // вагоны не дробные, округляем-с
+    }
+
+    qDebug() << "Количество вагонов" << railcarsCount;
+}
+
+void TestLogic::trainMassUpdate()
+{
+    // пока пусто
 }
 
 void TestLogic::showTable()
@@ -428,6 +471,38 @@ void TestLogic::showTable()
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
     ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
+
+}
+
+void TestLogic::setValues()
+{
+    // временно, это надо из базы достать
+    double MASSR[railcarsTypeCount] = {88, 176}; //Масса вагона
+    double perc[railcarsTypeCount] = {0.68, 0.32}; // PROPORTION;
+       // конец временно
+
+    for (int i = 0; i < railcarsTypeCount; i++) {
+        railcarsMass.push_back(MASSR[i]);
+        railcarsProportions.push_back(perc[i]);
+    }
+    arIp.clear();
+    arLen.clear();
+    // пока рандомный ввод для теста
+    arIp.push_back(0);
+    arLen.push_back(6000);
+    for (int i = 1; i < 7; i++){
+        arIp.push_back((qrand() % 150 - 50) * 0.1);
+        arLen.push_back(qrand() % 16000);
+    }
+    arIp.push_back(6);
+    arLen.push_back(6000);
+    arIp.push_back(-2);
+    arLen.push_back(2500);
+    arTrack.push_back(arIp);
+    arTrack.push_back(arLen);
+    qDebug() << arTrack;
+    // конец рандомного ввода, внести из исходных данных
+
 
 }
 
