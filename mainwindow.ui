@@ -45,7 +45,7 @@
      <x>0</x>
      <y>0</y>
      <width>765</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -82,8 +82,8 @@
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
+   <property name="shortcutVisibleInContextMenu" stdset="0">
+    <bool>false</bool>
    </property>
   </action>
   <action name="action_save">
