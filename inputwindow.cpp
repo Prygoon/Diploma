@@ -108,6 +108,23 @@ void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &ind
     wInputEditForm->show();
 }
 
+void InputWindow::on_excel_pushButton_clicked()
+{
+    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", QDir().homePath(), "MS Excel files *.xlsx(*.xlsx)");
+    ui->excel_lineEdit->setText(excelFilePath);
+
+    QXlsx::Document xlsx(excelFilePath);
+    xlsx.write("A1", "Hello");
+    xlsx.write("A2", "from");
+    xlsx.write("A3", "my");
+    xlsx.write("A4", "diploma");
+    xlsx.write("A5", "project!");
+    xlsx.save();
+
+    qDebug() << QDir().homePath();
+    qDebug() << excelFilePath;
+}
+
 void InputWindow::onDeleteSignalRecieved()
 {
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
