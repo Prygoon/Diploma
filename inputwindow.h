@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QCloseEvent>
 #include <QSqlQueryModel>
+#include <QFileDialog>
+#include <QtXlsx>
 #include "inputeditform.h"
 //#include "tracksectionproxymodel.h"
 #include "database.h"
@@ -31,6 +33,8 @@ private:
     QSqlRelationalTableModel *railcarsMapModel;
     QSqlRelationalTableModel *trackSectionModel;
     //TrackSectionProxyModel *proxyModel;
+
+    //QFileDialog *fileDialog;
 
     QString *projectTitle;
     int projectId;
@@ -63,6 +67,7 @@ private slots:
     //void deleteTrackSection();
     void onSubmitSignalReceived();
     void onRevertSignalReceived();
+    void on_excel_pushButton_clicked();
 };
 
 #endif // INPUTWINDOW_H
