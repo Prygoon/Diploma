@@ -103,8 +103,9 @@ void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &ind
     wInputEditForm->showDeleteButton();
     wInputEditForm->enableSaveButton();
 
-    wInputEditForm->setWIndex(new QModelIndex(index));
-    wInputEditForm->getMapper()->setCurrentModelIndex(index);
+    QModelIndex proxyIndex = proxyModel->mapToSource(index); // Тут возможно творится какая-то магия. Не трогать.
+    wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
+    wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex);
     wInputEditForm->show();
 }
 
@@ -288,6 +289,9 @@ void InputWindow::setupTrackSectionModel(const QString &tableName, const QString
     trackSectionModel->setTable(tableName);
     trackSectionModel->setRelation(6, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
 
+    proxyModel = new TrackSectionProxyModel();
+    proxyModel->setSourceModel(trackSectionModel);
+
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
     for(int i = 0; i < trackSectionModel->columnCount(); i++){
         trackSectionModel->setHeaderData(i, Qt::Horizontal, headers[i]);
@@ -302,12 +306,12 @@ void InputWindow::showTrackSectionTableView()
 {
     //proxyModel = new TrackSectionProxyModel(this);
     //proxyModel->setSourceModel(trackSectionModel);   // Кладем табличку на бок
-    ui->trackSection_tableView->setModel(trackSectionModel);     // Устанавливаем модель на TableView
-    ui->trackSection_tableView->setColumnHidden(0, true);       // Скрываем ряд с id записей
+    ui->trackSection_tableView->setModel(proxyModel);     // Устанавливаем модель на TableView
+    ui->trackSection_tableView->setRowHidden(0, true);       // Скрываем ряд с id записей
     //ui->trackSection_tableView->setColumnHidden(6, true);
 
     // Разрешаем выделение рядов
-    ui->trackSection_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->trackSection_tableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
     // Устанавливаем режим выделения лишь одного ряда в таблице
     ui->trackSection_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
