@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <QtXlsx>
 #include "inputeditform.h"
-//#include "tracksectionproxymodel.h"
+#include "tracksectionproxymodel.h"
 #include "database.h"
 
 namespace Ui {
@@ -32,7 +32,7 @@ private:
     DataBase *db;
     QSqlRelationalTableModel *railcarsMapModel;
     QSqlRelationalTableModel *trackSectionModel;
-    //TrackSectionProxyModel *proxyModel;
+    TrackSectionProxyModel *proxyModel;
 
     //QFileDialog *fileDialog;
 
