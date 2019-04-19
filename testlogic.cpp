@@ -30,6 +30,7 @@ TestLogic::TestLogic(QWidget *parent) :
     ui(new Ui::TestLogic)
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose);
 }
 
 TestLogic::~TestLogic()

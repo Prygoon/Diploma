@@ -116,30 +116,33 @@ void InputWindow::on_excel_pushButton_clicked()
 
     QXlsx::Document excelDoc(excelFilePath);
 
-    for (int i = 0; i < 16; i++) {
-        QVariant slopeRead = excelDoc.read(3, i + 3);
-        QVariant lengthRead = excelDoc.read(4, i + 3);
-        QVariant curveLengthRead = excelDoc.read(5, i + 3);
-        QVariant curveRadiusRead = excelDoc.read(6, i + 3);
+    if(excelFilePath != "") {
+        for (int i = 0; i < 16; i++) {
+            QVariant slopeRead = excelDoc.read(3, i + 3);
+            QVariant lengthRead = excelDoc.read(4, i + 3);
+            QVariant curveLengthRead = excelDoc.read(5, i + 3);
+            QVariant curveRadiusRead = excelDoc.read(6, i + 3);
 
-        trackSectionModel->insertRows(i, 1);
-        trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
-        trackSectionModel->setData(trackSectionModel->index(i, 2), slopeRead.toDouble());
-        trackSectionModel->setData(trackSectionModel->index(i, 3), lengthRead.toInt());
-        trackSectionModel->setData(trackSectionModel->index(i, 4), curveLengthRead.toInt());
-        trackSectionModel->setData(trackSectionModel->index(i, 5), curveRadiusRead.toInt());
-        trackSectionModel->setData(trackSectionModel->index(i, 6), projectId);
-        trackSectionModel->submitAll();
+            trackSectionModel->insertRows(i, 1);
+            trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
+            trackSectionModel->setData(trackSectionModel->index(i, 2), slopeRead.toDouble());
+            trackSectionModel->setData(trackSectionModel->index(i, 3), lengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 4), curveLengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 5), curveRadiusRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 6), projectId);
+            trackSectionModel->submitAll();
 
-        qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead << projectId;
+            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead << projectId;
+        }
     }
 
-//    excelDoc.write("A1", "Hello");
-//    excelDoc.write("A2", "from");
-//    excelDoc.write("A3", "my");
-//    excelDoc.write("A4", "diploma");
-//    excelDoc.write("A5", "project!");
-//    excelDoc.save();
+
+    //    excelDoc.write("A1", "Hello");
+    //    excelDoc.write("A2", "from");
+    //    excelDoc.write("A3", "my");
+    //    excelDoc.write("A4", "diploma");
+    //    excelDoc.write("A5", "project!");
+    //    excelDoc.save();
 
     qDebug() << QDir().homePath();
     qDebug() << excelFilePath;
