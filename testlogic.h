@@ -71,6 +71,7 @@ private:
     QVector <double> railcarsProportions;  // и пропорции понадобились
     // добавить длину как минимум, мб и коэффициенты сюда, но не факт
 
+    double lagranz(QVector<double> X, QVector<double> Y, double t);
     double w0ll(const double v); // основное удельное сопротивление поезда
     double w0l(const double v); // основное удельное сопротивление локомотива
     double lenTrain(const double Q); // длинна поезда
