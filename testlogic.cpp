@@ -183,16 +183,16 @@ void TestLogic::on_pushButton_clicked()
     qDebug() << "trainMass" << trainMass ;
     fW0 = tableS(trainMass, MASS);
     showTable();
-   // qDebug() << "Тормозная часть" << w0xbt;
+    // qDebug() << "Тормозная часть" << w0xbt;
 
-    QVector <double> deltaFW0;
+    QVector <double> deltaFW0; //FIXME lagranz
     QVector <double> deltaw0xbt;
     for (int i  = 0; i < fW0.length() - 1; i++) {
         deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
         deltaw0xbt.push_back((w0xbt[i] + w0xbt[i + 1]) / 2);
     }
-   // qDebug() << "Дельта тяга" << deltaFW0 ;
-   // qDebug() << "Дельта тормоза" << deltaw0xbt ;
+    // qDebug() << "Дельта тяга" << deltaFW0 ;
+    // qDebug() << "Дельта тормоза" << deltaw0xbt ;
 
     double maxSpeed = 90; // пока без решения тормозной задачи
     double distanse = 0;
@@ -247,12 +247,12 @@ void TestLogic::on_pushButton_clicked()
             }
             pointS.push_back(currentS + S);
 
-         //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
+            //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
         } while (currentS < arLen[currentSector]);
         currentSector++ ;
         S += currentS;
-      //  qDebug() << "S" << S << distanse << currentSector;
+        //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
     qDebug() << "S" << pointS;
@@ -268,12 +268,12 @@ void TestLogic::on_pushButton_clicked()
     currentSector = arIp.count() - 1;
     currentSpeed = 0;
     stepV = 10;
-   do {
+    do {
         FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
         addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
         currentSpeed += stepV;
         currentS += addPoint;
-     /*   if (arLen[currentSector] > currentS)
+        /*   if (arLen[currentSector] > currentS)
         {
            S += currentS;
            currentS = 0;
@@ -297,11 +297,27 @@ void TestLogic::on_pushButton_clicked()
     ui->plotWidget->replot();
 }
 
+double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
+{
+    double sum, prod;
+    sum = 0;
+    for (int j = 0; j < X.size(); j++){
+        prod = 1;
+        for (int i = 0; i < Y.size(); i++){
+            if (i != j) {
+                prod = prod * (t - X[i]) / (X[j] - X[i]);
+            }
+        }
+        sum = sum + Y[j] * prod;
+    }
+    return sum;
+}
+
 double TestLogic::w0ll(const double v)
 {
     // из базы вагонов
     int AXLE_COUNT[2] = {4,8}; //Количество осей вагона
-  //  int MASSR[2] = {88,176}; //Масса вагона
+    //  int MASSR[2] = {88,176}; //Масса вагона
     double k[2] = {0.7,0.7}; //
     double a[2] = {3,6}; //Коэффициенты для расчета
     double b[2] = {0.1,0.038}; //удельного сопротивления
@@ -377,8 +393,8 @@ double TestLogic::pathPoint(const double vMax, const double vMin, const double F
 
 QVector<double> TestLogic::tableS(double trainMass, int locoMass)
 {
-    QVector <double> fW0cur;
-    QVector <double> w0xbtcur;
+    QVector <double> fW0cur; //FIXME посчитать с помощью функции double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
+    QVector <double> w0xbtcur; //FIXME см. fW0cur
     const double k_hh =  2.4;    // коэффициенты для
     const double a_hh =  0.011;  // основого удельного на ХХ
     const double b_hh = 0.0003;  // постоянные или меняются (???)
@@ -392,8 +408,9 @@ QVector<double> TestLogic::tableS(double trainMass, int locoMass)
 
     // построим табличку, см эксель
 
-    double F[11] = {1458,1336,1154,830,613,491,410,351,312,274,239};
-   // упрощено
+    QVector<double> F = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
+    QVector<double> V = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    // упрощено
     okr =  (k_okr * 4 * railcarsCount[0] + k_okr * 8 * railcarsCount[1])/trainMass/g;
 
     for (int i = 0; i < 11; i++) {
@@ -480,7 +497,7 @@ void TestLogic::setValues()
     // временно, это надо из базы достать
     double MASSR[railcarsTypeCount] = {88, 176}; //Масса вагона
     double perc[railcarsTypeCount] = {0.68, 0.32}; // PROPORTION;
-       // конец временно
+    // конец временно
 
     for (int i = 0; i < railcarsTypeCount; i++) {
         railcarsMass.push_back(MASSR[i]);
