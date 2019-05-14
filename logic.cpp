@@ -1,5 +1,4 @@
-#include "testlogic.h"
-#include "ui_testlogic.h"
+#include "logic.h"
 
 /*
 const QString *TYPE; //Название локомотива
@@ -25,20 +24,12 @@ const double PROPORTION; //доля вагонов данного типа
 
 */
 
-TestLogic::TestLogic(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::TestLogic)
+Logic::Logic(QObject *parent) : QObject(parent)
 {
-    ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose);
+
 }
 
-TestLogic::~TestLogic()
-{
-    delete ui;
-}
-
-void TestLogic::on_pushButton_clicked()
+void Logic::onCalcSignalReceived()
 {
     setValues();
 
@@ -182,7 +173,7 @@ void TestLogic::on_pushButton_clicked()
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ;
     fW0 = tableS(trainMass, MASS);
-    showTable();
+    //showTable();
     // qDebug() << "Тормозная часть" << w0xbt;
 
     QVector <double> deltaFW0; //FIXME lagranz
@@ -195,7 +186,7 @@ void TestLogic::on_pushButton_clicked()
     // qDebug() << "Дельта тормоза" << deltaw0xbt ;
 
     double maxSpeed = 90; // пока без решения тормозной задачи
-    double distanse = 0;
+    distanse = 0;
     for (int i  =0; i < arLen.length(); i++) {
         distanse += arLen[i];
     }
@@ -287,17 +278,19 @@ void TestLogic::on_pushButton_clicked()
     qDebug() << "STor" << pointSTor;
     qDebug() << "VTor" << pointVTor;
 
-    ui->plotWidget->clearGraphs(); // Очистка предыдущих графиков
-    ui->plotWidget->addGraph();
-    ui->plotWidget->graph(0)->setData(pointS, pointV);
-    ui->plotWidget->addGraph();
-    ui->plotWidget->graph(1)->setData(pointSTor, pointVTor);
-    ui->plotWidget->xAxis->setRange(0, distanse + 50);
-    ui->plotWidget->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
-    ui->plotWidget->replot();
 }
 
-double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
+QVector<double> Logic::getPointV() const
+{
+    return pointV;
+}
+
+QVector<double> Logic::getPointS() const
+{
+    return pointS;
+}
+
+double Logic::lagranz(QVector<double> X, QVector<double> Y, double t)
 {
     double sum, prod;
     sum = 0;
@@ -313,7 +306,7 @@ double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
     return sum;
 }
 
-double TestLogic::w0ll(const double v)
+double Logic::w0ll(const double v)
 {
     // из базы вагонов
     int AXLE_COUNT[2] = {4,8}; //Количество осей вагона
@@ -337,7 +330,7 @@ double TestLogic::w0ll(const double v)
     return w;
 }
 
-double TestLogic::w0l(const double v)
+double Logic::w0l(const double v)
 {
     double a = 1.9;   // какие-то коэффициенты для
     double b = 0.01;  // основное удельное сопротивление локомотива
@@ -346,7 +339,7 @@ double TestLogic::w0l(const double v)
     return (a + b * v + c * v * v);
 }
 
-double TestLogic::lenTrain(const double Q)
+double Logic::lenTrain(const double Q)
 {
     // из базы вагонов
     //int MASSR[2] = {88, 176}; //Масса вагона
@@ -363,7 +356,7 @@ double TestLogic::lenTrain(const double Q)
     return lenghtTrain;
 }
 
-double TestLogic::pathSum(const double vMax, const double vMin, const double ip)
+double Logic::pathSum(const double vMax, const double vMin, const double ip)
 {
 
     double Fwosr; // для расчетов, не знаю, как обозвать
@@ -383,7 +376,7 @@ double TestLogic::pathSum(const double vMax, const double vMin, const double ip)
 
 }
 
-double TestLogic::pathPoint(const double vMax, const double vMin, const double Fwosrip)
+double Logic::pathPoint(const double vMax, const double vMin, const double Fwosrip)
 {
     double path = 4.17 * ((vMax * vMax - vMin * vMin) / (Fwosrip));
     return path;
@@ -391,7 +384,7 @@ double TestLogic::pathPoint(const double vMax, const double vMin, const double F
 
 
 
-QVector<double> TestLogic::tableS(double trainMass, int locoMass)
+QVector<double> Logic::tableS(double trainMass, int locoMass)
 {
     QVector <double> fW0cur; //FIXME посчитать с помощью функции double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
     QVector <double> w0xbtcur; //FIXME см. fW0cur
@@ -441,7 +434,7 @@ QVector<double> TestLogic::tableS(double trainMass, int locoMass)
     return fW0cur;
 }
 
-void TestLogic::calcVelParamUpdate()
+void Logic::calcVelParamUpdate()
 {
     // параметры для расчетной скорости
     calcVelParam.clear();
@@ -455,7 +448,7 @@ void TestLogic::calcVelParamUpdate()
 
 }
 
-void TestLogic::railcarsCountUpdate()
+void Logic::railcarsCountUpdate()
 {
     railcarsCount.clear();
     for (int i = 0; i < railcarsTypeCount; i++) {
@@ -465,34 +458,34 @@ void TestLogic::railcarsCountUpdate()
     qDebug() << "Количество вагонов" << railcarsCount;
 }
 
-void TestLogic::trainMassUpdate()
+void Logic::trainMassUpdate()
 {
     // пока пусто
 }
 
-void TestLogic::showTable()
-{
-    model = new QStandardItemModel();
-    for (int i = 0; i < 15; i++) {
-        for (int j = 0; j < 11; j++) {
-            item = new QStandardItem(QString::number(bigTable[j][i], 'f', 2));
-            model->setItem(j, i, item);
-        }
-    }
+//void Logic::showTable()
+//{
+//    model = new QStandardItemModel();
+//    for (int i = 0; i < 15; i++) {
+//        for (int j = 0; j < 11; j++) {
+//            item = new QStandardItem(QString::number(bigTable[j][i], 'f', 2));
+//            model->setItem(j, i, item);
+//        }
+//    }
 
-    ui->tableView->setModel(model);
-    //ui->tableView->resizeRowsToContents();
-    //ui->tableView->resizeColumnsToContents();
+//    ui->tableView->setModel(model);
+//    //ui->tableView->resizeRowsToContents();
+//    //ui->tableView->resizeColumnsToContents();
 
-    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
-    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
+//    ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
+//    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
 
-}
+//}
 
-void TestLogic::setValues()
+void Logic::setValues()
 {
     // временно, это надо из базы достать
     double MASSR[railcarsTypeCount] = {88, 176}; //Масса вагона
@@ -524,4 +517,8 @@ void TestLogic::setValues()
 
 }
 
+double Logic::getDistanse() const
+{
+    return distanse;
+}
 

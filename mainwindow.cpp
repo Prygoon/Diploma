@@ -53,10 +53,21 @@ void MainWindow::on_action_railcars_triggered()
     this->hide();
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButtonCalc_clicked()
 {
-    TestLogic *test = new TestLogic(this);
-    test->setParent(this, Qt::Window);
+    logic = new Logic(this);
+    connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
+    emit calc();
+    ui->mainGraph->clearGraphs();
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
+    ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
+    ui->mainGraph->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
+    ui->mainGraph->replot();
+    delete logic;
+}
 
-    test->show();
+void MainWindow::on_pushButtonTest_clicked()
+{
+
 }

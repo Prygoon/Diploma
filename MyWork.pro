@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    logic.cpp \
         main.cpp \
         mainwindow.cpp \
     inputwindow.cpp \
@@ -40,10 +41,10 @@ SOURCES += \
     railcareditform.cpp \
     inputeditform.cpp \
     tracksectionproxymodel.cpp \
-    testlogic.cpp \
     qcustomplot.cpp
 
 HEADERS += \
+    logic.h \
         mainwindow.h \
     inputwindow.h \
     locomotive.h \
@@ -58,7 +59,6 @@ HEADERS += \
     railcareditform.h \
     inputeditform.h \
     tracksectionproxymodel.h \
-    testlogic.h \
     qcustomplot.h
 
 FORMS += \
@@ -68,8 +68,7 @@ FORMS += \
     railcardbwindow.ui \
     locoeditform.ui \
     railcareditform.ui \
-    inputeditform.ui \
-    testlogic.ui
+    inputeditform.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
