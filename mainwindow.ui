@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>765</width>
+    <width>752</width>
     <height>480</height>
    </rect>
   </property>
@@ -21,18 +21,76 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>TEST</string>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QFrame" name="graphFrame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QCustomPlot" name="mainGraph" native="true"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="buttonFrame">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="pushButtonCalc">
+           <property name="text">
+            <string>Считать</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonShowDiag">
+           <property name="text">
+            <string>Показать диаграммы</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonReserve">
+           <property name="text">
+            <string>Запасная кнопка</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonTest">
+           <property name="text">
+            <string>TEST</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -44,8 +102,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>765</width>
-     <height>22</height>
+     <width>752</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -82,7 +140,7 @@
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
-   <property name="shortcutVisibleInContextMenu" stdset="0">
+   <property name="shortcutVisibleInContextMenu">
     <bool>false</bool>
    </property>
   </action>
@@ -130,6 +188,14 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

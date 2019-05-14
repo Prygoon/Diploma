@@ -1,5 +1,5 @@
-#ifndef TESTLOGIC_H
-#define TESTLOGIC_H
+#ifndef LOGIC_H
+#define LOGIC_H
 
 #include <QWidget>
 #include <QDebug>
@@ -22,25 +22,23 @@
 #define testSpeed 70 // временно для проверки
 #define railcarsTypeCount 2 // количество типов вагонов
 
-
-namespace Ui {
-class TestLogic;
-}
-
-class TestLogic : public QWidget
+class Logic : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit TestLogic(QWidget *parent = nullptr);
-    ~TestLogic();
+    explicit Logic(QObject *parent = nullptr);
+    QVector<double> getPointS() const;
+    QVector<double> getPointV() const;
+
+    double getDistanse() const;
 
 private slots:
-    void on_pushButton_clicked();
+    //void on_pushButton_clicked();
+
+public slots:
+    void onCalcSignalReceived();
 
 private:
-    Ui::TestLogic *ui;
-
     const double g = 9.81;
 
     QStandardItemModel *model;
@@ -52,6 +50,7 @@ private:
     QVector <double> calcVelParam; // кусок таблицы для расчетной скорости
     QVector <double> fW0; // столбец таблицы, тяга
     QVector <double> w0xbt; // столбец таблицы, торможение
+    double distanse;
 
     QVector <double> pointS;
     QVector <double> pointV;
@@ -83,10 +82,10 @@ private:
     void calcVelParamUpdate();
     void railcarsCountUpdate();
     void trainMassUpdate();
-    void showTable();
+    //void showTable();
 
     void setValues();
 
 };
 
-#endif // TESTLOGIC_H
+#endif // LOGIC_H
