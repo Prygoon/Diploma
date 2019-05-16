@@ -33,6 +33,8 @@ void Logic::onCalcSignalReceived()
 {
     setValues();
 
+
+    // тааак. тут ничего интересного, объявляем и ищем три самых жЫрных подъема
     // вспомогательные массивы для нахождения расчетного
     QVector <double> arCalcIp;
     QVector <double> arCalcLen;
@@ -61,6 +63,8 @@ void Logic::onCalcSignalReceived()
     arCalcTrack.push_back(arCalcLen);
     qDebug() << arCalcTrack;
 
+    // вот тут закончили, выделили три штука.
+
 
 
     // ------- //
@@ -78,6 +82,7 @@ void Logic::onCalcSignalReceived()
 
     double qMax = 0.0;
 
+    // вот тут мы ищем, какой из отобранных ранее нам подходит..
     for (int experiment = 0; experiment < trackCount; experiment++)
     {
         qDebug() << "-----EXPIRIENCE-----" << experiment;
@@ -159,6 +164,7 @@ void Logic::onCalcSignalReceived()
         qDebug() << "END" << Q[experiment];
     }
 
+
     double maxQ = 0;
     // int numIp;
     for (int i = 0; i < trackCount; i++){
@@ -169,23 +175,22 @@ void Logic::onCalcSignalReceived()
         }
     }
     qDebug() << "Ip[" << numIp << "]=" << arIp[numIp];
-    // обновим данные таблицы
+    // вот тут нашли, запомнили его
+
+
+    // обновим данные таблицы, это финальные, уже для графиков используются. в теории тут уже можно
+    // впилить обновленный метод с лагранжем. см. ниже комментарий
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ;
     fW0 = tableS(trainMass, MASS);
     //showTable();
     // qDebug() << "Тормозная часть" << w0xbt;
 
-    QVector <double> deltaFW0; //FIXME lagranz
-    QVector <double> deltaw0xbt;
-    for (int i  = 0; i < fW0.length() - 1; i++) {
-        deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
-        deltaw0xbt.push_back((w0xbt[i] + w0xbt[i + 1]) / 2);
-    }
-    // qDebug() << "Дельта тяга" << deltaFW0 ;
-    // qDebug() << "Дельта тормоза" << deltaw0xbt ;
+
 
     double maxSpeed = 90; // пока без решения тормозной задачи
+
+    // грустно считаем весь путь, сумма.
     distanse = 0;
     for (int i  =0; i < arLen.length(); i++) {
         distanse += arLen[i];
@@ -200,7 +205,7 @@ void Logic::onCalcSignalReceived()
     pointS.push_back(0);
     pointV.push_back(0);
 
-    // FIXME блок
+    // FIXME блок частично надо вытащить в настройки программы. тот же шаг.
     double stepV = 0.2; //шаг скоростей
     double currentSpeed = 0;
     int currentSector = 0;
@@ -208,10 +213,44 @@ void Logic::onCalcSignalReceived()
     double FwosrIp;
     // конец FIXME блока
 
+
+    QVector <double> deltaFW0; //FIXME lagranz
+    QVector <double> deltaw0xbt;
+    QVector <double> xSpeed;
+
+   /* for (int i  = 0; i < fW0.length() - 1; i++) {
+        deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
+        deltaw0xbt.push_back((w0xbt[i] + w0xbt[i + 1]) / 2); // тормоз пусть живет пока
+    }*/
+    // qDebug() << "Дельта тяга" << deltaFW0 ;
+    // qDebug() << "Дельта тормоза" << deltaw0xbt ;
+
+    // мм... а надо ли нам перерасчитывать именно F? Это ж куча формул. Может, попробовать лагранжить тягу?
+    // а хотя фиг его знает.. надо прикинуть будет, что проще и дешевле по памяти. по идее один раз хардкорно
+    // просчитать всю таблицу и потом обращаться напрямую. а то слишком много лагранжей при большом пути
+    // причем которые повторяются.
+    // пока для теста просто.
+
+   // qDebug() << "тяга" << fW0 ;
+  //  qDebug() << "тормоз" << w0xbt ;
+
+
+    // задаем массив исков. вроде где-то было, надо перетащить в глобалку и в формирование данных
+
+    for (int i  = 0; i < fW0.length(); i++) {
+        xSpeed.push_back(i*10);
+    }
+
+
+    double lagrahzTest = 0; // убрать потом переменную, сразу в формулу можно. для вывода.
+
+    // построение из расчетов, что всегда премся в тяге :)
     do {
         currentS = 0;
         do {
-            FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed / 10))] - arIp[currentSector];
+            lagrahzTest = lagranz(xSpeed, fW0, currentSpeed);
+           // FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed / 10))] - arIp[currentSector];
+            FwosrIp = lagrahzTest - arIp[currentSector];
             //  qDebug() << "1" << deltaFW0[static_cast<int>(floor(currentSpeed/10))] << FwosrIp;
             if (FwosrIp > 0) {
                 stepV = fabs(stepV);
@@ -246,21 +285,31 @@ void Logic::onCalcSignalReceived()
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
-    qDebug() << "S" << pointS;
-    qDebug() << "V" << pointV;
+   // qDebug() << "S" << pointS;
+   // qDebug() << "V" << pointV;
+    // закончили построение.
 
+
+    // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
     QVector <double> pointSTor;
     QVector <double> pointVTor;
+    // ВОТ ОН ТУТ
+
     pointSTor.push_back(distanse);
     pointVTor.push_back(0);
+
     // построение отрезка торможения
     S = 0;
     currentS = 0;
     currentSector = arIp.count() - 1;
     currentSpeed = 0;
     stepV = 10;
+
+
     do {
-        FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
+        lagrahzTest = lagranz(xSpeed, w0xbt, currentSpeed);
+        FwosrIp = - lagrahzTest + arIp[currentSector];
+       // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
         addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
         currentSpeed += stepV;
         currentS += addPoint;
@@ -275,8 +324,8 @@ void Logic::onCalcSignalReceived()
         pointVTor.push_front(currentSpeed);
     } while (currentSpeed < maxSpeed);
 
-    qDebug() << "STor" << pointSTor;
-    qDebug() << "VTor" << pointVTor;
+   // qDebug() << "STor" << pointSTor;
+   // qDebug() << "VTor" << pointVTor;
 
 }
 
@@ -502,12 +551,12 @@ void Logic::setValues()
     arIp.push_back(0);
     arLen.push_back(6000);
     for (int i = 1; i < 7; i++){
-        arIp.push_back((qrand() % 150 - 50) * 0.1);
-        arLen.push_back(qrand() % 16000);
+        arIp.push_back((qrand() % 160 - 52) * 0.1);
+        arLen.push_back(qrand() % 17000);
     }
     arIp.push_back(6);
     arLen.push_back(6000);
-    arIp.push_back(-2);
+    arIp.push_back(0);
     arLen.push_back(2500);
     arTrack.push_back(arIp);
     arTrack.push_back(arLen);
