@@ -58,6 +58,7 @@ void MainWindow::on_pushButtonCalc_clicked()
     logic = new Logic(this);
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
+
     ui->mainGraph->clearGraphs();
     ui->mainGraph->addGraph();
     ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
