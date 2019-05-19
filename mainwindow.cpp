@@ -59,9 +59,13 @@ void MainWindow::on_pushButtonCalc_clicked()
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
 
+    ui->mainGraph->setFixedWidth(logic->getDistanse() / 12 + 50);
     ui->mainGraph->clearGraphs();
     ui->mainGraph->addGraph();
     ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {CALC_VELOCITY, CALC_VELOCITY});
+    ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
     ui->mainGraph->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
     ui->mainGraph->replot();
