@@ -15,6 +15,26 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::drawVsGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
+}
+
+void MainWindow::drawVCalcGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {CALC_VELOCITY, CALC_VELOCITY});
+    ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
+}
+
+void MainWindow::drawTimeGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(2)->setData(logic->getPointS(), logic->getPointT());
+    ui->mainGraph->graph(2)->setPen(QPen(Qt::green));
+}
+
 void MainWindow::on_action_new_triggered()
 {
     wInputWindow = new InputWindow(this);
@@ -59,13 +79,13 @@ void MainWindow::on_pushButtonCalc_clicked()
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
 
-    ui->mainGraph->setFixedWidth(logic->getDistanse() / 12 + 50);
+    ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistanse() / 48 + 50)));
     ui->mainGraph->clearGraphs();
-    ui->mainGraph->addGraph();
-    ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
-    ui->mainGraph->addGraph();
-    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {CALC_VELOCITY, CALC_VELOCITY});
-    ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
+
+    drawVsGraph();
+    drawVCalcGraph();
+    drawTimeGraph();
+
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
     ui->mainGraph->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
     ui->mainGraph->replot();

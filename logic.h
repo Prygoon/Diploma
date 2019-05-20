@@ -29,7 +29,7 @@ public:
     explicit Logic(QObject *parent = nullptr);
     QVector<double> getPointS() const;
     QVector<double> getPointV() const;
-
+    QVector<double> getPointT() const;
     double getDistanse() const;
 
 private slots:
@@ -54,6 +54,7 @@ private:
 
     QVector <double> pointS;
     QVector <double> pointV;
+    QVector <double> pointT;
 
     double bigTable[11][15];  // таблица
 
@@ -76,6 +77,7 @@ private:
     double lenTrain(const double Q); // длинна поезда
     double pathSum (const double vMax, const double vMin, const double ip);  // пройденный путь для крутых
     double pathPoint (const double vMax, const double vMin, const double Fwosrip);  // точки
+    double timePoint (const double vMax, const double vMin, const double Fwosrip);
 
     QVector<double> tableS (double trainMass, int locoMass); // вектор
 

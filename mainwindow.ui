@@ -32,7 +32,7 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>50</height>
+        <height>60</height>
        </size>
       </property>
       <property name="frameShape">
@@ -87,7 +87,7 @@
          <x>0</x>
          <y>0</y>
          <width>732</width>
-         <height>357</height>
+         <height>359</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>752</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -146,7 +146,7 @@
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
-   <property name="shortcutVisibleInContextMenu" stdset="0">
+   <property name="shortcutVisibleInContextMenu">
     <bool>false</bool>
    </property>
   </action>
