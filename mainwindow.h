@@ -32,6 +32,10 @@ private:
 
     Logic *logic;
 
+    void drawVsGraph();
+    void drawVCalcGraph();
+    void drawTimeGraph();
+
 private slots:
     void on_action_new_triggered();
     void on_action_close_triggered();

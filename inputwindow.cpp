@@ -327,3 +327,35 @@ void InputWindow::showTrackSectionTableView()
 
     trackSectionModel->select(); // Делаем выборку данных из таблицы
 }
+
+void InputWindow::on_pushButton_buildGraph_clicked()
+{
+    dataJson = new QJsonObject();
+    QVariant localTmp;
+    QJsonArray *slopes = new QJsonArray();
+    QJsonArray *lengths = new QJsonArray();
+    QJsonArray *curveLengths = new QJsonArray();
+    QJsonArray *curveRadiuses = new QJsonArray();
+    for (int i = 0; i < trackSectionModel->rowCount(); i++) {
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_SLOPE);
+        slopes->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_LENGTH);
+        lengths->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_LENGTH);
+        curveLengths->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_RADIUS);
+        curveRadiuses->push_back(QJsonValue::fromVariant(localTmp));
+    }
+
+    dataJson->insert("slopes", *slopes);
+    dataJson->insert("lengths", *lengths);
+    dataJson->insert("curve_lengths", *curveLengths);
+    dataJson->insert("curve_radiuses", *curveRadiuses);
+    dataJson->insert("lenStation", 1500); // пока фиксированное, взять из lineEdit
+    //dataJson->insert("slope", );
+    qDebug() << *dataJson;
+    delete slopes;
+    delete lengths;
+    delete curveLengths;
+    delete curveRadiuses;
+}

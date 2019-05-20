@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QCloseEvent>
 #include <QSqlQueryModel>
+#include <QSqlRecord>
 #include <QFileDialog>
 #include <QtXlsx>
 #include "inputeditform.h"
@@ -27,6 +28,7 @@ private:
 
     InputEditForm *wInputEditForm;
 
+    QJsonObject *dataJson;
     /* Объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */
     DataBase *db;
@@ -68,6 +70,7 @@ private slots:
     void onSubmitSignalReceived();
     void onRevertSignalReceived();
     void on_excel_pushButton_clicked();
+    void on_pushButton_buildGraph_clicked();
 };
 
 #endif // INPUTWINDOW_H

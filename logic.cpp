@@ -206,10 +206,11 @@ void Logic::onCalcSignalReceived()
     pointV.push_back(0);
 
     // FIXME блок частично надо вытащить в настройки программы. тот же шаг.
-    double stepV = 0.2; //шаг скоростей
+    double stepV = 0.01; //шаг скоростей
     double currentSpeed = 0;
     int currentSector = 0;
     double addPoint;
+    double addTimePoint;
     double FwosrIp;
     // конец FIXME блока
 
@@ -241,9 +242,9 @@ void Logic::onCalcSignalReceived()
         xSpeed.push_back(i*10);
     }
 
-
+    double currentTime = 0;
     double lagrahzTest = 0; // убрать потом переменную, сразу в формулу можно. для вывода.
-
+    pointT.push_back(0);
     // построение из расчетов, что всегда премся в тяге :)
     do {
         currentS = 0;
@@ -264,12 +265,17 @@ void Logic::onCalcSignalReceived()
                 currentS = arLen[currentSector];
             } else {
                 addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
+                addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
                 currentSpeed += stepV;
                 currentS += addPoint;
+                currentTime += addTimePoint;
+                if (currentTime > 100) {
+                    currentTime += -100;
+                }
             }
 
 
-
+            pointT.push_back(currentTime);
             pointV.push_back(currentSpeed);
             if (currentS > arLen[currentSector])
             {
@@ -286,7 +292,7 @@ void Logic::onCalcSignalReceived()
     } while (S < distanse);
 
    // qDebug() << "S" << pointS;
-   // qDebug() << "V" << pointV;
+    //qDebug() << "T" << pointT;
     // закончили построение.
 
 
@@ -327,6 +333,11 @@ void Logic::onCalcSignalReceived()
    // qDebug() << "STor" << pointSTor;
    // qDebug() << "VTor" << pointVTor;
 
+}
+
+QVector<double> Logic::getPointT() const
+{
+    return pointT;
 }
 
 QVector<double> Logic::getPointV() const
@@ -431,7 +442,11 @@ double Logic::pathPoint(const double vMax, const double vMin, const double Fwosr
     return path;
 }
 
-
+double Logic::timePoint(const double vMax, const double vMin, const double Fwosrip)
+{
+    double time = (vMax - vMin) / (2 * Fwosrip);
+    return time;
+}
 
 QVector<double> Logic::tableS(double trainMass, int locoMass)
 {
