@@ -215,7 +215,7 @@ void Logic::onCalcSignalReceived()
     // конец FIXME блока
 
 
-    QVector <double> deltaFW0; //FIXME lagranz
+    QVector <double> deltaFW0;
     QVector <double> deltaw0xbt;
     QVector <double> xSpeed;
 
@@ -239,7 +239,7 @@ void Logic::onCalcSignalReceived()
     // задаем массив исков. вроде где-то было, надо перетащить в глобалку и в формирование данных
 
     for (int i  = 0; i < fW0.length(); i++) {
-        xSpeed.push_back(i*10);
+        xSpeed.push_back(i * 10);
     }
 
     double currentTime = 0;

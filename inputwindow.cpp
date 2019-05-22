@@ -214,6 +214,84 @@ void InputWindow::setProjectId()
     }
 }
 
+void InputWindow::addTrackSectionsToJson()
+{
+    QVariant localTmp;
+    QJsonObject *trackSectionsJson = new QJsonObject();
+    QJsonArray *slopes = new QJsonArray();
+    QJsonArray *lengths = new QJsonArray();
+    QJsonArray *curveLengths = new QJsonArray();
+    QJsonArray *curveRadiuses = new QJsonArray();
+
+    for (int i = 0; i < trackSectionModel->rowCount(); i++) {
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_SLOPE);
+        slopes->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_LENGTH);
+        lengths->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_LENGTH);
+        curveLengths->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_RADIUS);
+        curveRadiuses->push_back(QJsonValue::fromVariant(localTmp));
+    }
+
+    trackSectionsJson->insert("slopes", *slopes);
+    trackSectionsJson->insert("lengths", *lengths);
+    trackSectionsJson->insert("curve_lengths", *curveLengths);
+    trackSectionsJson->insert("curve_radiuses", *curveRadiuses);
+    dataJson->insert("trackSection", *trackSectionsJson);
+}
+
+void InputWindow::addRailcarMapToJson()
+{
+    QSqlTableModel *localRailcarModel = new QSqlTableModel();
+    localRailcarModel->setTable(TABLE_RAILCAR_NAME);
+    localRailcarModel->select();
+
+    QSqlTableModel *localRailcarMapModel = new QSqlTableModel();
+    localRailcarMapModel->setTable(TABLE_RAILCAR_MAP_NAME);
+    localRailcarMapModel->select();
+
+    QVariant localTmp;
+    QJsonObject *railcarsJson = new QJsonObject(); // Надо как-то достать отсюда коэфициенты
+    QJsonArray *types = new QJsonArray();
+
+    QJsonObject *localJsonObject = new QJsonObject();
+    QJsonArray *localJsonArray = new QJsonArray();
+    //int railcarId = -1;
+
+    for (int i = 0; i < railcarsMapModel->rowCount(); i++) {
+        localTmp = localRailcarMapModel->record(i).value(TABLE_RAILCAR_MAP_MASS);
+        localJsonObject->insert("mass", QJsonValue::fromVariant(localTmp));
+
+        localTmp = localRailcarMapModel->record(i).value(TABLE_RAILCAR_MAP_PERCENT);
+        localJsonObject->insert("percent",QJsonValue::fromVariant(localTmp));
+
+        QString railcarId = localRailcarMapModel->record(i).value("railcar_id").toString();
+        QString filter = "id = ";
+        filter.append(railcarId);
+        localRailcarModel->setFilter(filter);
+        localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_AXLE_COUNT);
+        localJsonObject->insert("axle_count", QJsonValue::fromVariant(localTmp));
+
+        localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_K_COEF);
+        localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_A_COEF);
+        localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_B_COEF);
+        localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
+        localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_C_COEF);
+        localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
+        localJsonObject->insert("coefs", *localJsonArray);
+
+        types->push_back(*localJsonObject);
+
+        *localJsonArray = QJsonArray{};
+    }
+
+    railcarsJson->insert("types", *types);
+    dataJson->insert("railcars", *railcarsJson);
+}
+
 /* Метод для инициализации модеи представления данных вагонов*/
 void InputWindow::setupRailcarTableModel(const QString &tableName, const QStringList &headers)
 {
@@ -331,31 +409,15 @@ void InputWindow::showTrackSectionTableView()
 void InputWindow::on_pushButton_buildGraph_clicked()
 {
     dataJson = new QJsonObject();
-    QVariant localTmp;
-    QJsonArray *slopes = new QJsonArray();
-    QJsonArray *lengths = new QJsonArray();
-    QJsonArray *curveLengths = new QJsonArray();
-    QJsonArray *curveRadiuses = new QJsonArray();
-    for (int i = 0; i < trackSectionModel->rowCount(); i++) {
-        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_SLOPE);
-        slopes->push_back(QJsonValue::fromVariant(localTmp));
-        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_LENGTH);
-        lengths->push_back(QJsonValue::fromVariant(localTmp));
-        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_LENGTH);
-        curveLengths->push_back(QJsonValue::fromVariant(localTmp));
-        localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_RADIUS);
-        curveRadiuses->push_back(QJsonValue::fromVariant(localTmp));
-    }
 
-    dataJson->insert("slopes", *slopes);
-    dataJson->insert("lengths", *lengths);
-    dataJson->insert("curve_lengths", *curveLengths);
-    dataJson->insert("curve_radiuses", *curveRadiuses);
-    dataJson->insert("lenStation", 1500); // пока фиксированное, взять из lineEdit
+    addTrackSectionsToJson();
+    addRailcarMapToJson();
+
+    //dataJson->insert("lenStation", 1500); // пока фиксированное, взять из lineEdit
     //dataJson->insert("slope", );
     qDebug() << *dataJson;
-    delete slopes;
-    delete lengths;
-    delete curveLengths;
-    delete curveRadiuses;
+    //delete slopes;
+    //delete lengths;
+    //delete curveLengths;
+    //delete curveRadiuses;
 }
