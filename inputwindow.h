@@ -55,6 +55,9 @@ private:
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     void setProjectId();
 
+    void addTrackSectionsToJson();
+    void addRailcarMapToJson();
+
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
 
