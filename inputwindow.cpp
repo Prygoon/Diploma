@@ -17,7 +17,10 @@ InputWindow::InputWindow(QWidget *parent) :
     projectId = 1;
     projectTitle = new QString("Test");
 
-    this->setupRailcarTableModel(TABLE_RAILCAR_MAP_NAME,
+    setupLocomotiveTableModel(TABLE_LOCO_NAME);
+    showLocomotiveComboBox();
+
+    setupRailcarTableModel(TABLE_RAILCAR_MAP_NAME,
                                  QStringList() << ("id")
                                  << ("Тип вагона")
                                  << ("Масса брутто")
@@ -26,7 +29,7 @@ InputWindow::InputWindow(QWidget *parent) :
 
     showRailcarTableView();
 
-    this->setupTrackSectionModel(TABLE_TRACK_SECTION_NAME,
+    setupTrackSectionModel(TABLE_TRACK_SECTION_NAME,
                                  QStringList() << ("id")
                                  << ("№ п/п")
                                  << ("Уклон")
@@ -36,8 +39,6 @@ InputWindow::InputWindow(QWidget *parent) :
                                  << ("project_id"));
 
     showTrackSectionTableView();
-
-
 }
 
 InputWindow::~InputWindow()
@@ -214,31 +215,49 @@ void InputWindow::setProjectId()
     }
 }
 
+void InputWindow::addLocomotiveToJson()
+{
+    int currentComboBoxIndex = locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
+    QVariant localTmp;
+    QJsonObject *localLocomotiveJson = new QJsonObject();
+
+    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CALC_THRUST_FORCE);
+    localLocomotiveJson->insert(TABLE_LOCO_CALC_THRUST_FORCE, QJsonValue::fromVariant(localTmp));
+    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_MASS);
+    localLocomotiveJson->insert(TABLE_LOCO_MASS, QJsonValue::fromVariant(localTmp));
+    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CONSTRUCTION_VELOCITY);
+    localLocomotiveJson->insert(TABLE_LOCO_CONSTRUCTION_VELOCITY, QJsonValue::fromVariant(localTmp));
+    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CALC_VELOCITY);
+    localLocomotiveJson->insert(TABLE_LOCO_CALC_VELOCITY, QJsonValue::fromVariant(localTmp));
+
+    dataJson->insert("locomotive", *localLocomotiveJson);
+}
+
 void InputWindow::addTrackSectionsToJson()
 {
     QVariant localTmp;
-    QJsonObject *trackSectionsJson = new QJsonObject();
-    QJsonArray *slopes = new QJsonArray();
-    QJsonArray *lengths = new QJsonArray();
-    QJsonArray *curveLengths = new QJsonArray();
-    QJsonArray *curveRadiuses = new QJsonArray();
+    QJsonObject *localTrackSectionsJson = new QJsonObject();
+    QJsonArray *localSlopes = new QJsonArray();
+    QJsonArray *localLengths = new QJsonArray();
+    QJsonArray *localCurveLengths = new QJsonArray();
+    QJsonArray *localCurveRadiuses = new QJsonArray();
 
     for (int i = 0; i < trackSectionModel->rowCount(); i++) {
         localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_SLOPE);
-        slopes->push_back(QJsonValue::fromVariant(localTmp));
+        localSlopes->push_back(QJsonValue::fromVariant(localTmp));
         localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_LENGTH);
-        lengths->push_back(QJsonValue::fromVariant(localTmp));
+        localLengths->push_back(QJsonValue::fromVariant(localTmp));
         localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_LENGTH);
-        curveLengths->push_back(QJsonValue::fromVariant(localTmp));
+        localCurveLengths->push_back(QJsonValue::fromVariant(localTmp));
         localTmp = trackSectionModel->record(i).value(TABLE_TRACK_SECTION_CURVE_RADIUS);
-        curveRadiuses->push_back(QJsonValue::fromVariant(localTmp));
+        localCurveRadiuses->push_back(QJsonValue::fromVariant(localTmp));
     }
 
-    trackSectionsJson->insert("slopes", *slopes);
-    trackSectionsJson->insert("lengths", *lengths);
-    trackSectionsJson->insert("curve_lengths", *curveLengths);
-    trackSectionsJson->insert("curve_radiuses", *curveRadiuses);
-    dataJson->insert("trackSection", *trackSectionsJson);
+    localTrackSectionsJson->insert("slopes", *localSlopes);
+    localTrackSectionsJson->insert("lengths", *localLengths);
+    localTrackSectionsJson->insert("curve_lengths", *localCurveLengths);
+    localTrackSectionsJson->insert("curve_radiuses", *localCurveRadiuses);
+    dataJson->insert("trackSection", *localTrackSectionsJson);
 }
 
 void InputWindow::addRailcarMapToJson()
@@ -252,26 +271,28 @@ void InputWindow::addRailcarMapToJson()
     localRailcarMapModel->select();
 
     QVariant localTmp;
-    QJsonObject *railcarsJson = new QJsonObject(); // Надо как-то достать отсюда коэфициенты
-    QJsonArray *types = new QJsonArray();
+    QJsonObject *localRailcarsJson = new QJsonObject(); // Надо как-то достать отсюда коэфициенты
+    QJsonArray *localTypes = new QJsonArray();
 
     QJsonObject *localJsonObject = new QJsonObject();
     QJsonArray *localJsonArray = new QJsonArray();
-    //int railcarId = -1;
 
-    for (int i = 0; i < railcarsMapModel->rowCount(); i++) {
+    QString localRailcarId;
+    QString localFilter;
+
+    for (int i = 0; i < localRailcarMapModel->rowCount(); i++) {
         localTmp = localRailcarMapModel->record(i).value(TABLE_RAILCAR_MAP_MASS);
-        localJsonObject->insert("mass", QJsonValue::fromVariant(localTmp));
+        localJsonObject->insert(TABLE_RAILCAR_MAP_MASS, QJsonValue::fromVariant(localTmp));
 
         localTmp = localRailcarMapModel->record(i).value(TABLE_RAILCAR_MAP_PERCENT);
-        localJsonObject->insert("percent",QJsonValue::fromVariant(localTmp));
+        localJsonObject->insert(TABLE_RAILCAR_MAP_PERCENT, QJsonValue::fromVariant(localTmp));
 
-        QString railcarId = localRailcarMapModel->record(i).value("railcar_id").toString();
-        QString filter = "id = ";
-        filter.append(railcarId);
-        localRailcarModel->setFilter(filter);
+        localRailcarId = localRailcarMapModel->record(i).value("railcar_id").toString();
+        localFilter = "id = ";
+        localFilter.append(localRailcarId);
+        localRailcarModel->setFilter(localFilter);
         localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_AXLE_COUNT);
-        localJsonObject->insert("axle_count", QJsonValue::fromVariant(localTmp));
+        localJsonObject->insert(TABLE_RAILCAR_AXLE_COUNT, QJsonValue::fromVariant(localTmp));
 
         localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_K_COEF);
         localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
@@ -283,13 +304,33 @@ void InputWindow::addRailcarMapToJson()
         localJsonArray->push_back(QJsonValue::fromVariant(localTmp));
         localJsonObject->insert("coefs", *localJsonArray);
 
-        types->push_back(*localJsonObject);
+        localTypes->push_back(*localJsonObject);
 
         *localJsonArray = QJsonArray{};
     }
 
-    railcarsJson->insert("types", *types);
-    dataJson->insert("railcars", *railcarsJson);
+    localRailcarsJson->insert("types", *localTypes);
+    dataJson->insert("railcars", *localRailcarsJson);
+}
+
+/* Метод для инициализации модеи представления данных локомотивов*/
+void InputWindow::setupLocomotiveTableModel(const QString &tableName)
+{
+    /* Производим инициализацию модели представления данных
+     * с установкой имени таблицы в базе данных, по которому
+     * будет производится обращение в комбобоксе */
+    locomotiveModel = new QSqlTableModel();
+    locomotiveModel->setTable(tableName);
+    locomotiveModel->setSort(0, Qt::AscendingOrder);
+}
+
+void InputWindow::showLocomotiveComboBox()
+{
+    ui->comboBox->setModel(locomotiveModel);
+    ui->comboBox->setModelColumn(1);
+    ui->comboBox->setFixedWidth(100);
+
+    locomotiveModel->select();
 }
 
 /* Метод для инициализации модеи представления данных вагонов*/
@@ -410,6 +451,7 @@ void InputWindow::on_pushButton_buildGraph_clicked()
 {
     dataJson = new QJsonObject();
 
+    addLocomotiveToJson();
     addTrackSectionsToJson();
     addRailcarMapToJson();
 
@@ -421,3 +463,8 @@ void InputWindow::on_pushButton_buildGraph_clicked()
     //delete curveLengths;
     //delete curveRadiuses;
 }
+
+//void InputWindow::on_comboBox_activated(const QString &arg1)
+//{
+//    qDebug() << arg1 << "\n" << locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
+//}
