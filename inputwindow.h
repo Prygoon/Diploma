@@ -32,6 +32,7 @@ private:
     /* Объекты для взаимодействия с информацией в базе данных
      * и моделью представления таблицы базы данных */
     DataBase *db;
+    QSqlTableModel *locomotiveModel;
     QSqlRelationalTableModel *railcarsMapModel;
     QSqlRelationalTableModel *trackSectionModel;
     TrackSectionProxyModel *proxyModel;
@@ -43,6 +44,9 @@ private:
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
+    void setupLocomotiveTableModel(const QString &tableName);
+    void showLocomotiveComboBox();
+
     void setupRailcarTableModel(const QString &tableName, const QStringList &headers);
     void showRailcarTableView();
 
@@ -55,8 +59,9 @@ private:
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     void setProjectId();
 
-    void addTrackSectionsToJson();
+    void addLocomotiveToJson();
     void addRailcarMapToJson();
+    void addTrackSectionsToJson();
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
@@ -74,6 +79,7 @@ private slots:
     void onRevertSignalReceived();
     void on_excel_pushButton_clicked();
     void on_pushButton_buildGraph_clicked();
+    //void on_comboBox_activated(const QString &arg1);
 };
 
 #endif // INPUTWINDOW_H
