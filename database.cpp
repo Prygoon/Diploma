@@ -79,7 +79,8 @@ bool DataBase::createLocoTable()
                     TABLE_LOCO_CALC_THRUST_FORCE       " INTEGER    NOT NULL,"
                     TABLE_LOCO_MASS                    " INTEGER    NOT NULL,"
                     TABLE_LOCO_CONSTRUCTION_VELOCITY   " INTEGER    NOT NULL,"
-                    TABLE_LOCO_CALC_VELOCITY           " REAL       NOT NULL"
+                    TABLE_LOCO_CALC_VELOCITY           " REAL       NOT NULL,"
+                    TABLE_LOCO_LENGTH                  " REAL       NOT NULL"
                     " )"
                     )){
         qDebug() << "DataBase: error of create " << TABLE_LOCO_NAME;

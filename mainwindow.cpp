@@ -53,7 +53,8 @@ void MainWindow::on_action_close_triggered()
 
 void MainWindow::on_action_loco_triggered()
 {
-    wLocomotiveDbWindow = new LocomotiveDbWindow(this);
+    wLocomotiveDbWindow = new LocomotiveDbWindow();
+    wLocomotiveDbWindow->setParent(this, Qt::Window);
     wLocomotiveDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
@@ -64,7 +65,8 @@ void MainWindow::on_action_loco_triggered()
 
 void MainWindow::on_action_railcars_triggered()
 {
-    wRailcarDbWindow = new RailcarDbWindow(this);
+    wRailcarDbWindow = new RailcarDbWindow();
+    wRailcarDbWindow->setParent(this, Qt::Window);
     wRailcarDbWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
