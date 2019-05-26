@@ -29,12 +29,7 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     inputwindow.cpp \
-    locomotive.cpp \
-    tracksection.cpp \
-    railcar.cpp \
     database.cpp \
-    project.cpp \
-    train.cpp \
     locomotivedbwindow.cpp \
     railcardbwindow.cpp \
     locoeditform.cpp \
@@ -47,12 +42,7 @@ HEADERS += \
     logic.h \
         mainwindow.h \
     inputwindow.h \
-    locomotive.h \
-    tracksection.h \
-    railcar.h \
     database.h \
-    project.h \
-    train.h \
     locomotivedbwindow.h \
     railcardbwindow.h \
     locoeditform.h \

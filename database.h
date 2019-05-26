@@ -22,6 +22,7 @@
 #define TABLE_LOCO_MASS                  "mass"
 #define TABLE_LOCO_CONSTRUCTION_VELOCITY "construction_velocity"
 #define TABLE_LOCO_CALC_VELOCITY         "calc_velocity"
+#define TABLE_LOCO_LENGTH                "length"
 
 //Таблица вагонов
 #define TABLE_RAILCAR_NAME       "railcars"
