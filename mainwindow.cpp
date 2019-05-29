@@ -42,6 +42,8 @@ void MainWindow::on_action_new_triggered()
 
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */
     connect(wInputWindow, &InputWindow::showMainWindow, this, &MainWindow::show);
+
+    connect(wInputWindow, static_cast<void (InputWindow::*)(QJsonObject const&)>(&InputWindow::buildGraph), this, &MainWindow::onBuildGraphSignalReceived);
     wInputWindow->show();
     this->hide();
 }
@@ -75,9 +77,15 @@ void MainWindow::on_action_railcars_triggered()
     this->hide();
 }
 
-void MainWindow::on_pushButtonCalc_clicked()
+void MainWindow::on_pushButtonTest_clicked()
 {
-    logic = new Logic(this);
+
+}
+
+void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
+{
+    //QJsonObject localDataJson = dataJson;
+    logic = new Logic(this, &dataJson);
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
 
@@ -91,10 +99,6 @@ void MainWindow::on_pushButtonCalc_clicked()
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
     ui->mainGraph->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
     ui->mainGraph->replot();
+    //qDebug() << dataJson;
     delete logic;
-}
-
-void MainWindow::on_pushButtonTest_clicked()
-{
-
 }

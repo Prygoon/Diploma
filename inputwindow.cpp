@@ -217,17 +217,17 @@ void InputWindow::setProjectId()
 
 void InputWindow::addLocomotiveToJson()
 {
-    int currentComboBoxIndex = locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
+    //int localCurrentComboBoxIndex = locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
     QVariant localTmp;
     QJsonObject *localLocomotiveJson = new QJsonObject();
 
-    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CALC_THRUST_FORCE);
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_THRUST_FORCE);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_THRUST_FORCE, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_MASS);
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_MASS);
     localLocomotiveJson->insert(TABLE_LOCO_MASS, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CONSTRUCTION_VELOCITY);
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CONSTRUCTION_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CONSTRUCTION_VELOCITY, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(currentComboBoxIndex).value(TABLE_LOCO_CALC_VELOCITY);
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_VELOCITY, QJsonValue::fromVariant(localTmp));
 
     dataJson->insert("locomotive", *localLocomotiveJson);
@@ -329,7 +329,6 @@ void InputWindow::showLocomotiveComboBox()
     ui->comboBox->setModel(locomotiveModel);
     ui->comboBox->setModelColumn(1);
     ui->comboBox->setFixedWidth(100);
-
     locomotiveModel->select();
 }
 
@@ -447,7 +446,7 @@ void InputWindow::showTrackSectionTableView()
     trackSectionModel->select(); // Делаем выборку данных из таблицы
 }
 
-void InputWindow::on_pushButton_buildGraph_clicked()
+void InputWindow::on_pushButton_buildGraph_clicked() // FIXME Сделать проверку выбора локомотива/вагонов/участков
 {
     dataJson = new QJsonObject();
 
@@ -455,9 +454,12 @@ void InputWindow::on_pushButton_buildGraph_clicked()
     addTrackSectionsToJson();
     addRailcarMapToJson();
 
+    //qDebug() << *dataJson;
+    emit buildGraph(*dataJson);
+    this->close();
+    emit showMainWindow();
     //dataJson->insert("lenStation", 1500); // пока фиксированное, взять из lineEdit
     //dataJson->insert("slope", );
-    qDebug() << *dataJson;
     //delete slopes;
     //delete lengths;
     //delete curveLengths;
