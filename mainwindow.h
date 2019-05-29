@@ -42,8 +42,9 @@ private slots:
     void on_action_loco_triggered();
     void on_action_railcars_triggered();
 
-    void on_pushButtonCalc_clicked();
     void on_pushButtonTest_clicked();
+
+    void onBuildGraphSignalReceived(const QJsonObject &dataJson);
 
 signals:
     void calc();

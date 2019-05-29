@@ -6,6 +6,8 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QVector>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <math.h>
 
 // ИНФО ЛОКОМОТИВ, ИЗ БАЗЫ написано капсом специально для дебилов
@@ -26,7 +28,7 @@ class Logic : public QObject
 {
     Q_OBJECT
 public:
-    explicit Logic(QObject *parent = nullptr);
+    explicit Logic(QObject *parent = nullptr, const QJsonObject *dataJson = nullptr);
     QVector<double> getPointS() const;
     QVector<double> getPointV() const;
     QVector<double> getPointT() const;
@@ -39,6 +41,8 @@ public slots:
     void onCalcSignalReceived();
 
 private:
+    const QJsonObject *dataJson;
+
     const double g = 9.81;
 
     QStandardItemModel *model;
