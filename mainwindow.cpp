@@ -24,7 +24,7 @@ void MainWindow::drawVsGraph()
 void MainWindow::drawVCalcGraph()
 {
     ui->mainGraph->addGraph();
-    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {CALC_VELOCITY, CALC_VELOCITY});
+    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {logic->getLocoCalcVelocity(), logic->getLocoCalcVelocity()});
     ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
 }
 
@@ -97,7 +97,7 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     drawTimeGraph();
 
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
-    ui->mainGraph->yAxis->setRange(0, CONSTRUCTION_VELOCITY + 10);
+    ui->mainGraph->yAxis->setRange(0, logic->getLocoConstrVelocity() + 10);
     ui->mainGraph->replot();
     //qDebug() << dataJson;
     delete logic;
