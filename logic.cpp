@@ -28,7 +28,7 @@ Logic::Logic(QObject *parent, const QJsonObject *dataJson) :
     QObject(parent),
     dataJson(dataJson)
 {
-    qDebug() << dataJson->value("locomotive").toObject();
+    qDebug() << dataJson->value("railcars").toObject();
 }
 
 void Logic::onCalcSignalReceived()
@@ -553,16 +553,29 @@ void Logic::trainMassUpdate()
 
 void Logic::setValues()
 {
-    QJsonObject localLocomotiveJson = dataJson->value("locomotive").toObject(); // Локомотив
+    /* Локомотив */
+    QJsonObject localLocomotiveJson = dataJson->value("locomotive").toObject();
     int localLocoCalcThrustForce = localLocomotiveJson.value("calc_thrust_force").toInt(); // Расчетная сила тяги
     int localLocoMass = localLocomotiveJson.value("mass").toInt(); // Масса
     int localConstrVelocity = localLocomotiveJson.value("construction_velocity").toInt(); // Конструкционная скорость
     double localCalcVelocity = localLocomotiveJson.value("calc_velocity").toDouble(); // Расчетная скорость
 
-    QJsonObject localRailcarsJson = dataJson->value("railcars").toObject(); // Вагоны
-    localRailcarsJson.value("types").toArray(); // FIXME
+    /* Вагоны */
+    QJsonObject localRailcarsJson = dataJson->value("railcars").toObject();
+    QJsonArray localRailcarsTypes = localRailcarsJson.value("types").toArray();
+    QVector<int> localAxleCounts; // Массив количества осей
+    QVector<int> localMasses; // Массив масс типов вагонов
+    QVector<double> localPercents; // Массив долей вагонов в составе
+    QVector<QVector<QVariant>> localCoefs; // Массив массивов коэфициентов
+    foreach (QJsonValue railcarType, localRailcarsTypes) {
+        localAxleCounts.push_back(railcarType.toObject().value("axle_count").toInt());
+        localMasses.push_back(railcarType.toObject().value("mass").toInt());
+        localPercents.push_back(railcarType.toObject().value("percent").toDouble());
+        localCoefs.push_back(railcarType.toObject().value("coefs").toArray().toVariantList().toVector());
+    }
 
-    QJsonObject localTrackSectionsJson = dataJson->value("trackSection").toObject(); // Профиль пути
+    /* Профиль пути*/
+    QJsonObject localTrackSectionsJson = dataJson->value("trackSection").toObject();
     QVector<QVariant> localSlopes = localTrackSectionsJson.value("slopes").toArray().toVariantList().toVector(); // Уклоны
     QVector<QVariant> localLengths = localTrackSectionsJson.value("lengths").toArray().toVariantList().toVector(); // Длины
     QVector<QVariant> localCurveLengths = localTrackSectionsJson.value("curve_lengths").toArray().toVariantList().toVector(); // Длины кривых
