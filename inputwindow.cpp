@@ -288,8 +288,7 @@ void InputWindow::addRailcarMapToJson()
         localJsonObject->insert(TABLE_RAILCAR_MAP_PERCENT, QJsonValue::fromVariant(localTmp));
 
         localRailcarId = localRailcarMapModel->record(i).value("railcar_id").toString();
-        localFilter = "id = ";
-        localFilter.append(localRailcarId);
+        localFilter = QString("id = ").append(localRailcarId);
         localRailcarModel->setFilter(localFilter);
         localTmp = localRailcarModel->record(0).value(TABLE_RAILCAR_AXLE_COUNT);
         localJsonObject->insert(TABLE_RAILCAR_AXLE_COUNT, QJsonValue::fromVariant(localTmp));
