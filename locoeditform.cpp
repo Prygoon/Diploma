@@ -12,21 +12,17 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
 
     validator = new  QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
     ui->thrust_force_lineEdit->setValidator(validator);
-
-    validator = new  QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
     ui->mass_lineEdit->setValidator(validator);
-
-    validator = new  QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
     ui->constr_velocity_lineEdit->setValidator(validator);
 
     validator = new  QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
     ui->calc_velocity_lineEdit->setValidator(validator);
-
+    ui->length_lineEdit->setValidator(validator);
 
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
-    this->setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
+    //this->setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)
 
     if(isAllLineEditsEmpty()) {
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
@@ -37,7 +33,7 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
     connect(ui->mass_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
     connect(ui->constr_velocity_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
     connect(ui->calc_velocity_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
-
+    connect(ui->length_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
 }
 
 LocoEditForm::~LocoEditForm()
@@ -53,6 +49,7 @@ void LocoEditForm::setModel(QAbstractItemModel *model)
     mapper->addMapping(ui->mass_lineEdit, 3);
     mapper->addMapping(ui->constr_velocity_lineEdit, 4);
     mapper->addMapping(ui->calc_velocity_lineEdit, 5);
+    mapper->addMapping(ui->length_lineEdit, 6);
 }
 
 void LocoEditForm::on_buttonBox_accepted()
@@ -94,7 +91,8 @@ bool LocoEditForm::isAllLineEditsEmpty()
             || ui->thrust_force_lineEdit->text().isEmpty() \
             || ui->mass_lineEdit->text().isEmpty() \
             || ui->constr_velocity_lineEdit->text().isEmpty() \
-            || ui->calc_velocity_lineEdit->text().isEmpty();
+            || ui->calc_velocity_lineEdit->text().isEmpty() \
+            || ui->length_lineEdit->text().isEmpty();
 }
 
 
@@ -135,6 +133,9 @@ void LocoEditForm::createBlankForm()
     ui->constr_velocity_lineEdit->setPlaceholderText("в км/ч");
     ui->calc_velocity_lineEdit->setText(BLANK_TEXT);
     ui->calc_velocity_lineEdit->setPlaceholderText("в км/ч");
+    ui->length_lineEdit->setText(BLANK_TEXT);
+    ui->length_lineEdit->setPlaceholderText("в метрах");
+
 }
 
 void LocoEditForm::onTextEdited(const QString &arg1)

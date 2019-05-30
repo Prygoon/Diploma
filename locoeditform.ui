@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>345</width>
-    <height>206</height>
+    <height>266</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>345</width>
-    <height>206</height>
+    <height>266</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>345</width>
-    <height>206</height>
+    <height>266</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -33,18 +33,18 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="general_verticalLayout">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <layout class="QHBoxLayout" name="loco_type_horizontalLayout">
        <item>
         <widget class="QLabel" name="loco_type_label">
          <property name="text">
-          <string>Тепловоз</string>
+          <string>Серия локомотива</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <spacer name="loco_type_horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -62,7 +62,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="thurst_force_horizontalLayout">
        <item>
         <widget class="QLabel" name="thurst_force_label">
          <property name="text">
@@ -71,7 +71,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="thurst_force_horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -89,7 +89,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QHBoxLayout" name="mass_horizontalLayout">
        <item>
         <widget class="QLabel" name="mass_label">
          <property name="text">
@@ -98,7 +98,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_4">
+        <spacer name="mass_horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -116,7 +116,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="constr_valocity_horizontalLayout">
        <item>
         <widget class="QLabel" name="constr_velocity_label">
          <property name="text">
@@ -125,7 +125,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_5">
+        <spacer name="constr_valocity_horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -143,7 +143,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="calc_velocity_horizontalLayout">
        <item>
         <widget class="QLabel" name="calc_velocity_label">
          <property name="text">
@@ -152,7 +152,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_6">
+        <spacer name="calc_velocity_horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -170,7 +170,34 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <layout class="QHBoxLayout" name="length_horizontalLayout">
+       <item>
+        <widget class="QLabel" name="length_label">
+         <property name="text">
+          <string>Длина</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="length_horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="length_lineEdit"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="buttons_horizontalLayout">
        <item>
         <widget class="QPushButton" name="delete_pushButton">
          <property name="text">

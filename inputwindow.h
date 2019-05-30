@@ -65,6 +65,7 @@ private:
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие
+    void buildGraph(const QJsonObject &dataJson);
 
 private slots:
     void on_pushButton_cancel_clicked();
