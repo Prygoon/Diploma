@@ -573,7 +573,7 @@ void Logic::railcarsCountUpdate()
 {
     railcarCount.clear();
     for (int i = 0; i < railcarsTypeCount; i++) {
-        railcarCount.push_back( floor(railcarPercents[i] * trainMass / railcarMasses[i])); // вагоны не дробные, округляем-с
+        railcarCount.push_back(static_cast<int>(floor(railcarPercents[i] * trainMass / railcarMasses[i]))); // вагоны не дробные, округляем-с
     }
 
     qDebug() << "Количество вагонов" << railcarCount;
