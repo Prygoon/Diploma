@@ -71,7 +71,14 @@ void LocomotiveDbWindow::onDeleteLocoSignalReceived()
 
 void LocomotiveDbWindow::onSubmitModelSignalReceived(const QString &strTractionJson)
 {
-    model->setData(model->index(wLocoEditForm->getWIndex()->row(), 7), strTractionJson);
+    QModelIndex *index = wLocoEditForm->getWIndex();
+    //qDebug() << "Index" << model->index();
+    if(index != nullptr) {
+        model->setData(model->index(wLocoEditForm->getWIndex()->row(), 7), strTractionJson);
+    } else {
+        model->insertRows(model->rowCount() + 1, 1);
+        model->setData(model->index(model->rowCount() - 1, 7), strTractionJson);
+    }
 
     wLocoEditForm->getMapper()->submit();
     model->submitAll();
