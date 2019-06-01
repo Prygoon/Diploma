@@ -26,9 +26,9 @@ private slots:
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_pushButton_add_clicked();
 
-    void deleteLoco();
-    void submitModel();
-    void revertModel();
+    void onDeleteLocoSignalReceived();
+    void onSubmitModelSignalReceived(const QString &strTractionJson);
+    void onRevertModelSignalReceived();
 
 private:
     Ui::LocomotiveDbWindow *ui;

@@ -73,10 +73,10 @@ private:
     QLineEdit *percent_lineEdit;
 
     //Лэйаут ввода порядкового номера участка пути
-    QHBoxLayout *trackSectionIndexHorizontalLayout;
-    QLabel *trackSectionIndex_label;
-    QSpacerItem *trackSectionIndexHorizontalSpacer;
-    QLineEdit *trackSectionIndex_lineEdit;
+    //QHBoxLayout *trackSectionIndexHorizontalLayout;
+    //QLabel *trackSectionIndex_label;
+    //QSpacerItem *trackSectionIndexHorizontalSpacer;
+    //QLineEdit *trackSectionIndex_lineEdit;
 
     //Лэйаут ввода уклона участка пути
     QHBoxLayout *trackSectionSlopeHorizontalLayout;

@@ -19,7 +19,8 @@ LocomotiveDbWindow::LocomotiveDbWindow(QWidget *parent) :
                      << ("Расчетная масса")
                      << ("Констр. скорость")
                      << ("Расчетная скорость")
-                     << ("Длина локомотива"));
+                     << ("Длина локомотива")
+                     << ("Тяговая характеристика"));
 
     showTableView();
 
@@ -44,6 +45,7 @@ void LocomotiveDbWindow::on_tableView_doubleClicked(const QModelIndex &index)
     wLocoEditForm->enableSaveButton();
     wLocoEditForm->setWIndex(new QModelIndex(index));
     wLocoEditForm->getMapper()->setCurrentModelIndex(index);
+    wLocoEditForm->setEditOrNewCheck(true);
     wLocoEditForm->show();
     //qDebug() << "Works!!" << index.row();
 }
@@ -55,24 +57,27 @@ void LocomotiveDbWindow::on_pushButton_add_clicked()
     wLocoEditForm->hideDeleteButton();
     wLocoEditForm->createBlankForm();
     wLocoEditForm->disableSaveButton();
+    wLocoEditForm->setEditOrNewCheck(false);
     wLocoEditForm->show();
     model->insertRow(model->rowCount(QModelIndex()));
     wLocoEditForm->getMapper()->toLast();
 }
 
-void LocomotiveDbWindow::deleteLoco()
+void LocomotiveDbWindow::onDeleteLocoSignalReceived()
 {
     model->removeRow(wLocoEditForm->getWIndex()->row());
     model->submitAll();
 }
 
-void LocomotiveDbWindow::submitModel()
+void LocomotiveDbWindow::onSubmitModelSignalReceived(const QString &strTractionJson)
 {
+    model->setData(model->index(wLocoEditForm->getWIndex()->row(), 7), strTractionJson);
+
     wLocoEditForm->getMapper()->submit();
     model->submitAll();
 }
 
-void LocomotiveDbWindow::revertModel()
+void LocomotiveDbWindow::onRevertModelSignalReceived()
 {
     wLocoEditForm->getMapper()->revert();
     model->revertAll();
@@ -100,6 +105,7 @@ void LocomotiveDbWindow::showTableView()
 {
     ui->tableView->setModel(model);     // Устанавливаем модель на TableView
     ui->tableView->setColumnHidden(0, true);    // Скрываем колонку с id записей
+    ui->tableView->setColumnHidden(7, true);    // Скрываем колонку с тяговой характеристикой
     // Разрешаем выделение строк
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Устанавливаем режим выделения лишь одно строки в таблице
@@ -121,9 +127,9 @@ void LocomotiveDbWindow::setupLocoEditForm()
     wLocoEditForm->setModal(true);
     wLocoEditForm->setModel(model);
 
-    connect(wLocoEditForm, &LocoEditForm::deleteLocoSignal, this, &LocomotiveDbWindow::deleteLoco);
-    connect(wLocoEditForm, &LocoEditForm::submitTableModel, this, &LocomotiveDbWindow::submitModel);
-    connect(wLocoEditForm, &LocoEditForm::revertTableModel, this, &LocomotiveDbWindow::revertModel);
+    connect(wLocoEditForm, &LocoEditForm::deleteLocoSignal, this, &LocomotiveDbWindow::onDeleteLocoSignalReceived);
+    connect(wLocoEditForm, static_cast<void (LocoEditForm::*)(QString const&)>(&LocoEditForm::submitTableModel), this, &LocomotiveDbWindow::onSubmitModelSignalReceived);
+    connect(wLocoEditForm, &LocoEditForm::revertTableModel, this, &LocomotiveDbWindow::onRevertModelSignalReceived);
 }
 
 void LocomotiveDbWindow::closeEvent(QCloseEvent *event)
