@@ -14,31 +14,29 @@ InputWindow::InputWindow(QWidget *parent) :
 
     /* Поля проекта определены статически для тестов
      * TODO: сделать подгрузку динамически из БД */
-    projectId = 1;
-    projectTitle = new QString("Test");
+    //projectId = 1;
+    //projectTitle = new QString("Test");
 
     setupLocomotiveTableModel(TABLE_LOCO_NAME);
     showLocomotiveComboBox();
 
     setupRailcarTableModel(TABLE_RAILCAR_MAP_NAME,
-                                 QStringList() << ("id")
-                                 << ("Тип вагона")
-                                 << ("Масса брутто")
-                                 << ("Доля в составе")
-                                 << ("project_id"));
+                           QStringList() << ("id")
+                           << ("Тип вагона")
+                           << ("Масса брутто")
+                           << ("Доля в составе"));
 
     showRailcarTableView();
 
     setupTrackSectionModel(TABLE_TRACK_SECTION_NAME,
-                                 QStringList() << ("id")
-                                 << ("№ п/п")
-                                 << ("Уклон")
-                                 << ("Длина")
-                                 << ("Длина кривой")
-                                 << ("Радиус кривой")
-                                 << ("project_id"));
+                           QStringList() << ("id")
+                           << ("Уклон")
+                           << ("Длина")
+                           << ("Длина кривой")
+                           << ("Радиус кривой"));
 
     showTrackSectionTableView();
+    dataDir = QDir().homePath();
 }
 
 InputWindow::~InputWindow()
@@ -112,12 +110,18 @@ void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &ind
 
 void InputWindow::on_excel_pushButton_clicked()
 {
-    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", QDir().homePath(), "MS Excel files (*.xlsx)");
+    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", dataDir, "MS Excel files (*.xlsx)");
     ui->excel_lineEdit->setText(excelFilePath);
+    ui->excel_lineEdit->setToolTip(excelFilePath);
+    dataDir = excelFilePath;
 
     QXlsx::Document excelDoc(excelFilePath);
 
     if(excelFilePath != "") {
+        //trackSectionModel->clear();
+        trackSectionModel->removeRows(0, trackSectionModel->rowCount());
+        trackSectionModel->submitAll();
+
         for (int i = 0; i < 16; i++) {
             QVariant slopeRead = excelDoc.read(3, i + 3);
             QVariant lengthRead = excelDoc.read(4, i + 3);
@@ -125,15 +129,14 @@ void InputWindow::on_excel_pushButton_clicked()
             QVariant curveRadiusRead = excelDoc.read(6, i + 3);
 
             trackSectionModel->insertRows(i, 1);
-            trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
-            trackSectionModel->setData(trackSectionModel->index(i, 2), slopeRead.toDouble());
-            trackSectionModel->setData(trackSectionModel->index(i, 3), lengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 4), curveLengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 5), curveRadiusRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 6), projectId);
+            //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
+            trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
+            trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
             trackSectionModel->submitAll();
 
-            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead << projectId;
+            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
         }
     }
 
@@ -145,8 +148,7 @@ void InputWindow::on_excel_pushButton_clicked()
     //    excelDoc.write("A5", "project!");
     //    excelDoc.save();
 
-    qDebug() << QDir().homePath();
-    qDebug() << excelFilePath;
+    qDebug() << dataDir << endl << excelFilePath;
 }
 
 void InputWindow::onDeleteSignalRecieved()
@@ -175,13 +177,13 @@ void InputWindow::onDeleteSignalRecieved()
 void InputWindow::onSubmitSignalReceived()
 { 
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
-        setProjectId();
+        //setProjectId();
         wInputEditForm->getMapper()->submit();
         railcarsMapModel->submitAll();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
-        setProjectId();
+        //setProjectId();
         wInputEditForm->getMapper()->submit();
         trackSectionModel->submitAll();
     }
@@ -200,20 +202,20 @@ void InputWindow::onRevertSignalReceived()
     }
 }
 
-void InputWindow::setProjectId()
-{
-    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
-        int aRow = railcarsMapModel->rowCount() - 1;
-        QModelIndex localIndex = railcarsMapModel->index(aRow, 4);
-        railcarsMapModel->setData(localIndex, projectId);
-    }
+//void InputWindow::setProjectId()
+//{
+//    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
+//        int aRow = railcarsMapModel->rowCount() - 1;
+//        QModelIndex localIndex = railcarsMapModel->index(aRow, 4);
+//        railcarsMapModel->setData(localIndex, projectId);
+//    }
 
-    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
-        int aRow = trackSectionModel->rowCount() - 1;
-        QModelIndex localIndex = trackSectionModel->index(aRow, 6);
-        trackSectionModel->setData(localIndex, projectId);
-    }
-}
+//    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
+//        int aRow = trackSectionModel->rowCount() - 1;
+//        QModelIndex localIndex = trackSectionModel->index(aRow, 6);
+//        trackSectionModel->setData(localIndex, projectId);
+//    }
+//}
 
 void InputWindow::addLocomotiveToJson()
 {
@@ -229,6 +231,8 @@ void InputWindow::addLocomotiveToJson()
     localLocomotiveJson->insert(TABLE_LOCO_CONSTRUCTION_VELOCITY, QJsonValue::fromVariant(localTmp));
     localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_VELOCITY, QJsonValue::fromVariant(localTmp));
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_TRACTION);
+    localLocomotiveJson->insert(TABLE_LOCO_TRACTION, objectFromString(localTmp.toString()));
 
     dataJson->insert("locomotive", *localLocomotiveJson);
 }
@@ -258,6 +262,24 @@ void InputWindow::addTrackSectionsToJson()
     localTrackSectionsJson->insert("curve_lengths", *localCurveLengths);
     localTrackSectionsJson->insert("curve_radiuses", *localCurveRadiuses);
     dataJson->insert("trackSection", *localTrackSectionsJson);
+}
+
+QJsonObject InputWindow::objectFromString(const QString &strJson)
+{
+    QJsonObject obj;
+    QJsonDocument doc = QJsonDocument::fromJson(strJson.toUtf8());
+
+    // Проверка валидности документа
+    if(!doc.isNull()) {
+        if(doc.isObject()) {
+            obj = doc.object();
+        } else {
+            qDebug() << "Document is not an object" << endl;
+        }
+    } else {
+        qDebug() << "Invalid JSON...\n" << strJson << endl;
+    }
+    return obj;
 }
 
 void InputWindow::addRailcarMapToJson()
@@ -326,9 +348,10 @@ void InputWindow::setupLocomotiveTableModel(const QString &tableName)
 void InputWindow::showLocomotiveComboBox()
 {
     ui->comboBox->setModel(locomotiveModel);
-    ui->comboBox->setModelColumn(1);
+    ui->comboBox->setModelColumn(locomotiveModel->fieldIndex("type"));
     ui->comboBox->setFixedWidth(100);
     locomotiveModel->select();
+    ui->comboBox->setCurrentIndex(0);
 }
 
 /* Метод для инициализации модеи представления данных вагонов*/
@@ -340,7 +363,7 @@ void InputWindow::setupRailcarTableModel(const QString &tableName, const QString
     railcarsMapModel = new QSqlRelationalTableModel(this);
     railcarsMapModel->setTable(tableName);
     railcarsMapModel->setRelation(1, (QSqlRelation(TABLE_RAILCAR_NAME, "id", TABLE_RAILCAR_NAMEPLATE)));
-    railcarsMapModel->setRelation(4, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
+    //railcarsMapModel->setRelation(4, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
 
     /* Устанавливаем названия колонок в таблице с сортировкой данных */
     for(int i = 0; i < railcarsMapModel->columnCount(); i++){
@@ -405,9 +428,9 @@ void InputWindow::setupTrackSectionModel(const QString &tableName, const QString
     /* Производим инициализацию модели представления данных
      * с установкой имени таблицы в базе данных, по которому
      * будет производится обращение в таблице */
-    trackSectionModel = new QSqlRelationalTableModel(this);
+    trackSectionModel = new QSqlTableModel(this);
     trackSectionModel->setTable(tableName);
-    trackSectionModel->setRelation(6, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
+    //trackSectionModel->setRelation(6, (QSqlRelation(TABLE_PROJECT_NAME, "id", TABLE_PROJECT_TITLE)));
 
     proxyModel = new TrackSectionProxyModel();
     proxyModel->setSourceModel(trackSectionModel);

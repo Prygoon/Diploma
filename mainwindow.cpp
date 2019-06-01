@@ -37,7 +37,8 @@ void MainWindow::drawTimeGraph()
 
 void MainWindow::on_action_new_triggered()
 {
-    wInputWindow = new InputWindow(this);
+    wInputWindow = new InputWindow();
+    wInputWindow->setParent(this, Qt::Window);
     wInputWindow->setAttribute(Qt::WA_DeleteOnClose, true);
 
     /* подключаем к слоту запуска главного окна по кнопке во окне ввода */

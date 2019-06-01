@@ -34,13 +34,11 @@ private:
     DataBase *db;
     QSqlTableModel *locomotiveModel;
     QSqlRelationalTableModel *railcarsMapModel;
-    QSqlRelationalTableModel *trackSectionModel;
+    QSqlTableModel *trackSectionModel;
     TrackSectionProxyModel *proxyModel;
 
     //QFileDialog *fileDialog;
-
-    QString *projectTitle;
-    int projectId;
+    QString dataDir;
 
     /* Также присутствуют два метода, которые формируют модель
      * и внешний вид TableView */
@@ -57,11 +55,13 @@ private:
     void showTrackSectionTableView();
 
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
-    void setProjectId();
+    //void setProjectId();
 
     void addLocomotiveToJson();
     void addRailcarMapToJson();
     void addTrackSectionsToJson();
+
+    QJsonObject objectFromString(const QString &strJson);
 
 signals:
     void showMainWindow();  // Сигнал для первого окна на открытие

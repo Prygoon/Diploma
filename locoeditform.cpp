@@ -7,6 +7,8 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    dataDir = QDir().homePath();
+
     validator = new  QRegExpValidator(QRegExp("^\\d{,3}[А-Я,а-я]{1,4}\\d{1,4}[А-Я,а-я]{,5}$"), this);
     ui->loco_type_lineEdit->setValidator(validator);
 
@@ -34,6 +36,7 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
     connect(ui->constr_velocity_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
     connect(ui->calc_velocity_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
     connect(ui->length_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &LocoEditForm::onTextEdited);
+    connect(ui->traction_lineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textChanged), this, &LocoEditForm::onTextEdited);
 }
 
 LocoEditForm::~LocoEditForm()
@@ -54,7 +57,7 @@ void LocoEditForm::setModel(QAbstractItemModel *model)
 
 void LocoEditForm::on_buttonBox_accepted()
 {    
-    emit submitTableModel();
+    emit submitTableModel(strTractionJson);
 }
 
 void LocoEditForm::on_buttonBox_rejected()
@@ -79,6 +82,16 @@ QModelIndex *LocoEditForm::getWIndex() const
     return wIndex;
 }
 
+QString LocoEditForm::getStrTractionJson() const
+{
+    return strTractionJson;
+}
+
+void LocoEditForm::setEditOrNewCheck(bool value)
+{
+    editOrNewCheck = value;
+}
+
 void LocoEditForm::closeEvent(QCloseEvent *event)
 {
     emit revertTableModel();
@@ -87,14 +100,23 @@ void LocoEditForm::closeEvent(QCloseEvent *event)
 
 bool LocoEditForm::isAllLineEditsEmpty()
 {
-    return ui->loco_type_lineEdit->text().isEmpty() \
-            || ui->thrust_force_lineEdit->text().isEmpty() \
-            || ui->mass_lineEdit->text().isEmpty() \
-            || ui->constr_velocity_lineEdit->text().isEmpty() \
-            || ui->calc_velocity_lineEdit->text().isEmpty() \
-            || ui->length_lineEdit->text().isEmpty();
+    if (editOrNewCheck) {
+        return ui->loco_type_lineEdit->text().isEmpty() \
+                || ui->thrust_force_lineEdit->text().isEmpty() \
+                || ui->mass_lineEdit->text().isEmpty() \
+                || ui->constr_velocity_lineEdit->text().isEmpty() \
+                || ui->calc_velocity_lineEdit->text().isEmpty() \
+                || ui->length_lineEdit->text().isEmpty();
+    } else {
+        return ui->loco_type_lineEdit->text().isEmpty() \
+                || ui->thrust_force_lineEdit->text().isEmpty() \
+                || ui->mass_lineEdit->text().isEmpty() \
+                || ui->constr_velocity_lineEdit->text().isEmpty() \
+                || ui->calc_velocity_lineEdit->text().isEmpty() \
+                || ui->length_lineEdit->text().isEmpty() \
+                || ui->traction_lineEdit->text().isEmpty();
+    }
 }
-
 
 QDataWidgetMapper *LocoEditForm::getMapper() const
 {
@@ -135,7 +157,6 @@ void LocoEditForm::createBlankForm()
     ui->calc_velocity_lineEdit->setPlaceholderText("в км/ч");
     ui->length_lineEdit->setText(BLANK_TEXT);
     ui->length_lineEdit->setPlaceholderText("в метрах");
-
 }
 
 void LocoEditForm::onTextEdited(const QString &arg1)
@@ -155,4 +176,43 @@ void LocoEditForm::onTextEdited(const QString &arg1)
     } else {
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(false);
     }
+}
+
+void LocoEditForm::on_traction_pushButton_clicked()
+{
+    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", dataDir, "MS Excel files (*.xlsx)");
+    ui->traction_lineEdit->setText(excelFilePath);
+    ui->traction_lineEdit->setToolTip(excelFilePath);
+    dataDir = excelFilePath;
+
+    QXlsx::Document excelDoc(excelFilePath);
+    QJsonDocument *tractionJsonDoc;
+    QJsonObject *tractionJson = new QJsonObject();
+    QJsonArray *velocityJsonArray = new QJsonArray() ;
+    QJsonArray *thrustForceJsonArray = new QJsonArray();
+    int i = 0;
+
+    if(excelFilePath != "") {
+        //for (int i = 0; i < 16; i++) {
+        while(true) {
+            if(excelDoc.read(3, i + 3).isNull() || excelDoc.read(4, i + 3).isNull()) {
+                break;
+            }
+
+            velocityJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(3, i + 3)));
+            thrustForceJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(4, i + 3)));
+
+            i++;
+        }
+
+        tractionJson->insert("velocity", *velocityJsonArray);
+        tractionJson->insert("thrust_force", *thrustForceJsonArray);
+
+        tractionJsonDoc = new QJsonDocument(*tractionJson);
+        strTractionJson = tractionJsonDoc->toJson(QJsonDocument::Compact);
+
+        qDebug() << *tractionJsonDoc << endl << strTractionJson;
+    }
+
+    qDebug() << dataDir << endl << excelFilePath;
 }
