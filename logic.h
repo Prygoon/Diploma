@@ -29,17 +29,13 @@ class Logic : public QObject
     Q_OBJECT
 public:
     explicit Logic(QObject *parent = nullptr, const QJsonObject *dataJson = nullptr);
+
     QVector<double> getPointS() const;
     QVector<double> getPointV() const;
     QVector<double> getPointT() const;
     double getDistanse() const;
-
     int getLocoConstrVelocity() const;
-
     double getLocoCalcVelocity() const;
-
-private slots:
-    //void on_pushButton_clicked();
 
 public slots:
     void onCalcSignalReceived();
