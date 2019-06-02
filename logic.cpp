@@ -30,7 +30,6 @@ void Logic::setValues()
         locoTractionThrust.push_back(localThrustForceArray.at(i).toDouble());
         locoTractionVelocity.push_back(localVelocityArray.at(i).toDouble());
     }
-    qDebug() << "test" << locoTractionThrust << locoTractionVelocity ;
 
     //locoTractionThrust = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
     //locoTractionVelocity = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
@@ -107,6 +106,10 @@ void Logic::setCoeffitient()
     b_tt = 2;  // как минимум 2 вида под колодки
 
      k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
+     locoA = 1.9;   // какие-то коэффициенты для
+     locoB = 0.01;  // основное удельное сопротивление локомотива
+     locoC = 0.0003; //
 
 }
 
@@ -210,7 +213,7 @@ void Logic::onCalcSignalReceived()
                     //    qDebug() << "lengsec = " << lengsec;
 
 
-                    fW0 = littleTableW0(trainMass, locoMass);
+                    fW0 = littleTableW0(trainMass);
                     calcVelParamUpdate();
                     //  qDebug() << "calcVelParam= " << calcVelParam;
 
@@ -263,22 +266,13 @@ void Logic::onCalcSignalReceived()
 
 
 
-    // обновим данные таблицы, это финальные, уже для графиков используются. в теории тут уже можно
-    // впилить обновленный метод с лагранжем. см. ниже комментарий
-
+    // обновим данные таблицы, это мелкая, ее можно вывести
 
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ; // масса, убрать дебаг, выевсти в окне
-    fW0 = littleTableW0(trainMass, locoMass);
-
-    //showTable();  // тут основная таблица, основные значения. можно вывести в окне
-
-    // qDebug() << "Тормозная часть" << w0xbt;
-
-
+    fW0 = littleTableW0(trainMass);
 
     double maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
-
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
@@ -294,17 +288,69 @@ void Logic::onCalcSignalReceived()
     pointS.push_back(0);
     pointV.push_back(0);
 
-    // FIXME блок частично надо вытащить в настройки программы. тот же шаг.
+    int s = 0 ; // s = speed
+
+    // какой-то большой Лагр...
+    okrUpdate(trainMass);
+
+    // до 15
+    while (locoTractionVelocity[s] < 16)
+    {
+        partlocoTractionThrust.push_back(locoTractionThrust[s]);
+        partlocoTractionVelocity.push_back(locoTractionVelocity[s]);
+        s++;
+    }
+
+    for (double k = 0 ; k < partlocoTractionVelocity.last(); k = k+stepV){
+        FinalTable(k);
+    }
+
+    partlocoTractionThrust.clear();
+    partlocoTractionVelocity.clear();
+
+    // от 15 до 3 точки
+    for (int i= s - 1; i < s + 6; i++)
+    {
+        partlocoTractionThrust.push_back(locoTractionThrust[i]);
+        partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+    }
+
+    for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[3]; k = k + stepV){
+        FinalTable(k);
+    }
+
+    s = s + 6;
+
+    for (int i = s; i < locoTractionThrust.count(); i++)
+    {
+        if (i != s) {
+            partlocoTractionThrust.remove(0);
+            partlocoTractionVelocity.remove(0);
+            partlocoTractionThrust.push_back(locoTractionThrust[i]);
+            partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+        }
+        for (double k = partlocoTractionVelocity[3] ; k < partlocoTractionVelocity[4]; k = k + stepV){
+            FinalTable(k);
+        }
+    }
+
+    // до конца
+    for (double k = partlocoTractionVelocity[4] ; k < locoConstrVelocity; k = k + stepV){
+        FinalTable(k);
+    }
+
+    // конец большого Лагра
+
+
+
     // вспомогательные
     double S = 0; // прохождение всего пути
     double currentS = 0; // прохождение участка пути
-
     double currentSpeed = 0;
     int currentSector = 0;
     double addPoint;
     double addTimePoint;
     double FwosrIp;
-    // конец FIXME блока
 
 
     QVector <double> deltaFW0;
@@ -383,8 +429,8 @@ void Logic::onCalcSignalReceived()
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
-    qDebug() << "S" << pointS;
-   qDebug() << "T" << pointT;
+ //   qDebug() << "S" << pointS;
+//   qDebug() << "T" << pointT;
     // закончили построение.
 
 
@@ -486,11 +532,8 @@ double Logic::w0ll(const double v)
 
 double Logic::w0l(const double v)
 {
-    double a = 1.9;   // какие-то коэффициенты для
-    double b = 0.01;  // основное удельное сопротивление локомотива
-    double c = 0.0003; //
 
-    return (a + b * v + c * v * v);
+    return (locoA + locoB * v + locoC * v * v);
 }
 
 double Logic::lenTrain(const double Q)
@@ -553,7 +596,7 @@ double Logic::timePoint(const double vMax, const double vMin, const double Fwosr
     return time;
 }
 
-QVector<double> Logic::littleTableW0(double trainMass, int locoMass)
+QVector<double> Logic::littleTableW0(double trainMass)
 {
     QVector <double> fW0cur;
     QVector <double> w0xbtcur;
@@ -565,6 +608,7 @@ QVector<double> Logic::littleTableW0(double trainMass, int locoMass)
     for (int i = 0; i < locoConstrVelocity/10; i++) {
         littleTable[i][0] = i  * 10;
         littleTable[i][1] = lagranz(locoTractionVelocity, locoTractionThrust, littleTable[i][0]);
+
         // тяга
         littleTable[i][2] = w0l(littleTable[i][0]) * g * locoMass;
         littleTable[i][3] = w0ll(littleTable[i][0]) * g * trainMass;
@@ -590,6 +634,34 @@ QVector<double> Logic::littleTableW0(double trainMass, int locoMass)
     return fW0cur;
 }
 
+void Logic::FinalTable(double currentV)
+{
+    double calcMode[7];
+
+    pointVF.push_back(currentV);
+
+    calcMode[0] = lagranz(partlocoTractionVelocity, partlocoTractionThrust, currentV);
+
+    pointF.push_back(calcMode[0]);
+
+    calcMode[4] = w0ll(currentV) * g * trainMass;
+    calcMode[1] = 1000 * calcMode[0] - (w0l(currentV) * g * locoMass + calcMode[4]);
+    calcMode[1] = calcMode[1]/((locoMass+trainMass) * g);
+
+    fW0Fin.push_back(calcMode[1]);
+
+    calcMode[2] = calcMode[4] + (k_hh + a_hh * currentV + b_hh * currentV * currentV) * g * locoMass ;
+    calcMode[2] = calcMode[2] / ((locoMass + trainMass) * g);
+
+    w0xFin.push_back(calcMode[2]);
+
+    calcMode[3] = 1000 * okr * (k_tt * ((currentV + a_tt) / (b_tt * currentV + a_tt)));
+    calcMode[5] = calcMode[2] + 0.5 * calcMode[3];
+    calcMode[6] = calcMode[2] + calcMode [3];
+
+    w0xbtFin.push_back(calcMode[6]);
+}
+
 void Logic::calcVelParamUpdate()
 {
     // параметры для расчетной скорости
@@ -604,15 +676,12 @@ void Logic::calcVelParamUpdate()
 
 }
 
-
-
 void Logic::railcarsCountUpdate()
 {
     railcarCount.clear();
     for (int i = 0; i < railcarAxleCounts.count(); i++) {
         railcarCount.push_back(static_cast<int>(floor(railcarPercents[i] * trainMass / railcarMasses[i]))); // вагоны не дробные, округляем-с
     }
-
     qDebug() << "Количество вагонов" << railcarCount;
 }
 

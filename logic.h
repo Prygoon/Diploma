@@ -58,25 +58,25 @@ private:
     QVector <double> fW0; // столбец таблицы, тяга
     QVector <double> w0xbt; // столбец таблицы, торможение
 
-    QVector <double> fW0Fin; // удельная тяга
-    QVector <double> w0xbtFin; // удельное торможение
-    QVector <double> w0xFin; // удельный хх
-
     double okr = 0; //  расчетный тормозной коэффициент состава
 
     int lenghtRailcars[2] = {15, 20}; // Длины вагонов
-    double stepV ; //шаг скоростей
+    double stepV; //шаг скоростей
     double lenStation; // приемно-отправочные пути, если задано
 
-    double k_hh ;    // коэффициенты для
-    double a_hh ;  // основого удельного на ХХ
-    double b_hh ;  // постоянные или меняются (???)
+    double k_hh;    // коэффициенты для
+    double a_hh;  // основого удельного на ХХ
+    double b_hh;  // постоянные или меняются (???)
 
-    double k_tt ;    // коэффициенты для
-    double a_tt ;  // основого удельного торможение
-    double b_tt ;  // как минимум 2 вида под колодки
+    double k_tt;    // коэффициенты для
+    double a_tt;  // основого удельного торможение
+    double b_tt;  // как минимум 2 вида под колодки
 
     double k_okr; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
+    double locoA;   // какие-то коэффициенты для
+    double locoB;  // основное удельное сопротивление локомотива
+    double locoC; //
 
 
     int testSpeed; // временно для проверки
@@ -95,8 +95,15 @@ private:
     QVector <double> pointT; // график, время
 
 
-  //  QVector <double> pointF; // график, тяга
- //   QVector <double> pointVF; // график, скорость к тяге
+    QVector <double> pointF; // график, тяга
+    QVector <double> pointVF; // график, скорость к тяге
+
+    QVector <double> partlocoTractionThrust; // тяга
+    QVector <double> partlocoTractionVelocity; // скорость
+
+    QVector <double> fW0Fin; // график, удельная тяга
+    QVector <double> w0xbtFin; // график, удельное торможение
+    QVector <double> w0xFin; // график, удельный хх
 
 
     // исходные данные
@@ -135,7 +142,7 @@ private:
     double pathPoint (const double vMax, const double vMin, const double Fwosrip);  // точки пути
     double timePoint (const double vMax, const double vMin, const double Fwosrip); // точки времени
 
-    QVector<double> littleTableW0 (double trainMass, int locoMass1); // вектор, переименовать бы
+    QVector<double> littleTableW0 (double trainMass); // вектор, переименовать бы,
 
     void FinalTable(double currentV); // формирование  подробных данных по тяге и удельным
     void calcVelParamUpdate();
