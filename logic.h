@@ -19,10 +19,10 @@
 
 #define trackCount 3 // количество участков для проверки расчетного
 #define massAccuracy  50 // шаг снижения массы для рассчетов
-#define lenStation 0 // приемно-отправочные пути, если задано
 #define EPS 1e-12  // Его не надо подписывать
-#define testSpeed 50 // временно для проверки
-#define railcarsTypeCount 2 // количество типов вагонов
+
+
+
 
 class Logic : public QObject
 {
@@ -51,11 +51,36 @@ private:
     QStandardItemModel *model;
     QStandardItem *item;
 
-    // вспомогательные
+    // вспомогательные, коэффициенты
     QVector <QVector <double>> arCalcTrack; // массив для определения расчетного подъема
     QVector <double> calcVelParam; // кусок таблицы для расчетной скорости
+
     QVector <double> fW0; // столбец таблицы, тяга
     QVector <double> w0xbt; // столбец таблицы, торможение
+
+    QVector <double> fW0Fin; // удельная тяга
+    QVector <double> w0xbtFin; // удельное торможение
+    QVector <double> w0xFin; // удельный хх
+
+    double okr = 0; //  расчетный тормозной коэффициент состава
+
+    int lenghtRailcars[2] = {15, 20}; // Длины вагонов
+    double stepV ; //шаг скоростей
+    double lenStation; // приемно-отправочные пути, если задано
+
+    double k_hh ;    // коэффициенты для
+    double a_hh ;  // основого удельного на ХХ
+    double b_hh ;  // постоянные или меняются (???)
+
+    double k_tt ;    // коэффициенты для
+    double a_tt ;  // основого удельного торможение
+    double b_tt ;  // как минимум 2 вида под колодки
+
+    double k_okr; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
+
+    int testSpeed; // временно для проверки
+
 
 
     // расчитываем, можно выводить
@@ -63,12 +88,15 @@ private:
     double mainIp; //расчетный подъем
     double distanse;
 
-    double bigTable[11][15];  // таблица, основные значения. подправить размерность
+    double littleTable[30][15];  // таблица, основные значения.  30  от балды, с запасом)
 
     QVector <double> pointS; // график, путь
     QVector <double> pointV; // график, скорость
     QVector <double> pointT; // график, время
 
+
+  //  QVector <double> pointF; // график, тяга
+ //   QVector <double> pointVF; // график, скорость к тяге
 
 
     // исходные данные
@@ -92,6 +120,9 @@ private:
     int locoMass;  // Масса
     int locoConstrVelocity; // Конструкционная скорость
     double locoCalcVelocity;  // Расчетная скорость
+    double locoLen; // Длина локомотива
+    QVector <double> locoTractionThrust; // тяга
+    QVector <double> locoTractionVelocity; // скорость
 
 
     // расчеты пошли
@@ -99,20 +130,21 @@ private:
     double w0ll(const double v); // основное удельное сопротивление поезда
     double w0l(const double v); // основное удельное сопротивление локомотива
     double lenTrain(const double Q); // длинна поезда
+    double okrUpdate(double trainMass); // расчетный тормозной коэффициент состава
     double pathSum (const double vMax, const double vMin, const double ip);  // пройденный путь для крутых
     double pathPoint (const double vMax, const double vMin, const double Fwosrip);  // точки пути
     double timePoint (const double vMax, const double vMin, const double Fwosrip); // точки времени
 
-    QVector<double> tableS (double trainMass, int locoMass1); // вектор, переименовать бы
+    QVector<double> littleTableW0 (double trainMass, int locoMass1); // вектор, переименовать бы
 
+    void FinalTable(double currentV); // формирование  подробных данных по тяге и удельным
     void calcVelParamUpdate();
     void railcarsCountUpdate();
-    void trainMassUpdate();
     //void showTable();
 
-    void findMainIp(); // поиск расчетного подъема
 
     void setValues(); // установить исходные данные
+    void setCoeffitient();
 
 };
 

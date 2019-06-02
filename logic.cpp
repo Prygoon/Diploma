@@ -21,6 +21,19 @@ void Logic::setValues()
     locoMass = localLocomotiveJson.value("mass").toInt(); // Масса
     locoConstrVelocity = localLocomotiveJson.value("construction_velocity").toInt(); // Конструкционная скорость
     locoCalcVelocity = localLocomotiveJson.value("calc_velocity").toDouble(); // Расчетная скорость
+    locoLen = 74.4; // FIXME ПАРС
+
+    QJsonArray localThrustForceArray = localLocomotiveJson.value("traction").toObject().value("thrust_force").toArray();
+    QJsonArray localVelocityArray = localLocomotiveJson.value("traction").toObject().value("velocity").toArray();
+    int n = localThrustForceArray.size();
+    for (int i = 0; i < n; i++) {
+        locoTractionThrust.push_back(localThrustForceArray.at(i).toDouble());
+        locoTractionVelocity.push_back(localVelocityArray.at(i).toDouble());
+    }
+    qDebug() << "test" << locoTractionThrust << locoTractionVelocity ;
+
+    //locoTractionThrust = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
+    //locoTractionVelocity = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
 
     /* Вагоны */
     QJsonObject localRailcarsJson = dataJson->value("railcars").toObject();
@@ -76,10 +89,32 @@ void Logic::setValues()
 
 }
 
+void Logic::setCoeffitient()
+{
+  //  bool Kolodki;
+
+    // FIXME
+    stepV = 0.01;
+    testSpeed = 50;
+    lenStation = 0;
+
+    k_hh =  2.4;    // коэффициенты для
+    a_hh =  0.011;  // основого удельного на ХХ
+    b_hh = 0.0003;  // постоянные или меняются (???)
+
+    k_tt =  0.36;    // коэффициенты для
+    a_tt =  150;  // основого удельного торможение
+    b_tt = 2;  // как минимум 2 вида под колодки
+
+     k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
+}
+
 
 void Logic::onCalcSignalReceived()
 {
     setValues();
+    setCoeffitient();
 
     // НАХОЖДЕНИЕ РАСЧЕТНОГО НАЧАЛО
     // тааак. тут ничего интересного, объявляем и ищем три самых жЫрных подъема
@@ -175,7 +210,7 @@ void Logic::onCalcSignalReceived()
                     //    qDebug() << "lengsec = " << lengsec;
 
 
-                    fW0 = tableS(trainMass, locoMass);
+                    fW0 = littleTableW0(trainMass, locoMass);
                     calcVelParamUpdate();
                     //  qDebug() << "calcVelParam= " << calcVelParam;
 
@@ -234,7 +269,7 @@ void Logic::onCalcSignalReceived()
 
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ; // масса, убрать дебаг, выевсти в окне
-    fW0 = tableS(trainMass, locoMass);
+    fW0 = littleTableW0(trainMass, locoMass);
 
     //showTable();  // тут основная таблица, основные значения. можно вывести в окне
 
@@ -263,7 +298,7 @@ void Logic::onCalcSignalReceived()
     // вспомогательные
     double S = 0; // прохождение всего пути
     double currentS = 0; // прохождение участка пути
-    double stepV = 0.01; //шаг скоростей
+
     double currentSpeed = 0;
     int currentSector = 0;
     double addPoint;
@@ -348,8 +383,8 @@ void Logic::onCalcSignalReceived()
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
-   // qDebug() << "S" << pointS;
-    //qDebug() << "T" << pointT;
+    qDebug() << "S" << pointS;
+   qDebug() << "T" << pointT;
     // закончили построение.
 
 
@@ -441,7 +476,7 @@ double Logic::w0ll(const double v)
     double qUnit; // масса, приходящаяся на одну колесную пару
 
     // FIXME цикл для каждого из вагонов
-    for (int i = 0; i < 2; i++){
+    for (int i = 0; i < railcarAxleCounts.count(); i++){
         qUnit = railcarMasses[i] / railcarAxleCounts[i];
         w = w + railcarPercents[i] * (railcarCoefsK[i] + (railcarCoefsA[i] + railcarCoefsB[i] * v + railcarCoefsC[i] * v * v) / qUnit);
     }
@@ -460,16 +495,30 @@ double Logic::w0l(const double v)
 
 double Logic::lenTrain(const double Q)
 {
-    int lenght[2] = {15, 20}; // Длины вагонов, добавить в базу
-    // из базы локомотива
-    double locoLenght = 74.4; // Длина локомотива
 
-    double lenghtTrain = locoLenght + 10; // +10 - запас длины на неточность установки
-    for (int i = 0; i < 2; i++) {
-        // подправить, количество отдельный метод
-        lenghtTrain += floor(railcarPercents[i] * Q / railcarMasses[i]) * lenght[i]; // вагоны не дробные, округляем-с
+    int currentlen ;
+
+    double lenghtTrain = locoLen + 10; // +10 - запас длины на неточность установки
+    for (int i = 0; i < railcarAxleCounts.count(); i++) {
+        if (railcarAxleCounts[i] == 4) {
+            currentlen = lenghtRailcars[0];
+        } else {
+            currentlen = lenghtRailcars[1];
+        }
+        lenghtTrain += floor(railcarPercents[i] * Q / railcarMasses[i]) * currentlen; // вагоны не дробные, округляем-с
     }
     return lenghtTrain;
+}
+
+double Logic::okrUpdate(double trainMass)
+{
+    okr = 0;
+    for (int i = 0; i < railcarAxleCounts.count(); i++)
+    {
+     okr += railcarAxleCounts[i] * railcarCount[i];
+    }
+    okr = k_okr * okr / trainMass / g;
+
 }
 
 double Logic::pathSum(const double vMax, const double vMin, const double ip)
@@ -504,50 +553,36 @@ double Logic::timePoint(const double vMax, const double vMin, const double Fwosr
     return time;
 }
 
-QVector<double> Logic::tableS(double trainMass, int locoMass)
+QVector<double> Logic::littleTableW0(double trainMass, int locoMass)
 {
-    QVector <double> fW0cur; //FIXME посчитать с помощью функции double TestLogic::lagranz(QVector<double> X, QVector<double> Y, double t)
-    QVector <double> w0xbtcur; //FIXME см. fW0cur
-    const double k_hh =  2.4;    // коэффициенты для
-    const double a_hh =  0.011;  // основого удельного на ХХ
-    const double b_hh = 0.0003;  // постоянные или меняются (???)
+    QVector <double> fW0cur;
+    QVector <double> w0xbtcur;
 
-    const double k_tt =  0.36;    // коэффициенты для
-    const double a_tt =  150;  // основого удельного торможение
-    const double b_tt = 2;  // как минимум 2 вида под колодки
-
-    double okr = 0; //  расчетный тормозной коэффициент состава
-    const double k_okr = 41.5; // коэффициент к нему, расчетные силы нажатия тормозных колодок
+    okrUpdate(trainMass);
 
     // построим табличку, см эксель
 
-    QVector<double> F = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
-    QVector<double> V = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-
-    // упрощено FIXME
-    okr =  (k_okr * 4 * railcarCount[0] + k_okr * 8 * railcarCount[1])/trainMass/g;
-
-    for (int i = 0; i < 11; i++) {
-        bigTable[i][0] = i  * 10;
-        bigTable[i][1] = F[i];
+    for (int i = 0; i < locoConstrVelocity/10; i++) {
+        littleTable[i][0] = i  * 10;
+        littleTable[i][1] = lagranz(locoTractionVelocity, locoTractionThrust, littleTable[i][0]);
         // тяга
-        bigTable[i][2] = w0l(bigTable[i][0]) * g * locoMass;
-        bigTable[i][3] = w0ll(bigTable[i][0]) * g * trainMass;
-        bigTable[i][4] = bigTable[i][2] + bigTable[i][3];
-        bigTable[i][5] = 1000 * bigTable[i][1] - bigTable[i][4];
-        bigTable[i][6] = bigTable[i][5] / ((locoMass+trainMass) * g);
-        fW0cur.push_back(bigTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
+        littleTable[i][2] = w0l(littleTable[i][0]) * g * locoMass;
+        littleTable[i][3] = w0ll(littleTable[i][0]) * g * trainMass;
+        littleTable[i][4] = littleTable[i][2] + littleTable[i][3];
+        littleTable[i][5] = 1000 * littleTable[i][1] - littleTable[i][4];
+        littleTable[i][6] = littleTable[i][5] / ((locoMass+trainMass) * g);
+        fW0cur.push_back(littleTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
         // ХХ
-        bigTable[i][7] = k_hh + a_hh * bigTable[i][0] + b_hh * bigTable[i][0] * bigTable[i][0];
-        bigTable[i][8] = bigTable[i][7] * g * locoMass;
-        bigTable[i][9] = bigTable[i][3] + bigTable[i][8];
-        bigTable[i][10] = bigTable[i][9] / ((locoMass + trainMass) * g); // вторая для диаграммы
+        littleTable[i][7] = k_hh + a_hh * littleTable[i][0] + b_hh * littleTable[i][0] * littleTable[i][0];
+        littleTable[i][8] = littleTable[i][7] * g * locoMass;
+        littleTable[i][9] = littleTable[i][3] + littleTable[i][8];
+        littleTable[i][10] = littleTable[i][9] / ((locoMass + trainMass) * g); // вторая для диаграммы
         // торможение
-        bigTable[i][11] = k_tt * ((bigTable[i][0] + a_tt) / (b_tt * bigTable[i][0] + a_tt));
-        bigTable[i][12] = okr * bigTable[i][11] * 1000;
-        bigTable[i][13] = bigTable[i][10] + 0.5 * bigTable[i][12];
-        bigTable[i][14] = bigTable[i][10] + bigTable[i][12];
-        w0xbtcur.push_back(bigTable[i][14]);
+        littleTable[i][11] = k_tt * ((littleTable[i][0] + a_tt) / (b_tt * littleTable[i][0] + a_tt));
+        littleTable[i][12] = okr * littleTable[i][11] * 1000;
+        littleTable[i][13] = littleTable[i][10] + 0.5 * littleTable[i][12];
+        littleTable[i][14] = littleTable[i][10] + littleTable[i][12];
+        w0xbtcur.push_back(littleTable[i][14]);
 
     }
 
@@ -560,7 +595,7 @@ void Logic::calcVelParamUpdate()
     // параметры для расчетной скорости
     calcVelParam.clear();
     calcVelParam.push_back(locoCalcVelocity);
-    calcVelParam.push_back(992);  // F Изменить
+    calcVelParam.push_back(locoCalcThrustForce);
     calcVelParam.push_back(w0l(locoCalcVelocity) * g * locoMass);
     calcVelParam.push_back(w0ll(locoCalcVelocity) * g * trainMass);
     calcVelParam.push_back(calcVelParam[2] + calcVelParam[3]);
@@ -569,25 +604,20 @@ void Logic::calcVelParamUpdate()
 
 }
 
+
+
 void Logic::railcarsCountUpdate()
 {
     railcarCount.clear();
-    for (int i = 0; i < railcarsTypeCount; i++) {
+    for (int i = 0; i < railcarAxleCounts.count(); i++) {
         railcarCount.push_back(static_cast<int>(floor(railcarPercents[i] * trainMass / railcarMasses[i]))); // вагоны не дробные, округляем-с
     }
 
     qDebug() << "Количество вагонов" << railcarCount;
 }
 
-void Logic::trainMassUpdate()
-{
-    // пока пусто
-}
 
-void Logic::findMainIp()
-{
 
-}
 
 //void Logic::showTable()
 //{
