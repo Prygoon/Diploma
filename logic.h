@@ -36,6 +36,11 @@ public:
     double getDistanse() const;
     int getLocoConstrVelocity() const;
     double getLocoCalcVelocity() const;
+    QVector<double> getPointF() const;
+    QVector<double> getPointVF() const;
+    QVector<double> getFW0Fin() const;
+    QVector<double> getW0xbtFin() const;
+    QVector<double> getW0xFin() const;
 
 public slots:
     void onCalcSignalReceived();
