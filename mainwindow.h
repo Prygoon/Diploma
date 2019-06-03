@@ -53,14 +53,19 @@ private slots:
     void on_action_close_triggered();
     void on_action_loco_triggered();
     void on_action_railcars_triggered();
+
     void on_pushButtonTest_clicked();
-    void onBuildGraphSignalReceived(const QJsonObject &dataJson);
+    void on_pushButtonTraction_clicked();
     void on_pushButtonShowDiag_clicked();
-    void onEnableShowButtonReceived();
+
+    void onBuildGraphSignalReceived(const QJsonObject &dataJson);
+    void onEnableShowDiagGraphButtonReceived();
+    void onEnableShowTractionGraphButtonReceived();
 
 signals:
     void calc();
     void buildDiagGraph(const QVector<QVector<double>> &data);
+    void buildTractionGraph(const QVector<QVector<double>> &data);
 };
 
 #endif // MAINWINDOW_H
