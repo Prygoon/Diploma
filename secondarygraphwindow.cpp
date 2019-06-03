@@ -81,6 +81,6 @@ void SecondaryGraphWindow::onBuildDiagTractionSignalReceived(const QVector<QVect
     buildFVGraph(data.at(0), data.at(1));
 
     ui->graphWidget->xAxis->setRange(0, data.at(0).last() + 10);
-    ui->graphWidget->yAxis->setRange(0, data.at(1).at(0) + 50);
+    ui->graphWidget->yAxis->setRange(0, data.at(1).at(0) + 750);
     ui->graphWidget->replot();
 }
