@@ -35,6 +35,7 @@ SOURCES += \
     locoeditform.cpp \
     railcareditform.cpp \
     inputeditform.cpp \
+    secondarygraphwindow.cpp \
     tracksectionproxymodel.cpp \
     qcustomplot.cpp
 
@@ -48,6 +49,7 @@ HEADERS += \
     locoeditform.h \
     railcareditform.h \
     inputeditform.h \
+    secondarygraphwindow.h \
     tracksectionproxymodel.h \
     qcustomplot.h
 
@@ -58,7 +60,8 @@ FORMS += \
     railcardbwindow.ui \
     locoeditform.ui \
     railcareditform.ui \
-    inputeditform.ui
+    inputeditform.ui \
+    secondarygraphwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

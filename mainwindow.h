@@ -9,6 +9,7 @@
 #include "inputwindow.h"
 #include "locomotivedbwindow.h"
 #include "railcardbwindow.h"
+#include "secondarygraphwindow.h"
 #include "logic.h"
 //#include "testlogic.h"
 
@@ -29,26 +30,37 @@ private:
     InputWindow *wInputWindow;
     LocomotiveDbWindow *wLocomotiveDbWindow;
     RailcarDbWindow *wRailcarDbWindow;
+    SecondaryGraphWindow *wSecondaryGraphWindow;
+
+    QVector<QVector<double>> *secondaryData;
+    //    QVector <double> pointF; // график, тяга
+    //    QVector <double> pointVF; // график, скорость к тяге
+
+    //    QVector <double> fW0Fin; // график, удельная тяга
+    //    QVector <double> w0xbtFin; // график, удельное торможение
+    //    QVector <double> w0xFin; // график, удельный хх
 
     Logic *logic;
 
-    void drawVsGraph();
-    void drawVCalcGraph();
-    void drawTimeGraph();
+    void disableSecondaryButtons();
+    void enableSecondaryButtons();
+    void buildVsGraph();
+    void buildVCalcGraph();
+    void buildTimeGraph();
 
 private slots:
     void on_action_new_triggered();
     void on_action_close_triggered();
     void on_action_loco_triggered();
     void on_action_railcars_triggered();
-
     void on_pushButtonTest_clicked();
-
     void onBuildGraphSignalReceived(const QJsonObject &dataJson);
+    void on_pushButtonShowDiag_clicked();
+    void onEnableShowButtonReceived();
 
 signals:
     void calc();
-
+    void buildDiagGraph(const QVector<QVector<double>> &data);
 };
 
 #endif // MAINWINDOW_H

@@ -110,7 +110,7 @@ void RailcarDbWindow::showTableView()
 {
     ui->tableView->setModel(model);     // Устанавливаем модель на TableView
     ui->tableView->setColumnHidden(0, true);    // Скрываем колонку с id записей
-    ui->tableView->setColumnHidden(3, true);
+    ui->tableView->setColumnHidden(3, true);    // Скрываем колонку с Типом + осностью
     // Разрешаем выделение строк
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Устанавливаем режим выделения лишь одно строки в таблице

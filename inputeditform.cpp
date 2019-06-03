@@ -48,11 +48,11 @@ void InputEditForm::setRailcarModel(QAbstractItemModel *railcarMapModel)
 void InputEditForm::setTrackSectionModel(QAbstractItemModel *TrackSectionModel)
 {
     mapper->setModel(TrackSectionModel);
-    mapper->addMapping(trackSectionIndex_lineEdit, 1);
-    mapper->addMapping(trackSectionSlope_lineEdit, 2);
-    mapper->addMapping(trackSectionLength_lineEdit, 3);
-    mapper->addMapping(trackSectionCurveLength_lineEdit, 4);
-    mapper->addMapping(trackSectionCurveRadius_lineEdit, 5);
+    //mapper->addMapping(trackSectionIndex_lineEdit, 1);
+    mapper->addMapping(trackSectionSlope_lineEdit, 1);
+    mapper->addMapping(trackSectionLength_lineEdit, 2);
+    mapper->addMapping(trackSectionCurveLength_lineEdit, 3);
+    mapper->addMapping(trackSectionCurveRadius_lineEdit, 4);
 }
 
 QDataWidgetMapper *InputEditForm::getMapper() const
@@ -88,7 +88,7 @@ void InputEditForm::createRailcarBlankForm()
 
 void InputEditForm::createTrackSectionBlankForm()
 {
-    trackSectionIndex_lineEdit->setText("");
+    //trackSectionIndex_lineEdit->setText("");
     trackSectionSlope_lineEdit->setText("");
     trackSectionLength_lineEdit->setText("");
     trackSectionCurveLength_lineEdit->setText("0");
@@ -146,7 +146,7 @@ void InputEditForm::setupTrackSectionForm()
     setMinimumSize(QSize(350, 206));
     setMaximumSize(QSize(350, 206));
 
-    setupTrackSectionIndexLayout();
+    //setupTrackSectionIndexLayout();
     setupTrackSectionSlopeLayout();
     setupTrackSectionLengthLayout();
     setupTrackSectionCurveLengthLayout();
@@ -157,7 +157,7 @@ void InputEditForm::setupTrackSectionForm()
         ui->buttonBox->button(QDialogButtonBox::Save)->setDisabled(true);
     }
 
-    connect(trackSectionIndex_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
+    //connect(trackSectionIndex_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
     connect(trackSectionSlope_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
     connect(trackSectionLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
     connect(trackSectionCurveLength_lineEdit, &QLineEdit::textEdited, this, &InputEditForm::onTrackSectionFormTextEdited);
@@ -226,25 +226,25 @@ void InputEditForm::setupRailcarPercentLayout()
     ui->generalVerticalLayout->insertLayout(2, railcarPercentHorizontalLayout);
 }
 
-void InputEditForm::setupTrackSectionIndexLayout()
-{
-    trackSectionIndexHorizontalLayout = new QHBoxLayout();
-    trackSectionIndexHorizontalLayout->setObjectName("trackSection_horizontalLayout");
+//void InputEditForm::setupTrackSectionIndexLayout()
+//{
+//    trackSectionIndexHorizontalLayout = new QHBoxLayout();
+//    trackSectionIndexHorizontalLayout->setObjectName("trackSection_horizontalLayout");
 
-    trackSectionIndex_label = new QLabel(this);
-    trackSectionIndex_label->setObjectName("trackSectionIndex_label");
-    trackSectionIndex_label->setText("Порядковый номер");
-    trackSectionIndexHorizontalLayout->addWidget(trackSectionIndex_label);
+//    trackSectionIndex_label = new QLabel(this);
+//    trackSectionIndex_label->setObjectName("trackSectionIndex_label");
+//    trackSectionIndex_label->setText("Порядковый номер");
+//    trackSectionIndexHorizontalLayout->addWidget(trackSectionIndex_label);
 
-    trackSectionIndexHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    trackSectionIndexHorizontalLayout->addItem(trackSectionIndexHorizontalSpacer);
+//    trackSectionIndexHorizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+//    trackSectionIndexHorizontalLayout->addItem(trackSectionIndexHorizontalSpacer);
 
-    trackSectionIndex_lineEdit = new QLineEdit(this);
-    trackSectionIndex_lineEdit->setObjectName("trackSectionIndex_lineEdit");
-    trackSectionIndexHorizontalLayout->addWidget(trackSectionIndex_lineEdit);
+//    trackSectionIndex_lineEdit = new QLineEdit(this);
+//    trackSectionIndex_lineEdit->setObjectName("trackSectionIndex_lineEdit");
+//    trackSectionIndexHorizontalLayout->addWidget(trackSectionIndex_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(0, trackSectionIndexHorizontalLayout);
-}
+//    ui->generalVerticalLayout->insertLayout(0, trackSectionIndexHorizontalLayout);
+//}
 
 void InputEditForm::setupTrackSectionSlopeLayout()
 {
@@ -266,7 +266,7 @@ void InputEditForm::setupTrackSectionSlopeLayout()
 
     trackSectionSlopeHorizontalLayout->addWidget(trackSectionSlope_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(1, trackSectionSlopeHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(0, trackSectionSlopeHorizontalLayout);
 }
 
 void InputEditForm::setupTrackSectionLengthLayout()
@@ -286,7 +286,7 @@ void InputEditForm::setupTrackSectionLengthLayout()
     trackSectionLength_lineEdit->setObjectName("trackSectionLength_lineEdit");
     trackSectionLengthHorizontalLayout->addWidget(trackSectionLength_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(2, trackSectionLengthHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(1, trackSectionLengthHorizontalLayout);
 }
 
 void InputEditForm::setupTrackSectionCurveLengthLayout()
@@ -306,7 +306,7 @@ void InputEditForm::setupTrackSectionCurveLengthLayout()
     trackSectionCurveLength_lineEdit->setObjectName("trackSectionCurveLength_lineEdit");
     trackSectionCurveLengthHorizontalLayout->addWidget(trackSectionCurveLength_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(3, trackSectionCurveLengthHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(2, trackSectionCurveLengthHorizontalLayout);
 }
 
 void InputEditForm::setupTrackSectionCurveRadiusLayout()
@@ -326,7 +326,7 @@ void InputEditForm::setupTrackSectionCurveRadiusLayout()
     trackSectionCurveRadius_lineEdit->setObjectName("trackSectionCurveRadius_lineEdit");
     trackSectionCurveRadiusHorizontalLayout->addWidget(trackSectionCurveRadius_lineEdit);
 
-    ui->generalVerticalLayout->insertLayout(4, trackSectionCurveRadiusHorizontalLayout);
+    ui->generalVerticalLayout->insertLayout(3, trackSectionCurveRadiusHorizontalLayout);
 }
 
 void InputEditForm::closeEvent(QCloseEvent *event)
@@ -342,8 +342,8 @@ bool InputEditForm::isRailcarFormEmpty()
 
 bool InputEditForm::isTrackSectionFormEmpty()
 {
-    return trackSectionIndex_lineEdit->text().isEmpty()
-            || trackSectionSlope_lineEdit->text().isEmpty()
+    return /*trackSectionIndex_lineEdit->text().isEmpty()
+            || */trackSectionSlope_lineEdit->text().isEmpty()
             || trackSectionLength_lineEdit->text().isEmpty();
     //|| trackSectionCurveLength_lineEdit->text().isEmpty()
     //|| trackSectionCurveRadius_lineEdit->text().isEmpty();

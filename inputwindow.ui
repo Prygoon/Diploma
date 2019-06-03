@@ -221,7 +221,11 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="excel_lineEdit"/>
+             <widget class="QLineEdit" name="excel_lineEdit">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="excel_pushButton">
