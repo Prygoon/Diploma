@@ -99,6 +99,11 @@ private:
     QVector <double> pointV; // график, скорость
     QVector <double> pointT; // график, время
 
+    QVector <double> pointHH; // график,  холостой
+    QVector <double> pointVHH; // график, скорость к холостому
+    QVector <double> pointBT; // график, торможение
+    QVector <double> pointVBT; // график, скорость к торможению
+
 
     QVector <double> pointF; // график, тяга
     QVector <double> pointVF; // график, скорость к тяге
@@ -109,6 +114,14 @@ private:
     QVector <double> fW0Fin; // график, удельная тяга
     QVector <double> w0xbtFin; // график, удельное торможение
     QVector <double> w0xFin; // график, удельный хх
+
+    // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
+    QVector <double> pointSTor;
+    QVector <double> pointVTor;
+    // ВОТ ОН ТУТ
+
+    double maxSpeed;  // вынести как прямую линию сверху.
+
 
 
     // исходные данные
