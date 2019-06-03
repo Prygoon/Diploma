@@ -110,6 +110,12 @@ private:
     QVector <double> w0xbtFin; // график, удельное торможение
     QVector <double> w0xFin; // график, удельный хх
 
+    // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
+    QVector <double> pointSTor;
+    QVector <double> pointVTor;
+    // ВОТ ОН ТУТ
+
+
 
     // исходные данные
     // вагоны

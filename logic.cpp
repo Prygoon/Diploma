@@ -93,7 +93,7 @@ void Logic::setCoeffitient()
   //  bool Kolodki;
 
     // FIXME
-    stepV = 0.01;
+    stepV = 0.5;
     testSpeed = 50;
     lenStation = 0;
 
@@ -288,28 +288,48 @@ void Logic::onCalcSignalReceived()
     pointS.push_back(0);
     pointV.push_back(0);
 
-    int s = 0 ; // s = speed
+    int s = 3 ; // s = speed
 
     // какой-то большой Лагр...
     okrUpdate(trainMass);
 
     // до 15
-    while (locoTractionVelocity[s] < 16)
+
+    for (int i= 0; i < 3; i++)
     {
+        partlocoTractionThrust.push_back(locoTractionThrust[i]);
+        partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+    }
+
+    qDebug() << partlocoTractionVelocity ;
+
+    for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
+        FinalTable(k);
+    }
+
+
+    while (locoTractionVelocity[s] <= 15)
+    {
+        for (double k = partlocoTractionVelocity[1] ; k < partlocoTractionVelocity[2]; k = k+stepV){
+            FinalTable(k);
+        }
+        qDebug() << partlocoTractionVelocity ;
+        partlocoTractionThrust.remove(0);
+        partlocoTractionVelocity.remove(0);
         partlocoTractionThrust.push_back(locoTractionThrust[s]);
         partlocoTractionVelocity.push_back(locoTractionVelocity[s]);
         s++;
+
+
     }
 
-    for (double k = 0 ; k < partlocoTractionVelocity.last(); k = k+stepV){
-        FinalTable(k);
-    }
+
 
     partlocoTractionThrust.clear();
     partlocoTractionVelocity.clear();
 
     // от 15 до 3 точки
-    for (int i= s - 1; i < s + 6; i++)
+    for (int i= s ; i < s + 5; i++)
     {
         partlocoTractionThrust.push_back(locoTractionThrust[i]);
         partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
@@ -318,6 +338,8 @@ void Logic::onCalcSignalReceived()
     for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[3]; k = k + stepV){
         FinalTable(k);
     }
+
+    qDebug() << partlocoTractionVelocity ;
 
     s = s + 6;
 
@@ -328,6 +350,7 @@ void Logic::onCalcSignalReceived()
             partlocoTractionVelocity.remove(0);
             partlocoTractionThrust.push_back(locoTractionThrust[i]);
             partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+            qDebug() << partlocoTractionVelocity ;
         }
         for (double k = partlocoTractionVelocity[3] ; k < partlocoTractionVelocity[4]; k = k + stepV){
             FinalTable(k);
@@ -434,10 +457,6 @@ void Logic::onCalcSignalReceived()
     // закончили построение.
 
 
-    // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
-    QVector <double> pointSTor;
-    QVector <double> pointVTor;
-    // ВОТ ОН ТУТ
 
     pointSTor.push_back(distanse);
     pointVTor.push_back(0);
@@ -684,7 +703,7 @@ void Logic::FinalTable(double currentV)
     calcMode[5] = calcMode[2] + 0.5 * calcMode[3];
     calcMode[6] = calcMode[2] + calcMode [3];
 
-    w0xbtFin.push_back(calcMode[6]);
+    w0xbtFin.push_back(calcMode[5]);
 }
 
 void Logic::calcVelParamUpdate()
