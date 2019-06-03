@@ -29,7 +29,7 @@ class InputEditForm : public QDialog
     Q_OBJECT
 
 public:
-    explicit InputEditForm(QString *sendersName, QWidget *parent = nullptr);
+    explicit InputEditForm(QString *senderName, QWidget *parent = nullptr);
     ~InputEditForm();
 
     void setRailcarModel(QAbstractItemModel *railcarMapModel);

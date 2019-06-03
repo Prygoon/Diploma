@@ -1,9 +1,10 @@
 #include "secondarygraphwindow.h"
 #include "ui_secondarygraphwindow.h"
 
-SecondaryGraphWindow::SecondaryGraphWindow(QWidget *parent) :
+SecondaryGraphWindow::SecondaryGraphWindow(QString *senderName, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SecondaryGraphWindow)
+    ui(new Ui::SecondaryGraphWindow),
+    senderName(senderName)
 {
     ui->setupUi(this);
 }
@@ -33,15 +34,30 @@ void SecondaryGraphWindow::buildW0xbtVGraph(const QVector<double> &W0xbt, const 
     ui->graphWidget->graph(2)->setPen(QPen(Qt::red));
 }
 
+void SecondaryGraphWindow::buildFVGraph(const QVector<double> &force, const QVector<double> &velocity)
+{
+    ui->graphWidget->addGraph();
+    ui->graphWidget->graph(0)->setData(force, velocity);
+}
+
+void SecondaryGraphWindow::enableButtons()
+{
+    if(this->senderName == QString("pushButtonShowDiag")) {
+        emit enableShowDiagGraphButton();
+    } else {
+        emit enableShowTractionGraphButton();
+    }
+}
+
 void SecondaryGraphWindow::closeEvent(QCloseEvent *event)
 {
-    emit enableShowButton();
+    enableButtons();
     event->accept();
 }
 
 void SecondaryGraphWindow::on_ClosePushButton_clicked()
 {
-    emit enableShowButton();
+    enableButtons();
     close();
 }
 
@@ -55,5 +71,16 @@ void SecondaryGraphWindow::onBuildDiagGraphSignalReceived(const QVector<QVector<
 
     ui->graphWidget->xAxis->setRange(data.at(1).at(0) - 50, data.at(3).at(0) + 10);
     ui->graphWidget->yAxis->setRange(0, data.at(0).last() + 10);
+    ui->graphWidget->replot();
+}
+
+void SecondaryGraphWindow::onBuildDiagTractionSignalReceived(const QVector<QVector<double> > &data)
+{
+    ui->graphWidget->clearGraphs();
+
+    buildFVGraph(data.at(0), data.at(1));
+
+    ui->graphWidget->xAxis->setRange(0, data.at(0).last() + 10);
+    ui->graphWidget->yAxis->setRange(0, data.at(1).at(0) + 750);
     ui->graphWidget->replot();
 }

@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     disableSecondaryButtons();
 }
 
@@ -122,20 +123,53 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
 void MainWindow::on_pushButtonShowDiag_clicked()
 {
     secondaryData = new QVector<QVector<double>>;
+
     secondaryData->push_back(logic->getPointVF());
     secondaryData->push_back(logic->getFW0Fin());
     secondaryData->push_back(logic->getW0xFin());
     secondaryData->push_back(logic->getW0xbtFin());
-    wSecondaryGraphWindow = new SecondaryGraphWindow(this);
+
+    QString *buttonName = new QString(ui->pushButtonShowDiag->objectName());
+    wSecondaryGraphWindow = new SecondaryGraphWindow(buttonName, this);
     wSecondaryGraphWindow->setAttribute(Qt::WA_DeleteOnClose);
     wSecondaryGraphWindow->show();
     ui->pushButtonShowDiag->setEnabled(false);
-    connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowButton, this, &MainWindow::onEnableShowButtonReceived);
+
+    connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowDiagGraphButton, this, &MainWindow::onEnableShowDiagGraphButtonReceived);
     connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildDiagGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildDiagGraphSignalReceived);
+
     emit buildDiagGraph(*secondaryData);
+    delete secondaryData;
 }
 
-void MainWindow::onEnableShowButtonReceived()
+void MainWindow::on_pushButtonTraction_clicked()
+{
+    secondaryData = new QVector<QVector<double>>;
+
+    secondaryData->push_back(logic->getPointVF());
+    secondaryData->push_back(logic->getPointF());
+
+    QString *buttonName = new QString(ui->pushButtonTraction->objectName());
+    wSecondaryGraphWindow = new SecondaryGraphWindow(buttonName, this);
+    wSecondaryGraphWindow->setAttribute(Qt::WA_DeleteOnClose);
+    wSecondaryGraphWindow->show();
+    ui->pushButtonTraction->setEnabled(false);
+
+    connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowTractionGraphButton, this, &MainWindow::onEnableShowTractionGraphButtonReceived);
+    connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildTractionGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildDiagTractionSignalReceived);
+
+    emit buildTractionGraph(*secondaryData);
+    delete secondaryData;
+
+}
+
+void MainWindow::onEnableShowDiagGraphButtonReceived()
 {
     ui->pushButtonShowDiag->setEnabled(true);
 }
+
+void MainWindow::onEnableShowTractionGraphButtonReceived()
+{
+    ui->pushButtonTraction->setEnabled(true);
+}
+
