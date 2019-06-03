@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    disableSecondaryButtons();
 }
 
 MainWindow::~MainWindow()
@@ -15,20 +16,34 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::drawVsGraph()
+void MainWindow::disableSecondaryButtons()
+{
+    ui->pushButtonShowDiag->setDisabled(true);
+    ui->pushButtonTraction->setDisabled(true);
+    ui->pushButtonTable->setDisabled(true);
+}
+
+void MainWindow::enableSecondaryButtons()
+{
+    ui->pushButtonShowDiag->setEnabled(true);
+    ui->pushButtonTraction->setEnabled(true);
+    ui->pushButtonTable->setEnabled(true);
+}
+
+void MainWindow::buildVsGraph()
 {
     ui->mainGraph->addGraph();
     ui->mainGraph->graph(0)->setData(logic->getPointS(), logic->getPointV());
 }
 
-void MainWindow::drawVCalcGraph()
+void MainWindow::buildVCalcGraph()
 {
     ui->mainGraph->addGraph();
     ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {logic->getLocoCalcVelocity(), logic->getLocoCalcVelocity()});
     ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
 }
 
-void MainWindow::drawTimeGraph()
+void MainWindow::buildTimeGraph()
 {
     ui->mainGraph->addGraph();
     ui->mainGraph->graph(2)->setData(logic->getPointS(), logic->getPointT());
@@ -93,13 +108,68 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistanse() / 48 + 50)));
     ui->mainGraph->clearGraphs();
 
-    drawVsGraph();
-    drawVCalcGraph();
-    drawTimeGraph();
+    buildVsGraph();
+    buildVCalcGraph();
+    buildTimeGraph();
 
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
     ui->mainGraph->yAxis->setRange(0, logic->getLocoConstrVelocity() + 10);
     ui->mainGraph->replot();
     //qDebug() << dataJson;
-    delete logic;
+    //delete logic;
+    enableSecondaryButtons();
 }
+
+void MainWindow::on_pushButtonShowDiag_clicked()
+{
+    secondaryData = new QVector<QVector<double>>;
+
+    secondaryData->push_back(logic->getPointVF());
+    secondaryData->push_back(logic->getFW0Fin());
+    secondaryData->push_back(logic->getW0xFin());
+    secondaryData->push_back(logic->getW0xbtFin());
+
+    QString *buttonName = new QString(ui->pushButtonShowDiag->objectName());
+    wSecondaryGraphWindow = new SecondaryGraphWindow(buttonName, this);
+    wSecondaryGraphWindow->setAttribute(Qt::WA_DeleteOnClose);
+    wSecondaryGraphWindow->show();
+    ui->pushButtonShowDiag->setEnabled(false);
+
+    connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowDiagGraphButton, this, &MainWindow::onEnableShowDiagGraphButtonReceived);
+    connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildDiagGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildDiagGraphSignalReceived);
+
+    emit buildDiagGraph(*secondaryData);
+    delete secondaryData;
+}
+
+void MainWindow::on_pushButtonTraction_clicked()
+{
+    secondaryData = new QVector<QVector<double>>;
+
+    secondaryData->push_back(logic->getPointVF());
+    secondaryData->push_back(logic->getPointF());
+
+    QString *buttonName = new QString(ui->pushButtonTraction->objectName());
+    wSecondaryGraphWindow = new SecondaryGraphWindow(buttonName, this);
+    wSecondaryGraphWindow->setAttribute(Qt::WA_DeleteOnClose);
+    wSecondaryGraphWindow->show();
+    ui->pushButtonTraction->setEnabled(false);
+
+    connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowTractionGraphButton, this, &MainWindow::onEnableShowTractionGraphButtonReceived);
+    connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildTractionGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildDiagTractionSignalReceived);
+
+    emit buildTractionGraph(*secondaryData);
+    delete secondaryData;
+
+}
+
+void MainWindow::onEnableShowDiagGraphButtonReceived()
+{
+    ui->pushButtonShowDiag->setEnabled(true);
+}
+
+void MainWindow::onEnableShowTractionGraphButtonReceived()
+{
+    ui->pushButtonTraction->setEnabled(true);
+}
+

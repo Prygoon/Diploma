@@ -231,6 +231,8 @@ void InputWindow::addLocomotiveToJson()
     localLocomotiveJson->insert(TABLE_LOCO_CONSTRUCTION_VELOCITY, QJsonValue::fromVariant(localTmp));
     localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_VELOCITY, QJsonValue::fromVariant(localTmp));
+    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_LENGTH);
+    localLocomotiveJson->insert(TABLE_LOCO_LENGTH, QJsonValue::fromVariant(localTmp));
     localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_TRACTION);
     localLocomotiveJson->insert(TABLE_LOCO_TRACTION, objectFromString(localTmp.toString()));
 
