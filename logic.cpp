@@ -93,7 +93,7 @@ void Logic::setCoeffitient()
   //  bool Kolodki;
 
     // FIXME
-    stepV = 0.5;
+    stepV = 0.01;
     testSpeed = 50;
     lenStation = 0;
 
@@ -272,7 +272,7 @@ void Logic::onCalcSignalReceived()
     qDebug() << "trainMass" << trainMass ; // масса, убрать дебаг, выевсти в окне
     fW0 = littleTableW0(trainMass);
 
-    double maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
+    maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
@@ -380,7 +380,7 @@ void Logic::onCalcSignalReceived()
     double currentTime = 0;
     pointT.push_back(0);
     int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ 2 -  тормоз.
-    qDebug() << w0xFin ;
+    //qDebug() << w0xFin ;
 
     // построение из расчетов, что всегда премся в тяге :)
     do {
@@ -447,6 +447,19 @@ void Logic::onCalcSignalReceived()
             {
                 currentS = arLen[currentSector];
             }
+
+            switch (moveMode) {
+            case 1:
+                pointHH.push_back(currentS + S);
+                pointVHH.push_back(currentSpeed);
+                break;
+            case 2:
+                pointBT.push_back(currentS + S);
+                pointVBT.push_back(currentSpeed);
+                break;
+            default:
+                break;
+            }
             pointS.push_back(currentS + S);
 
 
@@ -459,6 +472,11 @@ void Logic::onCalcSignalReceived()
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
+//    qDebug() << "SHH" << pointHH;
+  //  qDebug() << "VHH" << pointVHH;
+
+//    qDebug() << "SBT" << pointBT;
+  //  qDebug() << "VBT" << pointVBT;
 
 
 
