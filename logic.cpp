@@ -21,7 +21,7 @@ void Logic::setValues()
     locoMass = localLocomotiveJson.value("mass").toInt(); // Масса
     locoConstrVelocity = localLocomotiveJson.value("construction_velocity").toInt(); // Конструкционная скорость
     locoCalcVelocity = localLocomotiveJson.value("calc_velocity").toDouble(); // Расчетная скорость
-    locoLen = 74.4; // FIXME ПАРС
+    locoLen = localLocomotiveJson.value("length").toDouble(); // Длина
 
     QJsonArray localThrustForceArray = localLocomotiveJson.value("traction").toObject().value("thrust_force").toArray();
     QJsonArray localVelocityArray = localLocomotiveJson.value("traction").toObject().value("velocity").toArray();
@@ -471,6 +471,31 @@ void Logic::onCalcSignalReceived()
    // qDebug() << "STor" << pointSTor;
    // qDebug() << "VTor" << pointVTor;
 
+}
+
+QVector<double> Logic::getW0xFin() const
+{
+    return w0xFin;
+}
+
+QVector<double> Logic::getW0xbtFin() const
+{
+    return w0xbtFin;
+}
+
+QVector<double> Logic::getFW0Fin() const
+{
+    return fW0Fin;
+}
+
+QVector<double> Logic::getPointVF() const
+{
+    return pointVF;
+}
+
+QVector<double> Logic::getPointF() const
+{
+    return pointF;
 }
 
 double Logic::getLocoCalcVelocity() const

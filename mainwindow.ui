@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
+    <width>757</width>
     <height>480</height>
    </rect>
   </property>
@@ -27,8 +27,14 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="3" column="0">
+    <item row="2" column="0">
      <widget class="QFrame" name="buttonFrame">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>60</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
@@ -43,23 +49,23 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButtonCalc">
-         <property name="text">
-          <string>Считать</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="pushButtonShowDiag">
          <property name="text">
-          <string>Показать диаграммы</string>
+          <string>Диаграммы уд. равнодействующих сил</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonReserve">
+        <widget class="QPushButton" name="pushButtonTraction">
          <property name="text">
-          <string>Запасная кнопка</string>
+          <string>Тяговая характеристика</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonTable">
+         <property name="text">
+          <string>Таблица</string>
          </property>
         </widget>
        </item>
@@ -74,9 +80,6 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout"/>
-    </item>
-    <item row="2" column="0">
      <widget class="QScrollArea" name="scrollArea">
       <property name="widgetResizable">
        <bool>true</bool>
@@ -86,8 +89,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>732</width>
-         <height>359</height>
+         <width>737</width>
+         <height>351</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -108,7 +111,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>752</width>
+     <width>757</width>
      <height>21</height>
     </rect>
    </property>
@@ -117,8 +120,6 @@
      <string>Проект</string>
     </property>
     <addaction name="action_new"/>
-    <addaction name="action_save"/>
-    <addaction name="action_load"/>
     <addaction name="separator"/>
     <addaction name="action_close"/>
    </widget>
@@ -141,29 +142,13 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_new">
    <property name="text">
-    <string>Новый проект</string>
+    <string>Ввести данные</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>false</bool>
-   </property>
-  </action>
-  <action name="action_save">
-   <property name="text">
-    <string>Сохранить проект</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="action_load">
-   <property name="text">
-    <string>Загрузить проект</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="action_close">
