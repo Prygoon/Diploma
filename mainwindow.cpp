@@ -160,6 +160,7 @@ void MainWindow::on_pushButtonTraction_clicked()
 
     emit buildTractionGraph(*secondaryData);
     delete secondaryData;
+
 }
 
 void MainWindow::onEnableShowDiagGraphButtonReceived()
