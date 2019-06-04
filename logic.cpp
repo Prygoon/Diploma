@@ -379,12 +379,19 @@ void Logic::onCalcSignalReceived()
 
     double currentTime = 0;
     pointT.push_back(0);
-    int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ 2 -  тормоз.
+    int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
     //qDebug() << w0xFin ;
 
     // построение из расчетов, что всегда премся в тяге :)
     do {
         currentS = 0;
+        qDebug() << arIp[currentSector] << currentSector << moveMode << currentSpeed;
+        if (arIp[currentSector] >= 0 || moveMode == 0) {
+           moveMode = 0;
+        } else {
+            moveMode = 4;
+        }
+        qDebug() << arIp[currentSector] << currentSector << moveMode << currentSpeed;
         do {
             if ((currentSpeed + stepV) > maxSpeed) {
                 moveMode = 1;
@@ -400,7 +407,6 @@ void Logic::onCalcSignalReceived()
                     moveMode = 2;
                     FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
                 }
-               // qDebug() << FwosrIp << currentSpeed;
                 if (currentSpeed <= maxSpeed - 10) {
                     moveMode = 0;
                 }
@@ -409,7 +415,22 @@ void Logic::onCalcSignalReceived()
                 FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
                // qDebug() << FwosrIp << currentSpeed;
                 if (currentSpeed <= maxSpeed - 10) {
+                    moveMode = 3;
+                }
+                break;
+            case 3:
+                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                if (FwosrIp <= 0) {
                     moveMode = 0;
+                    FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                }
+                break;
+            case 4:
+                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                if (FwosrIp <= 0) {
+                    moveMode = 1;
+                } else {
+                    moveMode = 3;
                 }
                 break;
             default:
@@ -457,6 +478,10 @@ void Logic::onCalcSignalReceived()
                 pointBT.push_back(currentS + S);
                 pointVBT.push_back(currentSpeed);
                 break;
+            case 3:
+                pointHH.push_back(currentS + S);
+                pointVHH.push_back(currentSpeed);
+                break;
             default:
                 break;
             }
@@ -468,7 +493,7 @@ void Logic::onCalcSignalReceived()
         } while (currentS < trackSectionLengths[currentSector]);
         currentSector++ ;
         S += currentS;
-        moveMode = 0;
+
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
@@ -498,8 +523,6 @@ void Logic::onCalcSignalReceived()
     currentS = 0;
     currentSector = arIp.count() - 1;
     currentSpeed = 0;
-    stepV = 10;
-
 
     do {
 
@@ -508,13 +531,6 @@ void Logic::onCalcSignalReceived()
         addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
         currentSpeed += stepV;
         currentS += addPoint;
-        /*   if (arLen[currentSector] > currentS)
-        {
-           S += currentS;
-           currentS = 0;
-           currentSector--;
-           // not tested :)
-        }*/
         pointSTor.push_front(distanse - currentS - S);
         pointVTor.push_front(currentSpeed);
     } while (currentSpeed < maxSpeed);
