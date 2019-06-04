@@ -11,7 +11,7 @@ void Logic::setValues()
 {
     // чистим, если вдруг что затесалось. остальное тоже можно почистить, мб понадобится при перерасчетах
     arIp.clear();
-    arLen.clear();
+    trackSectionLengths.clear();
 
 
     /* Локомотив */
@@ -64,7 +64,7 @@ void Logic::setValues()
         arIp.push_back(item.toDouble());
     }
     foreach (QVariant item, localLengths){
-        arLen.push_back(item.toDouble());
+        trackSectionLengths.push_back(item.toInt());
     }
 
     // рандомный ввод профиля для теста
@@ -80,9 +80,9 @@ void Logic::setValues()
     arLen.push_back(2500);*/
     // конец рандомного ввода, внести из исходных данных
 
-    arTrack.push_back(arIp);
-    arTrack.push_back(arLen);
-    qDebug() << arTrack;
+    //arTrack.push_back(arIp);
+    //arTrack.push_back(trackSectionLengths);
+    //qDebug() << arTrack;
 
 
 
@@ -141,7 +141,7 @@ void Logic::onCalcSignalReceived()
         }
         arCalcNum.push_back(numIp);
         arCalcIp.push_back(maxIp);
-        arCalcLen.push_back(arLen[numIp]);
+        arCalcLen.push_back(trackSectionLengths[numIp]);
         arIpTemp[numIp] = 0;
     }
     arCalcTrack.push_back(arCalcNum);
@@ -272,12 +272,12 @@ void Logic::onCalcSignalReceived()
     qDebug() << "trainMass" << trainMass ; // масса, убрать дебаг, выевсти в окне
     fW0 = littleTableW0(trainMass);
 
-    double maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
+    maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
-    for (int i  =0; i < arLen.length(); i++) {
-        distanse += arLen[i];
+    for (int i  =0; i < trackSectionLengths.length(); i++) {
+        distanse += trackSectionLengths[i];
     }
     qDebug() << "Весь путь" << distanse ;  // убрать дебаг, вывести в окне
 
@@ -288,28 +288,45 @@ void Logic::onCalcSignalReceived()
     pointS.push_back(0);
     pointV.push_back(0);
 
-    int s = 0 ; // s = speed
-
     // какой-то большой Лагр...
     okrUpdate(trainMass);
 
     // до 15
-    while (locoTractionVelocity[s] < 16)
+
+
+    for (int i= 0; i < 2; i++)
     {
+        partlocoTractionThrust.push_back(locoTractionThrust[i]);
+        partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+    }
+    /*for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
+        FinalTable(k);
+    }*/
+
+    int s = 1 ; // s = speed
+   // int deb = 0;
+
+   // qDebug() << deb++ << "s=" << s << pointVF ;
+    while (locoTractionVelocity[s] <= 15)
+    {
+        for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
+            FinalTable(k);
+        }
+        s++;
+        partlocoTractionThrust.remove(0);
+        partlocoTractionVelocity.remove(0);
         partlocoTractionThrust.push_back(locoTractionThrust[s]);
         partlocoTractionVelocity.push_back(locoTractionVelocity[s]);
-        s++;
+       // qDebug() << deb++ << "s=" << s << pointVF ;
     }
 
-    for (double k = 0 ; k < partlocoTractionVelocity.last(); k = k+stepV){
-        FinalTable(k);
-    }
+
 
     partlocoTractionThrust.clear();
     partlocoTractionVelocity.clear();
 
     // от 15 до 3 точки
-    for (int i= s - 1; i < s + 6; i++)
+    for (int i= s - 1; i < s + 3; i++)
     {
         partlocoTractionThrust.push_back(locoTractionThrust[i]);
         partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
@@ -319,26 +336,29 @@ void Logic::onCalcSignalReceived()
         FinalTable(k);
     }
 
-    s = s + 6;
+   // qDebug() << deb++ << "s=" << s << pointVF ;
+
+    s = s + 3;
 
     for (int i = s; i < locoTractionThrust.count(); i++)
     {
-        if (i != s) {
+        //if (i != s) {
             partlocoTractionThrust.remove(0);
             partlocoTractionVelocity.remove(0);
             partlocoTractionThrust.push_back(locoTractionThrust[i]);
             partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
-        }
-        for (double k = partlocoTractionVelocity[3] ; k < partlocoTractionVelocity[4]; k = k + stepV){
+      //      qDebug() << deb++ << "s=" << s << pointVF ;
+       // }
+        for (double k = partlocoTractionVelocity[2] ; k < partlocoTractionVelocity[3]; k = k + stepV){
             FinalTable(k);
         }
     }
 
     // до конца
-    for (double k = partlocoTractionVelocity[4] ; k < locoConstrVelocity; k = k + stepV){
+    for (double k = partlocoTractionVelocity[3] ; k < locoConstrVelocity; k = k + stepV){
         FinalTable(k);
     }
-
+    //qDebug () << pointVF;
     // конец большого Лагра
 
 
@@ -357,51 +377,59 @@ void Logic::onCalcSignalReceived()
     QVector <double> deltaw0xbt;
     QVector <double> xSpeed;
 
-   /* for (int i  = 0; i < fW0.length() - 1; i++) {
-        deltaFW0.push_back((fW0[i] + fW0[i + 1]) / 2);
-        deltaw0xbt.push_back((w0xbt[i] + w0xbt[i + 1]) / 2); // тормоз пусть живет пока
-    }*/
-    // qDebug() << "Дельта тяга" << deltaFW0 ;
-    // qDebug() << "Дельта тормоза" << deltaw0xbt ;
-
-    // мм... а надо ли нам перерасчитывать именно F? Это ж куча формул. Может, попробовать лагранжить тягу?
-    // а хотя фиг его знает.. надо прикинуть будет, что проще и дешевле по памяти. по идее один раз хардкорно
-    // просчитать всю таблицу и потом обращаться напрямую. а то слишком много лагранжей при большом пути
-    // причем которые повторяются.
-    // пока для теста просто.
-
-   // qDebug() << "тяга" << fW0 ;
-  //  qDebug() << "тормоз" << w0xbt ;
-
-
-    // задаем массив исков. вроде где-то было, надо перетащить в глобалку и в формирование данных
-
-    for (int i  = 0; i < fW0.length(); i++) {
-        xSpeed.push_back(i * 10);
-    }
-
     double currentTime = 0;
-    double lagrahzTest = 0; // убрать потом переменную, сразу в формулу можно. для вывода.
     pointT.push_back(0);
+    int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ 2 -  тормоз.
+    //qDebug() << w0xFin ;
+
     // построение из расчетов, что всегда премся в тяге :)
     do {
         currentS = 0;
         do {
-            lagrahzTest = lagranz(xSpeed, fW0, currentSpeed);
-           // FwosrIp = deltaFW0[static_cast<int>(floor(currentSpeed / 10))] - arIp[currentSector];
-            FwosrIp = lagrahzTest - arIp[currentSector];
-            //  qDebug() << "1" << deltaFW0[static_cast<int>(floor(currentSpeed/10))] << FwosrIp;
+            if ((currentSpeed + stepV) > maxSpeed) {
+                moveMode = 1;
+            }
+            // режим движения
+            switch (moveMode) {
+            case 0:
+                FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                break;
+            case 1:
+                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                if (FwosrIp >= 0) {
+                    moveMode = 2;
+                    FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                }
+               // qDebug() << FwosrIp << currentSpeed;
+                if (currentSpeed <= maxSpeed - 10) {
+                    moveMode = 0;
+                }
+                break;
+            case 2:
+                FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+               // qDebug() << FwosrIp << currentSpeed;
+                if (currentSpeed <= maxSpeed - 10) {
+                    moveMode = 0;
+                }
+                break;
+            default:
+                FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                break;
+            }
+
+
             if (FwosrIp > 0) {
                 stepV = fabs(stepV);
             } else {
                 stepV = -fabs(stepV);
             }
-            // qDebug() << "2" << stepV;
-            if ((currentSpeed + stepV) > maxSpeed) {
+
+            /*if ((currentSpeed + stepV) > maxSpeed) {
+                moveMode = 1;
                 //currentSpeed -= stepV;
                 //addPoint = pathPoint(currentSpeed, currentSpeed, FwosrIp);
-                currentS = arLen[currentSector];
-            } else {
+                //currentS = arLen[currentSector];
+            } // else {*/
                 addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
                 addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
                 currentSpeed += stepV;
@@ -410,34 +438,57 @@ void Logic::onCalcSignalReceived()
                 if (currentTime > 100) {
                     currentTime += -100;
                 }
-            }
+          //  }
 
 
             pointT.push_back(currentTime);
             pointV.push_back(currentSpeed);
-            if (currentS > arLen[currentSector])
+            if (currentS > trackSectionLengths[currentSector])
             {
-                currentS = arLen[currentSector];
+                currentS = trackSectionLengths[currentSector];
+            }
+
+            switch (moveMode) {
+            case 1:
+                pointHH.push_back(currentS + S);
+                pointVHH.push_back(currentSpeed);
+                break;
+            case 2:
+                pointBT.push_back(currentS + S);
+                pointVBT.push_back(currentSpeed);
+                break;
+            default:
+                break;
             }
             pointS.push_back(currentS + S);
 
+
             //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
-        } while (currentS < arLen[currentSector]);
+        } while (currentS < trackSectionLengths[currentSector]);
         currentSector++ ;
         S += currentS;
+        moveMode = 0;
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
+
+//    qDebug() << "SHH" << pointHH;
+  //  qDebug() << "VHH" << pointVHH;
+
+//    qDebug() << "SBT" << pointBT;
+  //  qDebug() << "VBT" << pointVBT;
+
+
 
  //   qDebug() << "S" << pointS;
 //   qDebug() << "T" << pointT;
     // закончили построение.
 
 
-    // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
-    QVector <double> pointSTor;
-    QVector <double> pointVTor;
-    // ВОТ ОН ТУТ
+
+
+
+
 
     pointSTor.push_back(distanse);
     pointVTor.push_back(0);
@@ -451,8 +502,8 @@ void Logic::onCalcSignalReceived()
 
 
     do {
-        lagrahzTest = lagranz(xSpeed, w0xbt, currentSpeed);
-        FwosrIp = - lagrahzTest + arIp[currentSector];
+
+        FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
        // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
         addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
         currentSpeed += stepV;
@@ -471,6 +522,46 @@ void Logic::onCalcSignalReceived()
    // qDebug() << "STor" << pointSTor;
    // qDebug() << "VTor" << pointVTor;
 
+}
+
+QVector<double> Logic::getPointVTor() const
+{
+    return pointVTor;
+}
+
+QVector<double> Logic::getPointSTor() const
+{
+    return pointSTor;
+}
+
+QVector<int> Logic::getTrackSectionLengths() const
+{
+    return trackSectionLengths;
+}
+
+QVector<double> Logic::getPointVBT() const
+{
+    return pointVBT;
+}
+
+QVector<double> Logic::getPointBT() const
+{
+    return pointBT;
+}
+
+QVector<double> Logic::getPointHH() const
+{
+    return pointHH;
+}
+
+QVector<double> Logic::getPointVHH() const
+{
+    return pointVHH;
+}
+
+double Logic::getMaxSpeed() const
+{
+    return maxSpeed;
 }
 
 QVector<double> Logic::getW0xFin() const
@@ -578,7 +669,7 @@ double Logic::lenTrain(const double Q)
     return lenghtTrain;
 }
 
-double Logic::okrUpdate(double trainMass)
+void Logic::okrUpdate(double trainMass)
 {
     okr = 0;
     for (int i = 0; i < railcarAxleCounts.count(); i++)
@@ -678,13 +769,13 @@ void Logic::FinalTable(double currentV)
     calcMode[2] = calcMode[4] + (k_hh + a_hh * currentV + b_hh * currentV * currentV) * g * locoMass ;
     calcMode[2] = calcMode[2] / ((locoMass + trainMass) * g);
 
-    w0xFin.push_back(calcMode[2]);
+    w0xFin.push_back(-calcMode[2]);
 
     calcMode[3] = 1000 * okr * (k_tt * ((currentV + a_tt) / (b_tt * currentV + a_tt)));
     calcMode[5] = calcMode[2] + 0.5 * calcMode[3];
     calcMode[6] = calcMode[2] + calcMode [3];
 
-    w0xbtFin.push_back(calcMode[6]);
+    w0xbtFin.push_back(-calcMode[5]);
 }
 
 void Logic::calcVelParamUpdate()
