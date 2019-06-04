@@ -65,12 +65,25 @@ void SecondaryGraphWindow::onBuildDiagGraphSignalReceived(const QVector<QVector<
 {
     ui->graphWidget->clearGraphs();
 
+    //ui->graphWidget->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag);
+    //ui->graphWidget->axisRect()->setRangeZoom(Qt::Horizontal);
+    //ui->graphWidget->axisRect()->setRangeDrag(Qt::Horizontal);
+    //ui->graphWidget->setInteraction(QCP::iSelectPlottables);
+    ui->graphWidget->xAxis->grid()->setZeroLinePen(QPen(Qt::SolidLine));
+    ui->graphWidget->xAxis->grid()->setZeroLinePen(QPen(Qt::black));
+    //ui->graphWidget->yAxis->grid()->setSubGridVisible(true);
+
     buildFW0VGraph(data.at(1), data.at(0));
     buildW0xVGraph(data.at(2), data.at(0));
     buildW0xbtVGraph(data.at(3), data.at(0));
 
-    ui->graphWidget->xAxis->setRange(data.at(1).at(0) - 50, data.at(3).at(0) + 10);
+    ui->graphWidget->xAxis->setRange(data.at(3).at(0) - 5, data.at(1).at(0) + 5);
+    ui->graphWidget->xAxis->setRangeReversed(true);
+    ui->graphWidget->xAxis->setLowerEnding(QCPLineEnding::esSpikeArrow);
+
     ui->graphWidget->yAxis->setRange(0, data.at(0).last() + 10);
+    ui->graphWidget->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
     ui->graphWidget->replot();
 }
 
