@@ -44,9 +44,15 @@ private:
 
     void disableSecondaryButtons();
     void enableSecondaryButtons();
+
     void buildVsGraph();
-    void buildVCalcGraph();
+    void buildFinalBTVsGraph();
     void buildTimeGraph();
+    void buildHHVsGraph();
+    void buildBTVsGraph();
+    void buildVCalcGraph();
+    void buildMaxVelocityGraph();
+    void drawTrackSections();
 
 private slots:
     void on_action_new_triggered();
