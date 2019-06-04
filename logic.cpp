@@ -11,7 +11,7 @@ void Logic::setValues()
 {
     // чистим, если вдруг что затесалось. остальное тоже можно почистить, мб понадобится при перерасчетах
     arIp.clear();
-    arLen.clear();
+    trackSectionLengths.clear();
 
 
     /* Локомотив */
@@ -64,7 +64,7 @@ void Logic::setValues()
         arIp.push_back(item.toDouble());
     }
     foreach (QVariant item, localLengths){
-        arLen.push_back(item.toDouble());
+        trackSectionLengths.push_back(item.toInt());
     }
 
     // рандомный ввод профиля для теста
@@ -80,9 +80,9 @@ void Logic::setValues()
     arLen.push_back(2500);*/
     // конец рандомного ввода, внести из исходных данных
 
-    arTrack.push_back(arIp);
-    arTrack.push_back(arLen);
-    qDebug() << arTrack;
+    //arTrack.push_back(arIp);
+    //arTrack.push_back(trackSectionLengths);
+    //qDebug() << arTrack;
 
 
 
@@ -141,7 +141,7 @@ void Logic::onCalcSignalReceived()
         }
         arCalcNum.push_back(numIp);
         arCalcIp.push_back(maxIp);
-        arCalcLen.push_back(arLen[numIp]);
+        arCalcLen.push_back(trackSectionLengths[numIp]);
         arIpTemp[numIp] = 0;
     }
     arCalcTrack.push_back(arCalcNum);
@@ -276,8 +276,8 @@ void Logic::onCalcSignalReceived()
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
-    for (int i  =0; i < arLen.length(); i++) {
-        distanse += arLen[i];
+    for (int i  =0; i < trackSectionLengths.length(); i++) {
+        distanse += trackSectionLengths[i];
     }
     qDebug() << "Весь путь" << distanse ;  // убрать дебаг, вывести в окне
 
@@ -443,9 +443,9 @@ void Logic::onCalcSignalReceived()
 
             pointT.push_back(currentTime);
             pointV.push_back(currentSpeed);
-            if (currentS > arLen[currentSector])
+            if (currentS > trackSectionLengths[currentSector])
             {
-                currentS = arLen[currentSector];
+                currentS = trackSectionLengths[currentSector];
             }
 
             switch (moveMode) {
@@ -465,7 +465,7 @@ void Logic::onCalcSignalReceived()
 
             //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
-        } while (currentS < arLen[currentSector]);
+        } while (currentS < trackSectionLengths[currentSector]);
         currentSector++ ;
         S += currentS;
         moveMode = 0;
@@ -503,7 +503,7 @@ void Logic::onCalcSignalReceived()
 
     do {
 
-        FwosrIp = - w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
+        FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
        // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
         addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
         currentSpeed += stepV;
@@ -522,6 +522,46 @@ void Logic::onCalcSignalReceived()
    // qDebug() << "STor" << pointSTor;
    // qDebug() << "VTor" << pointVTor;
 
+}
+
+QVector<double> Logic::getPointVTor() const
+{
+    return pointVTor;
+}
+
+QVector<double> Logic::getPointSTor() const
+{
+    return pointSTor;
+}
+
+QVector<int> Logic::getTrackSectionLengths() const
+{
+    return trackSectionLengths;
+}
+
+QVector<double> Logic::getPointVBT() const
+{
+    return pointVBT;
+}
+
+QVector<double> Logic::getPointBT() const
+{
+    return pointBT;
+}
+
+QVector<double> Logic::getPointHH() const
+{
+    return pointHH;
+}
+
+QVector<double> Logic::getPointVHH() const
+{
+    return pointVHH;
+}
+
+double Logic::getMaxSpeed() const
+{
+    return maxSpeed;
 }
 
 QVector<double> Logic::getW0xFin() const
@@ -629,7 +669,7 @@ double Logic::lenTrain(const double Q)
     return lenghtTrain;
 }
 
-double Logic::okrUpdate(double trainMass)
+void Logic::okrUpdate(double trainMass)
 {
     okr = 0;
     for (int i = 0; i < railcarAxleCounts.count(); i++)

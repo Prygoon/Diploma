@@ -41,6 +41,14 @@ public:
     QVector<double> getFW0Fin() const;
     QVector<double> getW0xbtFin() const;
     QVector<double> getW0xFin() const;
+    double getMaxSpeed() const;
+    QVector<double> getPointVHH() const;
+    QVector<double> getPointHH() const;
+    QVector<double> getPointBT() const;
+    QVector<double> getPointVBT() const;
+    QVector<int> getTrackSectionLengths() const;
+    QVector<double> getPointSTor() const;
+    QVector<double> getPointVTor() const;
 
 public slots:
     void onCalcSignalReceived();
@@ -50,11 +58,6 @@ private:
 
     // константы, мб в дефайн
     const double g = 9.81;
-
-
-    // фз кто это :)
-    QStandardItemModel *model;
-    QStandardItem *item;
 
     // вспомогательные, коэффициенты
     QVector <QVector <double>> arCalcTrack; // массив для определения расчетного подъема
@@ -99,6 +102,7 @@ private:
     QVector <double> pointV; // график, скорость
     QVector <double> pointT; // график, время
 
+    // два графика точками
     QVector <double> pointHH; // график,  холостой
     QVector <double> pointVHH; // график, скорость к холостому
     QVector <double> pointBT; // график, торможение
@@ -138,7 +142,7 @@ private:
     // массив для пути
     QVector <QVector <double> > arTrack; // общий, в целом не нужен
     QVector <double> arIp; // подъем
-    QVector <double> arLen; // длина
+    QVector <int> trackSectionLengths; // длина
 
     // локомотив
     int locoCalcThrustForce; // Расчетная сила тяги
@@ -155,13 +159,13 @@ private:
     double w0ll(const double v); // основное удельное сопротивление поезда
     double w0l(const double v); // основное удельное сопротивление локомотива
     double lenTrain(const double Q); // длинна поезда
-    double okrUpdate(double trainMass); // расчетный тормозной коэффициент состава
     double pathSum (const double vMax, const double vMin, const double ip);  // пройденный путь для крутых
     double pathPoint (const double vMax, const double vMin, const double Fwosrip);  // точки пути
     double timePoint (const double vMax, const double vMin, const double Fwosrip); // точки времени
 
     QVector<double> littleTableW0 (double trainMass); // вектор, переименовать бы,
 
+    void okrUpdate(double trainMass); // расчетный тормозной коэффициент состава
     void FinalTable(double currentV); // формирование  подробных данных по тяге и удельным
     void calcVelParamUpdate();
     void railcarsCountUpdate();

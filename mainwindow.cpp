@@ -50,6 +50,60 @@ void MainWindow::buildTimeGraph()
     ui->mainGraph->graph(2)->setPen(QPen(Qt::green));
 }
 
+void MainWindow::buildMaxVelocityGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(3)->setData({0, logic->getDistanse()}, {logic->getMaxSpeed(), logic->getMaxSpeed()});
+    ui->mainGraph->graph(3)->setPen(QPen(Qt::red));
+}
+
+void MainWindow::drawTrackSections()
+{
+    QVector<int> localTrackSectionLengths = logic->getTrackSectionLengths();
+    int currentTrackSectionPosition = 0;
+
+    for (int i = 0; i < localTrackSectionLengths.size(); i++) {
+        currentTrackSectionPosition += localTrackSectionLengths.at(i);
+        QCPItemLine *upperVerticalLine = new QCPItemLine(ui->mainGraph);
+        upperVerticalLine->start->setCoords(currentTrackSectionPosition, 0);
+        upperVerticalLine->end->setCoords(currentTrackSectionPosition, 100);
+        upperVerticalLine->setPen(QPen(Qt::DashLine));
+        upperVerticalLine->setPen(QPen(Qt::gray));
+
+        QCPItemLine *lowerVerticalLine = new QCPItemLine(ui->mainGraph);
+        lowerVerticalLine->start->setCoords(currentTrackSectionPosition, -10);
+        lowerVerticalLine->end->setCoords(currentTrackSectionPosition, 0);
+        lowerVerticalLine->setPen(QPen(Qt::SolidLine));
+        lowerVerticalLine->setPen(QPen(Qt::black));
+    }
+}
+
+void MainWindow::buildHHVsGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(4)->setData(logic->getPointHH(), logic->getPointVHH());
+    ui->mainGraph->graph(4)->setLineStyle(QCPGraph::lsNone);
+    ui->mainGraph->graph(4)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::magenta, 1));
+
+}
+
+void MainWindow::buildBTVsGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(5)->setData(logic->getPointBT(), logic->getPointVBT());
+    //ui->mainGraph->graph(5)->setPen(QPen(Qt::darkYellow));
+    ui->mainGraph->graph(5)->setLineStyle(QCPGraph::lsNone);
+    ui->mainGraph->graph(5)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, Qt::darkYellow, 2));
+}
+
+void MainWindow::buildFinalBTVsGraph()
+{
+    ui->mainGraph->addGraph();
+    ui->mainGraph->graph(6)->setData(logic->getPointSTor(), logic->getPointVTor());
+    ui->mainGraph->graph(6)->setPen(QPen(Qt::darkBlue));
+    qDebug() << logic->getPointSTor() << endl << logic->getPointVTor();
+}
+
 void MainWindow::on_action_new_triggered()
 {
     wInputWindow = new InputWindow();
@@ -107,13 +161,30 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
 
     ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistanse() / 48 + 50)));
     ui->mainGraph->clearGraphs();
+    ui->mainGraph->setInteractions(QCP::iRangeDrag/* | QCP::iRangeZoom*/);
+    //    ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
+    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
+
+    //ui->mainGraph->graph()->
 
     buildVsGraph();
     buildVCalcGraph();
     buildTimeGraph();
+    buildMaxVelocityGraph();
+    buildHHVsGraph();
+    buildBTVsGraph();
+    buildFinalBTVsGraph();
+
+    drawTrackSections();
 
     ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
-    ui->mainGraph->yAxis->setRange(0, logic->getLocoConstrVelocity() + 10);
+    ui->mainGraph->xAxis->setLabel("S, м");
+    ui->mainGraph->yAxis->setRange(-10, logic->getLocoConstrVelocity() + 10);
+    ui->mainGraph->yAxis->grid()->setZeroLinePen(QPen(Qt::SolidLine | Qt::black));
+    ui->mainGraph->yAxis->setLabel("v, км/ч");
+
+    //ui->mainGraph->legend->setVisible(true);
+
     ui->mainGraph->replot();
     //qDebug() << dataJson;
     //delete logic;
