@@ -28,7 +28,7 @@ private:
     /* Тяговая характеристика */
     void buildFVGraph(const QVector<double> &force, const QVector<double> &velocity);
 
-    void enableButtons();
+    void enableButton();
     void closeEvent(QCloseEvent *event); // Переопределим нажатие на крестик
 
 signals:

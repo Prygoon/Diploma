@@ -9,16 +9,21 @@ Logic::Logic(QObject *parent, const QJsonObject *dataJson) :
 
 void Logic::setValues()
 {
+    slopes = new QVector<double>();
+    trackSectionLengths = new QVector<int>();
     // чистим, если вдруг что затесалось. остальное тоже можно почистить, мб понадобится при перерасчетах
-    arIp.clear();
-    trackSectionLengths.clear();
+    slopes->clear();
+    trackSectionLengths->clear();
 
 
     /* Локомотив */
+    locoTractionThrust = new QVector<double>();
+    locoTractionVelocity = new QVector<double>();
+
     QJsonObject localLocomotiveJson = dataJson->value("locomotive").toObject();
     qDebug() << localLocomotiveJson;
-    locoCalcThrustForce = localLocomotiveJson.value("calc_thrust_force").toInt() * 1000; // Расчетная сила тяги, перевод
-    locoMass = localLocomotiveJson.value("mass").toInt(); // Масса
+    locoCalcThrustForce = localLocomotiveJson.value("calc_thrust_force").toDouble() * 1000; // Расчетная сила тяги, перевод
+    locoMass = localLocomotiveJson.value("mass").toDouble(); // Масса
     locoConstrVelocity = localLocomotiveJson.value("construction_velocity").toInt(); // Конструкционная скорость
     locoCalcVelocity = localLocomotiveJson.value("calc_velocity").toDouble(); // Расчетная скорость
     locoLen = localLocomotiveJson.value("length").toDouble(); // Длина
@@ -27,29 +32,37 @@ void Logic::setValues()
     QJsonArray localVelocityArray = localLocomotiveJson.value("traction").toObject().value("velocity").toArray();
     int n = localThrustForceArray.size();
     for (int i = 0; i < n; i++) {
-        locoTractionThrust.push_back(localThrustForceArray.at(i).toDouble());
-        locoTractionVelocity.push_back(localVelocityArray.at(i).toDouble());
+        locoTractionThrust->push_back(localThrustForceArray.at(i).toDouble());
+        locoTractionVelocity->push_back(localVelocityArray.at(i).toDouble());
     }
 
     //locoTractionThrust = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
     //locoTractionVelocity = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
 
     /* Вагоны */
+    railcarAxleCounts = new QVector<int>();
+    railcarMasses = new QVector<int>();
+    railcarPercents = new QVector<double>();
+    railcarCoefsK = new QVector<double>();
+    railcarCoefsA = new QVector<double>();
+    railcarCoefsB = new QVector<double>();
+    railcarCoefsC = new QVector<double>();
+
     QJsonObject localRailcarsJson = dataJson->value("railcars").toObject();
     QJsonArray localRailcarsTypes = localRailcarsJson.value("types").toArray();
     QVector<QVector<QVariant>> localCoefs; // Массив массивов коэфициентов
     foreach (QJsonValue railcarType, localRailcarsTypes) {
-        railcarAxleCounts.push_back(railcarType.toObject().value("axle_count").toInt());
-        railcarMasses.push_back(railcarType.toObject().value("mass").toInt());
-        railcarPercents.push_back(railcarType.toObject().value("percent").toDouble());
+        railcarAxleCounts->push_back(railcarType.toObject().value("axle_count").toInt());
+        railcarMasses->push_back(railcarType.toObject().value("mass").toInt());
+        railcarPercents->push_back(railcarType.toObject().value("percent").toDouble());
         localCoefs.push_back(railcarType.toObject().value("coefs").toArray().toVariantList().toVector());
     }
 
     foreach (QVector<QVariant> item, localCoefs){
-        railcarCoefsK.push_back(item[0].toDouble());
-        railcarCoefsA.push_back(item[1].toDouble());
-        railcarCoefsB.push_back(item[2].toDouble());
-        railcarCoefsC.push_back(item[3].toDouble());
+        railcarCoefsK->push_back(item.at(0).toDouble());
+        railcarCoefsA->push_back(item.at(1).toDouble());
+        railcarCoefsB->push_back(item.at(2).toDouble());
+        railcarCoefsC->push_back(item.at(3).toDouble());
     }
 
     /* Профиль пути*/
@@ -61,14 +74,14 @@ void Logic::setValues()
 
     // надо так же для курвы, но пока ее нет
     foreach (QVariant item, localSlopes){
-        arIp.push_back(item.toDouble());
+        slopes->push_back(item.toDouble());
     }
     foreach (QVariant item, localLengths){
-        trackSectionLengths.push_back(item.toInt());
+        trackSectionLengths->push_back(item.toInt());
     }
 
     // рандомный ввод профиля для теста
-  /*  arIp.push_back(0);
+    /*  arIp.push_back(0);
     arLen.push_back(6000);
     for (int i = 1; i < 7; i++){
         arIp.push_back((qrand() % 160 - 52) * 0.1);
@@ -90,7 +103,7 @@ void Logic::setValues()
 
 void Logic::setCoeffitient()
 {
-  //  bool Kolodki;
+    //  bool Kolodki;
 
     // FIXME
     stepV = 0.01;
@@ -105,44 +118,72 @@ void Logic::setCoeffitient()
     a_tt =  150;  // основого удельного торможение
     b_tt = 2;  // как минимум 2 вида под колодки
 
-     k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+    k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
 
-     locoA = 1.9;   // какие-то коэффициенты для
-     locoB = 0.01;  // основное удельное сопротивление локомотива
-     locoC = 0.0003; //
+    locoA = 1.9;   // какие-то коэффициенты для
+    locoB = 0.01;  // основное удельное сопротивление локомотива
+    locoC = 0.0003; //
 
 }
 
 
 void Logic::onCalcSignalReceived()
 {
+    pointS = new QVector<double>();
+    pointV = new QVector<double>();
+    pointT = new QVector<double>();
+
+    pointHH = new QVector<double>();
+    pointVHH = new QVector<double>();
+    pointBT = new QVector<double>();
+    pointVBT = new QVector<double>();
+
+    pointF = new QVector<double>();
+    pointVF = new QVector<double>();
+
+    partlocoTractionThrust = new QVector<double>();
+    partlocoTractionVelocity = new QVector<double>();
+
+    fW0Fin = new QVector<double>();
+    w0xbtFin = new QVector<double>();
+    w0xFin = new QVector<double>();
+
+    pointSTor = new QVector<double>();
+    pointVTor = new QVector<double>();
+
+    fW0 = new QVector<double>(); // столбец таблицы, тяга
+    w0xbt = new QVector<double>();
+
     setValues();
     setCoeffitient();
 
     // НАХОЖДЕНИЕ РАСЧЕТНОГО НАЧАЛО
     // тааак. тут ничего интересного, объявляем и ищем три самых жЫрных подъема
     // вспомогательные массивы для нахождения расчетного
+    QVector <double> *arIpTemp = new QVector<double>();
+
+
     QVector <double> arCalcIp;
     QVector <double> arCalcLen;
     QVector <double> arCalcNum;
     double maxIp;
     int numIp = 0;
-    QVector <double> arIpTemp = arIp;
+    arIpTemp->append(*slopes);
 
 
     for (int i = 0; i < trackCount; i++)
     {
         maxIp = -1000;
-        for (int j = 0; j < arIpTemp.count(); j++) {
-            if (arIpTemp[j] > maxIp){
+        for (int j = 0; j < arIpTemp->count(); j++) {
+            if (arIpTemp->at(j) > maxIp){
                 numIp = j;
-                maxIp = arIpTemp[j];
+                maxIp = arIpTemp->at(j);
             }
         }
         arCalcNum.push_back(numIp);
         arCalcIp.push_back(maxIp);
-        arCalcLen.push_back(trackSectionLengths[numIp]);
-        arIpTemp[numIp] = 0;
+        arCalcLen.push_back(trackSectionLengths->at(numIp));
+        arIpTemp->replace(numIp, 0);
     }
     arCalcTrack.push_back(arCalcNum);
     arCalcTrack.push_back(arCalcIp);
@@ -184,7 +225,7 @@ void Logic::onCalcSignalReceived()
             double trainLenght;
             trainLenght = lenTrain(trainMass);
             while (lenStation < trainLenght){
-                trainMass=trainMass - massAccuracy;
+                trainMass = trainMass - massAccuracy;
                 trainLenght = lenTrain(trainMass);
             }
         }
@@ -260,7 +301,7 @@ void Logic::onCalcSignalReceived()
             maxQ = Q[i];
         }
     }
-    qDebug() << "Ip[" << numIp << "]=" << arIp[numIp];  // расчетный, убрать дебаг, вывести в окне
+    qDebug() << "Ip[" << numIp << "]=" << slopes->at(numIp);  // расчетный, убрать дебаг, вывести в окне
     // вот тут нашли, запомнили его
     // НАХОЖДЕНИЕ РАСЧЕТНОГО КОНЕЦ
 
@@ -276,17 +317,17 @@ void Logic::onCalcSignalReceived()
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
-    for (int i  =0; i < trackSectionLengths.length(); i++) {
-        distanse += trackSectionLengths[i];
+    for (int i  =0; i < trackSectionLengths->length(); i++) {
+        distanse += trackSectionLengths->at(i);
     }
     qDebug() << "Весь путь" << distanse ;  // убрать дебаг, вывести в окне
 
-    mainIp = arIp[numIp];
+    mainIp = slopes->at(numIp);
 
 
 
-    pointS.push_back(0);
-    pointV.push_back(0);
+    pointS->push_back(0);
+    pointV->push_back(0);
 
     // какой-то большой Лагр...
     okrUpdate(trainMass);
@@ -296,66 +337,66 @@ void Logic::onCalcSignalReceived()
 
     for (int i= 0; i < 2; i++)
     {
-        partlocoTractionThrust.push_back(locoTractionThrust[i]);
-        partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
     }
     /*for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
         FinalTable(k);
     }*/
 
     int s = 1 ; // s = speed
-   // int deb = 0;
+    // int deb = 0;
 
-   // qDebug() << deb++ << "s=" << s << pointVF ;
-    while (locoTractionVelocity[s] <= 15)
+    // qDebug() << deb++ << "s=" << s << pointVF ;
+    while (locoTractionVelocity->at(s) <= 15)
     {
-        for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
+        for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(1); k = k + stepV){
             FinalTable(k);
         }
         s++;
-        partlocoTractionThrust.remove(0);
-        partlocoTractionVelocity.remove(0);
-        partlocoTractionThrust.push_back(locoTractionThrust[s]);
-        partlocoTractionVelocity.push_back(locoTractionVelocity[s]);
-       // qDebug() << deb++ << "s=" << s << pointVF ;
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(s));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(s));
+        // qDebug() << deb++ << "s=" << s << pointVF ;
     }
 
 
 
-    partlocoTractionThrust.clear();
-    partlocoTractionVelocity.clear();
+    partlocoTractionThrust->clear();
+    partlocoTractionVelocity->clear();
 
     // от 15 до 3 точки
     for (int i= s - 1; i < s + 3; i++)
     {
-        partlocoTractionThrust.push_back(locoTractionThrust[i]);
-        partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
     }
 
-    for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[3]; k = k + stepV){
+    for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(3); k = k + stepV){
         FinalTable(k);
     }
 
-   // qDebug() << deb++ << "s=" << s << pointVF ;
+    // qDebug() << deb++ << "s=" << s << pointVF ;
 
     s = s + 3;
 
-    for (int i = s; i < locoTractionThrust.count(); i++)
+    for (int i = s; i < locoTractionThrust->count(); i++)
     {
         //if (i != s) {
-            partlocoTractionThrust.remove(0);
-            partlocoTractionVelocity.remove(0);
-            partlocoTractionThrust.push_back(locoTractionThrust[i]);
-            partlocoTractionVelocity.push_back(locoTractionVelocity[i]);
-      //      qDebug() << deb++ << "s=" << s << pointVF ;
-       // }
-        for (double k = partlocoTractionVelocity[2] ; k < partlocoTractionVelocity[3]; k = k + stepV){
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
+        //      qDebug() << deb++ << "s=" << s << pointVF ;
+        // }
+        for (double k = partlocoTractionVelocity->at(2) ; k < partlocoTractionVelocity->at(3); k = k + stepV){
             FinalTable(k);
         }
     }
 
     // до конца
-    for (double k = partlocoTractionVelocity[3] ; k < locoConstrVelocity; k = k + stepV){
+    for (double k = partlocoTractionVelocity->at(3) ; k < locoConstrVelocity; k = k + stepV){
         FinalTable(k);
     }
     //qDebug () << pointVF;
@@ -378,20 +419,20 @@ void Logic::onCalcSignalReceived()
     QVector <double> xSpeed;
 
     double currentTime = 0;
-    pointT.push_back(0);
+    pointT->push_back(0);
     int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
     //qDebug() << w0xFin ;
 
     // построение из расчетов, что всегда премся в тяге :)
     do {
         currentS = 0;
-        qDebug() << arIp[currentSector] << currentSector << moveMode << currentSpeed;
-        if (arIp[currentSector] >= 0 || moveMode == 0) {
-           moveMode = 0;
+        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
+        if (slopes->at(currentSector) >= 0 || moveMode == 0) {
+            moveMode = 0;
         } else {
             moveMode = 4;
         }
-        qDebug() << arIp[currentSector] << currentSector << moveMode << currentSpeed;
+        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
         do {
             if ((currentSpeed + stepV) > maxSpeed) {
                 moveMode = 1;
@@ -399,34 +440,34 @@ void Logic::onCalcSignalReceived()
             // режим движения
             switch (moveMode) {
             case 0:
-                FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                FwosrIp = fW0Fin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 break;
             case 1:
-                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                FwosrIp = w0xFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 if (FwosrIp >= 0) {
                     moveMode = 2;
-                    FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                    FwosrIp = w0xbtFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 }
                 if (currentSpeed <= maxSpeed - 10) {
                     moveMode = 0;
                 }
                 break;
             case 2:
-                FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
-               // qDebug() << FwosrIp << currentSpeed;
+                FwosrIp = w0xbtFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
+                // qDebug() << FwosrIp << currentSpeed;
                 if (currentSpeed <= maxSpeed - 10) {
                     moveMode = 3;
                 }
                 break;
             case 3:
-                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                FwosrIp = w0xFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 if (FwosrIp <= 0) {
                     moveMode = 0;
-                    FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                    FwosrIp = fW0Fin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 }
                 break;
             case 4:
-                FwosrIp = w0xFin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                FwosrIp = w0xFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 if (FwosrIp <= 0) {
                     moveMode = 1;
                 } else {
@@ -434,7 +475,7 @@ void Logic::onCalcSignalReceived()
                 }
                 break;
             default:
-                FwosrIp = fW0Fin[abs(static_cast<int>(currentSpeed/stepV))] - arIp[currentSector];
+                FwosrIp = fW0Fin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
                 break;
             }
 
@@ -451,126 +492,126 @@ void Logic::onCalcSignalReceived()
                 //addPoint = pathPoint(currentSpeed, currentSpeed, FwosrIp);
                 //currentS = arLen[currentSector];
             } // else {*/
-                addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
-                addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
-                currentSpeed += stepV;
-                currentS += addPoint;
-                currentTime += addTimePoint;
-                if (currentTime > 100) {
-                    currentTime += -100;
-                }
-          //  }
+            addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
+            addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
+            currentSpeed += stepV;
+            currentS += addPoint;
+            currentTime += addTimePoint;
+            if (currentTime > 100) {
+                currentTime += -100;
+            }
+            //  }
 
 
-            pointT.push_back(currentTime);
-            pointV.push_back(currentSpeed);
-            if (currentS > trackSectionLengths[currentSector])
+            pointT->push_back(currentTime);
+            pointV->push_back(currentSpeed);
+            if (currentS > trackSectionLengths->at(currentSector))
             {
-                currentS = trackSectionLengths[currentSector];
+                currentS = trackSectionLengths->at(currentSector);
             }
 
             switch (moveMode) {
             case 1:
-                pointHH.push_back(currentS + S);
-                pointVHH.push_back(currentSpeed);
+                pointHH->push_back(currentS + S);
+                pointVHH->push_back(currentSpeed);
                 break;
             case 2:
-                pointBT.push_back(currentS + S);
-                pointVBT.push_back(currentSpeed);
+                pointBT->push_back(currentS + S);
+                pointVBT->push_back(currentSpeed);
                 break;
             case 3:
-                pointHH.push_back(currentS + S);
-                pointVHH.push_back(currentSpeed);
+                pointHH->push_back(currentS + S);
+                pointVHH->push_back(currentSpeed);
                 break;
             default:
                 break;
             }
-            pointS.push_back(currentS + S);
+            pointS->push_back(currentS + S);
 
 
             //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
-        } while (currentS < trackSectionLengths[currentSector]);
+        } while (currentS < trackSectionLengths->at(currentSector));
         currentSector++ ;
         S += currentS;
 
         //  qDebug() << "S" << S << distanse << currentSector;
     } while (S < distanse);
 
-//    qDebug() << "SHH" << pointHH;
-  //  qDebug() << "VHH" << pointVHH;
+    //    qDebug() << "SHH" << pointHH;
+    //  qDebug() << "VHH" << pointVHH;
 
-//    qDebug() << "SBT" << pointBT;
-  //  qDebug() << "VBT" << pointVBT;
+    //    qDebug() << "SBT" << pointBT;
+    //  qDebug() << "VBT" << pointVBT;
 
 
-
- //   qDebug() << "S" << pointS;
-//   qDebug() << "T" << pointT;
+    littleTable_ptr = &littleTable;
+    //   qDebug() << "S" << pointS;
+    //   qDebug() << "T" << pointT;
     // закончили построение.
 
 
-
-
-
-
-
-    pointSTor.push_back(distanse);
-    pointVTor.push_back(0);
+    pointSTor->push_back(distanse);
+    pointVTor->push_back(0);
 
     // построение отрезка торможения
-    S = 0;
-    currentS = 0;
-    currentSector = arIp.count() - 1;
-    currentSpeed = 0;
+    //    S = 0;
+    //    currentS = 0;
+    //    currentSector = arIp.count() - 1;
+    //    currentSpeed = 0;
 
-    do {
+    //    do {
 
-        FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
-       // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
-        addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
-        currentSpeed += stepV;
-        currentS += addPoint;
-        pointSTor.push_front(distanse - currentS - S);
-        pointVTor.push_front(currentSpeed);
-    } while (currentSpeed < maxSpeed);
+    //        FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
+    //       // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
+    //        addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
+    //        currentSpeed += stepV;
+    //        currentS += addPoint;
+    //        pointSTor.push_front(distanse - currentS - S);
+    //        pointVTor.push_front(currentSpeed);
+    //    } while (currentSpeed < maxSpeed);
 
-   // qDebug() << "STor" << pointSTor;
-   // qDebug() << "VTor" << pointVTor;
+    // qDebug() << "STor" << pointSTor;
+    // qDebug() << "VTor" << pointVTor;
 
 }
 
-QVector<double> Logic::getPointVTor() const
+QVector<QVector<double> > *Logic::getLittleTable_ptr() const
+{
+    return littleTable_ptr;
+}
+
+QVector<double> *Logic::getPointVTor() const
 {
     return pointVTor;
 }
 
-QVector<double> Logic::getPointSTor() const
+QVector<double> *Logic::getPointSTor() const
 {
     return pointSTor;
 }
 
-QVector<int> Logic::getTrackSectionLengths() const
+QVector<int> *Logic::getTrackSectionLengths() const
 {
     return trackSectionLengths;
 }
 
-QVector<double> Logic::getPointVBT() const
+QVector<double> *Logic::getPointVBT() const
 {
     return pointVBT;
 }
 
-QVector<double> Logic::getPointBT() const
+QVector<double> *Logic::getPointBT() const
 {
     return pointBT;
 }
 
-QVector<double> Logic::getPointHH() const
+QVector<double> *Logic::getPointHH() const
 {
     return pointHH;
 }
 
-QVector<double> Logic::getPointVHH() const
+QVector<double> *Logic::getPointVHH() const
 {
     return pointVHH;
 }
@@ -580,27 +621,27 @@ double Logic::getMaxSpeed() const
     return maxSpeed;
 }
 
-QVector<double> Logic::getW0xFin() const
+QVector<double> *Logic::getW0xFin() const
 {
     return w0xFin;
 }
 
-QVector<double> Logic::getW0xbtFin() const
+QVector<double> *Logic::getW0xbtFin() const
 {
     return w0xbtFin;
 }
 
-QVector<double> Logic::getFW0Fin() const
+QVector<double> *Logic::getFW0Fin() const
 {
     return fW0Fin;
 }
 
-QVector<double> Logic::getPointVF() const
+QVector<double> *Logic::getPointVF() const
 {
     return pointVF;
 }
 
-QVector<double> Logic::getPointF() const
+QVector<double> *Logic::getPointF() const
 {
     return pointF;
 }
@@ -615,33 +656,33 @@ int Logic::getLocoConstrVelocity() const
     return locoConstrVelocity;
 }
 
-QVector<double> Logic::getPointT() const
+QVector<double> *Logic::getPointT() const
 {
     return pointT;
 }
 
-QVector<double> Logic::getPointV() const
+QVector<double> *Logic::getPointV() const
 {
     return pointV;
 }
 
-QVector<double> Logic::getPointS() const
+QVector<double> *Logic::getPointS() const
 {
     return pointS;
 }
 
-double Logic::lagranz(QVector<double> X, QVector<double> Y, double t)
+double Logic::lagranz(QVector<double> *X, QVector<double> *Y, double t)
 {
     double sum, prod;
     sum = 0;
-    for (int j = 0; j < X.size(); j++){
+    for (int j = 0; j < X->size(); j++){
         prod = 1;
-        for (int i = 0; i < Y.size(); i++){
+        for (int i = 0; i < Y->size(); i++){
             if (i != j) {
-                prod = prod * (t - X[i]) / (X[j] - X[i]);
+                prod = prod * (t - X->at(i)) / (X->at(j) - X->at(i));
             }
         }
-        sum = sum + Y[j] * prod;
+        sum = sum + Y->at(j) * prod;
     }
     return sum;
 }
@@ -654,9 +695,9 @@ double Logic::w0ll(const double v)
     double qUnit; // масса, приходящаяся на одну колесную пару
 
     // FIXME цикл для каждого из вагонов
-    for (int i = 0; i < railcarAxleCounts.count(); i++){
-        qUnit = railcarMasses[i] / railcarAxleCounts[i];
-        w = w + railcarPercents[i] * (railcarCoefsK[i] + (railcarCoefsA[i] + railcarCoefsB[i] * v + railcarCoefsC[i] * v * v) / qUnit);
+    for (int i = 0; i < railcarAxleCounts->count(); i++){
+        qUnit = railcarMasses->at(i) / railcarAxleCounts->at(i);
+        w = w + railcarPercents->at(i) * (railcarCoefsK->at(i) + (railcarCoefsA->at(i) + railcarCoefsB->at(i) * v + railcarCoefsC->at(i) * v * v) / qUnit);
     }
 
     return w;
@@ -674,13 +715,13 @@ double Logic::lenTrain(const double Q)
     int currentlen ;
 
     double lenghtTrain = locoLen + 10; // +10 - запас длины на неточность установки
-    for (int i = 0; i < railcarAxleCounts.count(); i++) {
-        if (railcarAxleCounts[i] == 4) {
+    for (int i = 0; i < railcarAxleCounts->count(); i++) {
+        if (railcarAxleCounts->at(i) == 4) {
             currentlen = lenghtRailcars[0];
         } else {
             currentlen = lenghtRailcars[1];
         }
-        lenghtTrain += floor(railcarPercents[i] * Q / railcarMasses[i]) * currentlen; // вагоны не дробные, округляем-с
+        lenghtTrain += floor(railcarPercents->at(i) * Q / railcarMasses->at(i)) * currentlen; // вагоны не дробные, округляем-с
     }
     return lenghtTrain;
 }
@@ -688,9 +729,9 @@ double Logic::lenTrain(const double Q)
 void Logic::okrUpdate(double trainMass)
 {
     okr = 0;
-    for (int i = 0; i < railcarAxleCounts.count(); i++)
+    for (int i = 0; i < railcarAxleCounts->count(); i++)
     {
-     okr += railcarAxleCounts[i] * railcarCount[i];
+        okr += railcarAxleCounts->at(i) * railcarCount->at(i);
     }
     okr = k_okr * okr / trainMass / g;
 
@@ -705,9 +746,9 @@ double Logic::pathSum(const double vMax, const double vMin, const double ip)
 
 
     if (fabs(vMin - locoCalcVelocity) < EPS) {
-        Fwosr = (fW0.value(numMax) + calcVelParam[6]) / 2;
+        Fwosr = (fW0->value(numMax) + calcVelParam[6]) / 2;
     } else {
-        Fwosr = (fW0.value(numMax) + fW0.value(numMin)) / 2;
+        Fwosr = (fW0->value(numMax) + fW0->value(numMin)) / 2;
     }
     double path = 4.17 * ((vMin * vMin - vMax * vMax) / (Fwosr - ip));
     path = path < 0 ?  0 : path;
@@ -728,17 +769,30 @@ double Logic::timePoint(const double vMax, const double vMin, const double Fwosr
     return time;
 }
 
-QVector<double> Logic::littleTableW0(double trainMass)
+QVector<double> *Logic::littleTableW0(double trainMass)
 {
-    QVector <double> fW0cur;
-    QVector <double> w0xbtcur;
+    littleTable_ptr = new QVector<QVector<double> >();
+    QVector <double> *fW0cur = new QVector<double>();
+    QVector <double> *w0xbtcur = new QVector<double>();
 
     okrUpdate(trainMass);
+    if (littleTable.size() == 0) {
+        for(int i = 0; i < locoConstrVelocity / 10 + 1; i++)
+        {
+            QVector<double> tempVector;
+
+            for(int j = 0; j < 15; j++)
+            {
+                tempVector.push_back(0);
+            }
+            littleTable.push_back(tempVector);
+        }
+    }
 
     // построим табличку, см эксель
 
-    for (int i = 0; i < locoConstrVelocity/10; i++) {
-        littleTable[i][0] = i  * 10;
+    for (int i = 0; i < locoConstrVelocity / 10 + 1; i++) {
+        littleTable[i][0] = i * 10;
         littleTable[i][1] = lagranz(locoTractionVelocity, locoTractionThrust, littleTable[i][0]);
 
         // тяга
@@ -747,7 +801,7 @@ QVector<double> Logic::littleTableW0(double trainMass)
         littleTable[i][4] = littleTable[i][2] + littleTable[i][3];
         littleTable[i][5] = 1000 * littleTable[i][1] - littleTable[i][4];
         littleTable[i][6] = littleTable[i][5] / ((locoMass+trainMass) * g);
-        fW0cur.push_back(littleTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
+        fW0cur->push_back(littleTable[i][6]); // в методичке написано, что это для диаграммы удельных, тяга
         // ХХ
         littleTable[i][7] = k_hh + a_hh * littleTable[i][0] + b_hh * littleTable[i][0] * littleTable[i][0];
         littleTable[i][8] = littleTable[i][7] * g * locoMass;
@@ -758,9 +812,10 @@ QVector<double> Logic::littleTableW0(double trainMass)
         littleTable[i][12] = okr * littleTable[i][11] * 1000;
         littleTable[i][13] = littleTable[i][10] + 0.5 * littleTable[i][12];
         littleTable[i][14] = littleTable[i][10] + littleTable[i][12];
-        w0xbtcur.push_back(littleTable[i][14]);
-
+        w0xbtcur->push_back(littleTable[i][14]);
     }
+
+    //littleTable_ptr = &littleTable;
 
     w0xbt = w0xbtcur;
     return fW0cur;
@@ -770,28 +825,28 @@ void Logic::FinalTable(double currentV)
 {
     double calcMode[7];
 
-    pointVF.push_back(currentV);
+    pointVF->push_back(currentV);
 
     calcMode[0] = lagranz(partlocoTractionVelocity, partlocoTractionThrust, currentV);
 
-    pointF.push_back(calcMode[0]);
+    pointF->push_back(calcMode[0]);
 
     calcMode[4] = w0ll(currentV) * g * trainMass;
     calcMode[1] = 1000 * calcMode[0] - (w0l(currentV) * g * locoMass + calcMode[4]);
     calcMode[1] = calcMode[1]/((locoMass+trainMass) * g);
 
-    fW0Fin.push_back(calcMode[1]);
+    fW0Fin->push_back(calcMode[1]);
 
     calcMode[2] = calcMode[4] + (k_hh + a_hh * currentV + b_hh * currentV * currentV) * g * locoMass ;
     calcMode[2] = calcMode[2] / ((locoMass + trainMass) * g);
 
-    w0xFin.push_back(-calcMode[2]);
+    w0xFin->push_back(-calcMode[2]);
 
     calcMode[3] = 1000 * okr * (k_tt * ((currentV + a_tt) / (b_tt * currentV + a_tt)));
     calcMode[5] = calcMode[2] + 0.5 * calcMode[3];
     calcMode[6] = calcMode[2] + calcMode [3];
 
-    w0xbtFin.push_back(-calcMode[5]);
+    w0xbtFin->push_back(-calcMode[5]);
 }
 
 void Logic::calcVelParamUpdate()
@@ -810,11 +865,12 @@ void Logic::calcVelParamUpdate()
 
 void Logic::railcarsCountUpdate()
 {
-    railcarCount.clear();
-    for (int i = 0; i < railcarAxleCounts.count(); i++) {
-        railcarCount.push_back(static_cast<int>(floor(railcarPercents[i] * trainMass / railcarMasses[i]))); // вагоны не дробные, округляем-с
+    railcarCount = new QVector<int>();
+    railcarCount->clear();
+    for (int i = 0; i < railcarAxleCounts->count(); i++) {
+        railcarCount->push_back(static_cast<int>(floor(railcarPercents->at(i) * trainMass / railcarMasses->at(i)))); // вагоны не дробные, округляем-с
     }
-    qDebug() << "Количество вагонов" << railcarCount;
+    qDebug() << "Количество вагонов" << *railcarCount;
 }
 
 
@@ -848,4 +904,3 @@ double Logic::getDistanse() const
 {
     return distanse;
 }
-

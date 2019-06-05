@@ -13,11 +13,11 @@ LocoEditForm::LocoEditForm(QWidget *parent) :
     ui->loco_type_lineEdit->setValidator(validator);
 
     validator = new  QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
-    ui->thrust_force_lineEdit->setValidator(validator);
-    ui->mass_lineEdit->setValidator(validator);
     ui->constr_velocity_lineEdit->setValidator(validator);
 
     validator = new  QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->thrust_force_lineEdit->setValidator(validator);
+    ui->mass_lineEdit->setValidator(validator);
     ui->calc_velocity_lineEdit->setValidator(validator);
     ui->length_lineEdit->setValidator(validator);
 

@@ -344,7 +344,7 @@ void InputWindow::setupLocomotiveTableModel(const QString &tableName)
      * будет производится обращение в комбобоксе */
     locomotiveModel = new QSqlTableModel();
     locomotiveModel->setTable(tableName);
-    locomotiveModel->setSort(0, Qt::AscendingOrder);
+    locomotiveModel->setSort(1, Qt::AscendingOrder);
 }
 
 void InputWindow::showLocomotiveComboBox()
