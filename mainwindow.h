@@ -10,6 +10,7 @@
 #include "locomotivedbwindow.h"
 #include "railcardbwindow.h"
 #include "secondarygraphwindow.h"
+#include "unitresultantforcetablewindow.h"
 #include "logic.h"
 //#include "testlogic.h"
 
@@ -31,6 +32,7 @@ private:
     LocomotiveDbWindow *wLocomotiveDbWindow;
     RailcarDbWindow *wRailcarDbWindow;
     SecondaryGraphWindow *wSecondaryGraphWindow;
+    UnitResultantForceTableWindow *wUnitResultantForceTableWindow;
 
     QVector<QVector<double>> *secondaryData;
     //    QVector <double> pointF; // график, тяга
@@ -63,10 +65,12 @@ private slots:
     void on_pushButtonTest_clicked();
     void on_pushButtonTraction_clicked();
     void on_pushButtonShowDiag_clicked();
+    void on_pushButtonTable_clicked();
 
     void onBuildGraphSignalReceived(const QJsonObject &dataJson);
     void onEnableShowDiagGraphButtonReceived();
     void onEnableShowTractionGraphButtonReceived();
+    void onEnableShowTableButtonReceived();
 
 signals:
     void calc();

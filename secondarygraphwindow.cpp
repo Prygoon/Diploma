@@ -40,7 +40,7 @@ void SecondaryGraphWindow::buildFVGraph(const QVector<double> &force, const QVec
     ui->graphWidget->graph(0)->setData(force, velocity);
 }
 
-void SecondaryGraphWindow::enableButtons()
+void SecondaryGraphWindow::enableButton()
 {
     if(this->senderName == QString("pushButtonShowDiag")) {
         emit enableShowDiagGraphButton();
@@ -51,13 +51,13 @@ void SecondaryGraphWindow::enableButtons()
 
 void SecondaryGraphWindow::closeEvent(QCloseEvent *event)
 {
-    enableButtons();
+    enableButton();
     event->accept();
 }
 
 void SecondaryGraphWindow::on_ClosePushButton_clicked()
 {
-    enableButtons();
+    enableButton();
     close();
 }
 
