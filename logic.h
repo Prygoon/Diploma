@@ -30,25 +30,26 @@ class Logic : public QObject
 public:
     explicit Logic(QObject *parent = nullptr, const QJsonObject *dataJson = nullptr);
 
-    QVector<double> getPointS() const;
-    QVector<double> getPointV() const;
-    QVector<double> getPointT() const;
+    QVector<double> *getPointS() const;
+    QVector<double> *getPointV() const;
+    QVector<double> *getPointT() const;
     double getDistanse() const;
     int getLocoConstrVelocity() const;
     double getLocoCalcVelocity() const;
-    QVector<double> getPointF() const;
-    QVector<double> getPointVF() const;
-    QVector<double> getFW0Fin() const;
-    QVector<double> getW0xbtFin() const;
-    QVector<double> getW0xFin() const;
+    QVector<double> *getPointF() const;
+    QVector<double> *getPointVF() const;
+    QVector<double> *getFW0Fin() const;
+    QVector<double> *getW0xbtFin() const;
+    QVector<double> *getW0xFin() const;
     double getMaxSpeed() const;
-    QVector<double> getPointVHH() const;
-    QVector<double> getPointHH() const;
-    QVector<double> getPointBT() const;
-    QVector<double> getPointVBT() const;
-    QVector<int> getTrackSectionLengths() const;
-    QVector<double> getPointSTor() const;
-    QVector<double> getPointVTor() const;
+    QVector<double> *getPointVHH() const;
+    QVector<double> *getPointHH() const;
+    QVector<double> *getPointBT() const;
+    QVector<double> *getPointVBT() const;
+    QVector<int> *getTrackSectionLengths() const;
+    QVector<double> *getPointSTor() const;
+    QVector<double> *getPointVTor() const;
+    QVector<QVector<double> > *getLittleTable_ptr() const;
 
 public slots:
     void onCalcSignalReceived();
@@ -63,8 +64,8 @@ private:
     QVector <QVector <double>> arCalcTrack; // массив для определения расчетного подъема
     QVector <double> calcVelParam; // кусок таблицы для расчетной скорости
 
-    QVector <double> fW0; // столбец таблицы, тяга
-    QVector <double> w0xbt; // столбец таблицы, торможение
+    QVector <double> *fW0; // столбец таблицы, тяга
+    QVector <double> *w0xbt; // столбец таблицы, торможение
 
     double okr = 0; //  расчетный тормозной коэффициент состава
 
@@ -86,76 +87,72 @@ private:
     double locoB;  // основное удельное сопротивление локомотива
     double locoC; //
 
-
     int testSpeed; // временно для проверки
-
-
 
     // расчитываем, можно выводить
     double trainMass; // масса состава
     double mainIp; //расчетный подъем
     double distanse;
 
-    double littleTable[30][15];  // таблица, основные значения.  30  от балды, с запасом)
+    QVector<QVector<double> > littleTable; // таблица, основные значения
+    QVector<QVector<double> > *littleTable_ptr;
 
-    QVector <double> pointS; // график, путь
-    QVector <double> pointV; // график, скорость
-    QVector <double> pointT; // график, время
+    QVector <double> *pointS; // график, путь
+    QVector <double> *pointV; // график, скорость
+    QVector <double> *pointT; // график, время
 
     // два графика точками
-    QVector <double> pointHH; // график,  холостой
-    QVector <double> pointVHH; // график, скорость к холостому
-    QVector <double> pointBT; // график, торможение
-    QVector <double> pointVBT; // график, скорость к торможению
+    QVector <double> *pointHH; // график,  холостой
+    QVector <double> *pointVHH; // график, скорость к холостому
+    QVector <double> *pointBT; // график, торможение
+    QVector <double> *pointVBT; // график, скорость к торможению
 
 
-    QVector <double> pointF; // график, тяга
-    QVector <double> pointVF; // график, скорость к тяге
+    QVector <double> *pointF; // график, тяга
+    QVector <double> *pointVF; // график, скорость к тяге
 
-    QVector <double> partlocoTractionThrust; // тяга
-    QVector <double> partlocoTractionVelocity; // скорость
+    QVector <double> *partlocoTractionThrust; // тяга
+    QVector <double> *partlocoTractionVelocity; // скорость
 
-    QVector <double> fW0Fin; // график, удельная тяга
-    QVector <double> w0xbtFin; // график, удельное торможение
-    QVector <double> w0xFin; // график, удельный хх
+    QVector <double> *fW0Fin; // график, удельная тяга
+    QVector <double> *w0xbtFin; // график, удельное торможение
+    QVector <double> *w0xFin; // график, удельный хх
 
     // ЭТО ВТОРОЙ ГРАФИК, ТОРМОЖЕНИЕ
-    QVector <double> pointSTor;
-    QVector <double> pointVTor;
+    QVector <double> *pointSTor;
+    QVector <double> *pointVTor;
     // ВОТ ОН ТУТ
 
     double maxSpeed;  // вынести как прямую линию сверху.
 
-
-
     // исходные данные
     // вагоны
-    QVector<int> railcarAxleCounts; // Массив количества осей
-    QVector<int> railcarMasses; // Массив масс типов вагонов
-    QVector<double> railcarPercents; // Массив долей вагонов в составе
-    QVector<double> railcarCoefsK; // Коэффициенты
-    QVector<double> railcarCoefsA; // Коэффициенты
-    QVector<double> railcarCoefsB; // Коэффициенты
-    QVector<double> railcarCoefsC; // Коэффициенты
-    QVector<int> railcarCount; // Массив количества вагонов каждого типа
+    QVector<int> *railcarAxleCounts; // Массив количества осей
+    QVector<int> *railcarMasses; // Массив масс типов вагонов
+    QVector<double> *railcarPercents; // Массив долей вагонов в составе
+    QVector<double> *railcarCoefsK; // Коэффициенты
+    QVector<double> *railcarCoefsA; // Коэффициенты
+    QVector<double> *railcarCoefsB; // Коэффициенты
+    QVector<double> *railcarCoefsC; // Коэффициенты
+    QVector<int> *railcarCount; // Массив количества вагонов каждого типа
 
     // массив для пути
-    QVector <QVector <double> > arTrack; // общий, в целом не нужен
-    QVector <double> arIp; // подъем
-    QVector <int> trackSectionLengths; // длина
+    //QVector <QVector <double> > *arTrack; // общий, в целом не нужен
+    QVector<double> *slopes; // подъемы
+    QVector<int> *trackSectionLengths; // длины
 
     // локомотив
-    int locoCalcThrustForce; // Расчетная сила тяги
-    int locoMass;  // Масса
     int locoConstrVelocity; // Конструкционная скорость
+    double locoCalcThrustForce; // Расчетная сила тяги
+    double locoMass;  // Масса
     double locoCalcVelocity;  // Расчетная скорость
     double locoLen; // Длина локомотива
-    QVector <double> locoTractionThrust; // тяга
-    QVector <double> locoTractionVelocity; // скорость
+    QVector <double> *locoTractionThrust; // тяга
+    QVector <double> *locoTractionVelocity; // скорость
 
 
     // расчеты пошли
-    double lagranz(QVector<double> X, QVector<double> Y, double t);
+    double lagranz(QVector<double> *X, QVector<double> *Y, double t);
     double w0ll(const double v); // основное удельное сопротивление поезда
     double w0l(const double v); // основное удельное сопротивление локомотива
     double lenTrain(const double Q); // длинна поезда
@@ -163,7 +160,7 @@ private:
     double pathPoint (const double vMax, const double vMin, const double Fwosrip);  // точки пути
     double timePoint (const double vMax, const double vMin, const double Fwosrip); // точки времени
 
-    QVector<double> littleTableW0 (double trainMass); // вектор, переименовать бы,
+    QVector<double> *littleTableW0 (double trainMass); // вектор, переименовать бы,
 
     void okrUpdate(double trainMass); // расчетный тормозной коэффициент состава
     void FinalTable(double currentV); // формирование  подробных данных по тяге и удельным

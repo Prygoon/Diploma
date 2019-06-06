@@ -37,7 +37,8 @@ SOURCES += \
     inputeditform.cpp \
     secondarygraphwindow.cpp \
     tracksectionproxymodel.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    unitresultantforcetablewindow.cpp
 
 HEADERS += \
     logic.h \
@@ -51,7 +52,8 @@ HEADERS += \
     inputeditform.h \
     secondarygraphwindow.h \
     tracksectionproxymodel.h \
-    qcustomplot.h
+    qcustomplot.h \
+    unitresultantforcetablewindow.h
 
 FORMS += \
         mainwindow.ui \
@@ -61,7 +63,8 @@ FORMS += \
     locoeditform.ui \
     railcareditform.ui \
     inputeditform.ui \
-    secondarygraphwindow.ui
+    secondarygraphwindow.ui \
+    unitresultantforcetablewindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
