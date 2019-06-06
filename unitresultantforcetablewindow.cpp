@@ -22,6 +22,7 @@ UnitResultantForceTableWindow::UnitResultantForceTableWindow(QWidget *parent, QV
 
     ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView->verticalHeader()->hide();
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
     ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
@@ -36,7 +37,6 @@ UnitResultantForceTableWindow::UnitResultantForceTableWindow(QWidget *parent, QV
     for(int i = 0; i < model->columnCount(); i++){
         model->setHeaderData(i, Qt::Horizontal, headers[i]);
     }
-
 }
 
 UnitResultantForceTableWindow::~UnitResultantForceTableWindow()

@@ -159,8 +159,8 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
 
-    if(logic->getDistanse() < 40000) {
-        ui->mainGraph->setFixedWidth((static_cast<int>(40000 / 48 + 50)));
+    if(logic->getDistanse() < 50000) {
+        ui->mainGraph->setFixedWidth((static_cast<int>(50000 / 48 + 50)));
     } else {
         ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistanse() / 48 + 50)));
     }
