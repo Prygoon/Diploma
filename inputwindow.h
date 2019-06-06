@@ -54,12 +54,15 @@ private:
     void setupTrackSectionModel(const QString &tableName, const QStringList &headers);
     void showTrackSectionTableView();
 
+    void setupParamsComboboxes();
+
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     //void setProjectId();
 
     void addLocomotiveToJson();
     void addRailcarMapToJson();
     void addTrackSectionsToJson();
+    void addParamsToJson();
 
     QJsonObject objectFromString(const QString &strJson);
 
@@ -68,19 +71,19 @@ signals:
     void buildGraph(const QJsonObject &dataJson);
 
 private slots:
-    void on_pushButton_cancel_clicked();
-    void on_pushButton_addRailcar_clicked();
-    void on_addTrackSection_pushButton_clicked();
-    void on_railcars_tableView_doubleClicked(const QModelIndex &index);
-    void on_trackSection_tableView_doubleClicked(const QModelIndex &index);
-
     void onDeleteSignalRecieved();
     //void deleteTrackSection();
     void onSubmitSignalReceived();
     void onRevertSignalReceived();
-    void on_excel_pushButton_clicked();
-    void on_pushButton_buildGraph_clicked();
-    //void on_comboBox_activated(const QString &arg1);
+
+    void on_fuelCheckBox_stateChanged(int arg1);
+    void on_addRailcarPushButton_clicked();
+    void on_addTrackSectionPushButton_clicked();
+    void on_excelPushButton_clicked();
+    void on_buildGraphPushButton_clicked();
+    void on_cancelPushButton_clicked();
+    void on_railcarsTableView_doubleClicked(const QModelIndex &index);
+    void on_trackSectionTableView_doubleClicked(const QModelIndex &index);
 };
 
 #endif // INPUTWINDOW_H

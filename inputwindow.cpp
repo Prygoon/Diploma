@@ -36,6 +36,9 @@ InputWindow::InputWindow(QWidget *parent) :
                            << ("Радиус кривой"));
 
     showTrackSectionTableView();
+
+    setupParamsComboboxes();
+
     dataDir = QDir().homePath();
 }
 
@@ -48,107 +51,6 @@ void InputWindow::closeEvent(QCloseEvent *event)
 {
     emit showMainWindow();
     event->accept();
-}
-
-void InputWindow::on_pushButton_cancel_clicked()
-{
-    this->close();
-    emit showMainWindow();
-}
-
-void InputWindow::on_pushButton_addRailcar_clicked()
-{
-    setupRailcarEditForm(ui->pushButton_addRailcar);
-
-    wInputEditForm->hideDeleteButton();
-    wInputEditForm->createRailcarBlankForm();
-    wInputEditForm->disableSaveButton();
-    wInputEditForm->show();
-
-    railcarsMapModel->insertRow(railcarsMapModel->rowCount(QModelIndex()));
-    wInputEditForm->getMapper()->toLast();
-}
-
-void InputWindow::on_railcars_tableView_doubleClicked(const QModelIndex &index)
-{
-    setupRailcarEditForm(ui->railcars_tableView);
-
-    wInputEditForm->showDeleteButton();
-    wInputEditForm->enableSaveButton();
-
-    wInputEditForm->setWIndex(new QModelIndex(index));
-    wInputEditForm->getMapper()->setCurrentModelIndex(index);
-    wInputEditForm->show();
-}
-
-void InputWindow::on_addTrackSection_pushButton_clicked()
-{
-    setupTracSectionEditForm(ui->addTrackSection_pushButton);
-
-    wInputEditForm->hideDeleteButton();
-    wInputEditForm->createTrackSectionBlankForm();
-    wInputEditForm->disableSaveButton();
-    wInputEditForm->show();
-
-    trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
-    wInputEditForm->getMapper()->toLast();
-}
-
-void InputWindow::on_trackSection_tableView_doubleClicked(const QModelIndex &index)
-{
-    //QModelIndex proxyIndex = proxyModel->mapToSource(index);
-    setupTracSectionEditForm(ui->trackSection_tableView);
-
-    wInputEditForm->showDeleteButton();
-    wInputEditForm->enableSaveButton();
-
-    QModelIndex proxyIndex = proxyModel->mapToSource(index); // Тут возможно творится какая-то магия. Не трогать.
-    wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
-    wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex);
-    wInputEditForm->show();
-}
-
-void InputWindow::on_excel_pushButton_clicked()
-{
-    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", dataDir, "MS Excel files (*.xlsx)");
-    ui->excel_lineEdit->setText(excelFilePath);
-    ui->excel_lineEdit->setToolTip(excelFilePath);
-    dataDir = excelFilePath;
-
-    QXlsx::Document excelDoc(excelFilePath);
-
-    if(excelFilePath != "") {
-        //trackSectionModel->clear();
-        trackSectionModel->removeRows(0, trackSectionModel->rowCount());
-        trackSectionModel->submitAll();
-
-        for (int i = 0; i < 16; i++) {
-            QVariant slopeRead = excelDoc.read(3, i + 3);
-            QVariant lengthRead = excelDoc.read(4, i + 3);
-            QVariant curveLengthRead = excelDoc.read(5, i + 3);
-            QVariant curveRadiusRead = excelDoc.read(6, i + 3);
-
-            trackSectionModel->insertRows(i, 1);
-            //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
-            trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
-            trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
-            trackSectionModel->submitAll();
-
-            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
-        }
-    }
-
-
-    //    excelDoc.write("A1", "Hello");
-    //    excelDoc.write("A2", "from");
-    //    excelDoc.write("A3", "my");
-    //    excelDoc.write("A4", "diploma");
-    //    excelDoc.write("A5", "project!");
-    //    excelDoc.save();
-
-    qDebug() << dataDir << endl << excelFilePath;
 }
 
 void InputWindow::onDeleteSignalRecieved()
@@ -223,17 +125,17 @@ void InputWindow::addLocomotiveToJson()
     QVariant localTmp;
     QJsonObject *localLocomotiveJson = new QJsonObject();
 
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_THRUST_FORCE);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_CALC_THRUST_FORCE);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_THRUST_FORCE, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_MASS);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_MASS);
     localLocomotiveJson->insert(TABLE_LOCO_MASS, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CONSTRUCTION_VELOCITY);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_CONSTRUCTION_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CONSTRUCTION_VELOCITY, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_CALC_VELOCITY);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_CALC_VELOCITY);
     localLocomotiveJson->insert(TABLE_LOCO_CALC_VELOCITY, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_LENGTH);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_LENGTH);
     localLocomotiveJson->insert(TABLE_LOCO_LENGTH, QJsonValue::fromVariant(localTmp));
-    localTmp = locomotiveModel->record(ui->comboBox->currentIndex()).value(TABLE_LOCO_TRACTION);
+    localTmp = locomotiveModel->record(ui->locoComboBox->currentIndex()).value(TABLE_LOCO_TRACTION);
     localLocomotiveJson->insert(TABLE_LOCO_TRACTION, objectFromString(localTmp.toString()));
 
     dataJson->insert("locomotive", *localLocomotiveJson);
@@ -264,6 +166,23 @@ void InputWindow::addTrackSectionsToJson()
     localTrackSectionsJson->insert("curve_lengths", *localCurveLengths);
     localTrackSectionsJson->insert("curve_radiuses", *localCurveRadiuses);
     dataJson->insert("trackSection", *localTrackSectionsJson);
+}
+
+void InputWindow::addParamsToJson()
+{
+    QJsonObject *localParamsJson = new QJsonObject();
+
+    localParamsJson->insert("po_length", ui->poLengthLineEdit->text().toInt());
+    localParamsJson->insert("speed_limit", ui->speedLimitLineEdit->text().toDouble());
+    localParamsJson->insert("brake_pads", ui->brakePadsComboBox->currentText());
+    localParamsJson->insert("path", ui->pathComboBox->currentText());
+
+    if(ui->fuelThrustLineEdit->isEnabled() && ui->fuelNothrustLineEdit) {
+        localParamsJson->insert("thrust_fuel", ui->fuelThrustLineEdit->text().toDouble());
+        localParamsJson->insert("nothrust_fuel", ui->fuelNothrustLineEdit->text().toDouble());
+    }
+
+    dataJson->insert("params", *localParamsJson);
 }
 
 QJsonObject InputWindow::objectFromString(const QString &strJson)
@@ -349,11 +268,10 @@ void InputWindow::setupLocomotiveTableModel(const QString &tableName)
 
 void InputWindow::showLocomotiveComboBox()
 {
-    ui->comboBox->setModel(locomotiveModel);
-    ui->comboBox->setModelColumn(locomotiveModel->fieldIndex("type"));
-    ui->comboBox->setFixedWidth(100);
+    ui->locoComboBox->setModel(locomotiveModel);
+    ui->locoComboBox->setModelColumn(locomotiveModel->fieldIndex("type"));
     locomotiveModel->select();
-    ui->comboBox->setCurrentIndex(0);
+    ui->locoComboBox->setCurrentIndex(0);
 }
 
 /* Метод для инициализации модеи представления данных вагонов*/
@@ -379,19 +297,20 @@ void InputWindow::setupRailcarTableModel(const QString &tableName, const QString
 
 void InputWindow::showRailcarTableView()
 {
-    ui->railcars_tableView->setModel(railcarsMapModel);     // Устанавливаем модель на TableView
-    ui->railcars_tableView->setColumnHidden(0, true);       // Скрываем колонку с id записей
+    ui->railcarsTableView->setModel(railcarsMapModel);     // Устанавливаем модель на TableView
+    ui->railcarsTableView->setColumnHidden(0, true);       // Скрываем колонку с id записей
     //ui->railcars_tableView->setColumnHidden(4, true);
 
     // Разрешаем выделение строк
-    ui->railcars_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->railcarsTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     // Устанавливаем режим выделения лишь одно строки в таблице
-    ui->railcars_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->railcarsTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
-    ui->railcars_tableView->resizeColumnsToContents();
+    ui->railcarsTableView->resizeColumnsToContents();
 
-    ui->railcars_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->railcars_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->railcarsTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->railcarsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->railcars_tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->tableView->show();
     railcarsMapModel->select(); // Делаем выборку данных из таблицы
 }
@@ -451,32 +370,127 @@ void InputWindow::showTrackSectionTableView()
 {
     //proxyModel = new TrackSectionProxyModel(this);
     //proxyModel->setSourceModel(trackSectionModel);   // Кладем табличку на бок
-    ui->trackSection_tableView->setModel(proxyModel);     // Устанавливаем модель на TableView
-    ui->trackSection_tableView->setRowHidden(0, true);       // Скрываем ряд с id записей
+    ui->trackSectionTableView->setModel(proxyModel);     // Устанавливаем модель на TableView
+    ui->trackSectionTableView->setRowHidden(0, true);       // Скрываем ряд с id записей
     //ui->trackSection_tableView->setColumnHidden(6, true);
 
     // Разрешаем выделение рядов
-    ui->trackSection_tableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
+    ui->trackSectionTableView->setSelectionBehavior(QAbstractItemView::SelectColumns);
     // Устанавливаем режим выделения лишь одного ряда в таблице
-    ui->trackSection_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->trackSectionTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     // Устанавливаем размер колонок по содержимому
-    ui->trackSection_tableView->resizeColumnsToContents();
+    ui->trackSectionTableView->resizeColumnsToContents();
 
-    ui->trackSection_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->trackSectionTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->trackSectionTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->trackSectionTableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->trackSection_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     //ui->trackSection_tableView->horizontalHeader()->setMinimumSectionSize(50);
 
     trackSectionModel->select(); // Делаем выборку данных из таблицы
 }
 
-void InputWindow::on_pushButton_buildGraph_clicked() // FIXME Сделать проверку выбора локомотива/вагонов/участков
+void InputWindow::setupParamsComboboxes()
+{
+    QStringList items;
+    items << "Чугунные" << "Композитные";
+    ui->brakePadsComboBox->addItems(items);
+    ui->brakePadsComboBox->setCurrentIndex(0);
+
+    items.clear();
+    items << "Звеньевой" << "Безстыковой";
+    ui->pathComboBox->addItems(items);
+    ui->pathComboBox->setCurrentIndex(0);
+}
+
+void InputWindow::on_fuelCheckBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::CheckState::Unchecked) {
+        ui->fuelThrustLineEdit->setDisabled(true);
+        ui->fuelNothrustLineEdit->setDisabled(true);
+    } else if(arg1 == Qt::CheckState::Checked) {
+        ui->fuelThrustLineEdit->setEnabled(true);
+        ui->fuelNothrustLineEdit->setEnabled(true);
+    }
+}
+
+void InputWindow::on_addRailcarPushButton_clicked()
+{
+    setupRailcarEditForm(ui->addRailcarPushButton);
+
+    wInputEditForm->hideDeleteButton();
+    wInputEditForm->createRailcarBlankForm();
+    wInputEditForm->disableSaveButton();
+    wInputEditForm->show();
+
+    railcarsMapModel->insertRow(railcarsMapModel->rowCount(QModelIndex()));
+    wInputEditForm->getMapper()->toLast();
+}
+
+void InputWindow::on_addTrackSectionPushButton_clicked()
+{
+    setupTracSectionEditForm(ui->addTrackSectionPushButton);
+
+    wInputEditForm->hideDeleteButton();
+    wInputEditForm->createTrackSectionBlankForm();
+    wInputEditForm->disableSaveButton();
+    wInputEditForm->show();
+
+    trackSectionModel->insertRow(trackSectionModel->rowCount(QModelIndex()));
+    wInputEditForm->getMapper()->toLast();
+}
+
+void InputWindow::on_excelPushButton_clicked()
+{
+    QString excelFilePath = QFileDialog::getOpenFileName(this, "Open Excel file", dataDir, "MS Excel files (*.xlsx)");
+    ui->excelLineEdit->setText(excelFilePath);
+    ui->excelLineEdit->setToolTip(excelFilePath);
+    dataDir = excelFilePath;
+
+    QXlsx::Document excelDoc(excelFilePath);
+
+    if(excelFilePath != "") {
+        //trackSectionModel->clear();
+        trackSectionModel->removeRows(0, trackSectionModel->rowCount());
+        trackSectionModel->submitAll();
+
+        for (int i = 0; i < 16; i++) {
+            QVariant slopeRead = excelDoc.read(3, i + 3);
+            QVariant lengthRead = excelDoc.read(4, i + 3);
+            QVariant curveLengthRead = excelDoc.read(5, i + 3);
+            QVariant curveRadiusRead = excelDoc.read(6, i + 3);
+
+            trackSectionModel->insertRows(i, 1);
+            //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
+            trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
+            trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
+            trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
+            trackSectionModel->submitAll();
+
+            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
+        }
+    }
+
+
+    //    excelDoc.write("A1", "Hello");
+    //    excelDoc.write("A2", "from");
+    //    excelDoc.write("A3", "my");
+    //    excelDoc.write("A4", "diploma");
+    //    excelDoc.write("A5", "project!");
+    //    excelDoc.save();
+
+    qDebug() << dataDir << endl << excelFilePath;
+}
+
+void InputWindow::on_buildGraphPushButton_clicked()
 {
     dataJson = new QJsonObject();
 
     addLocomotiveToJson();
     addTrackSectionsToJson();
     addRailcarMapToJson();
+    addParamsToJson();
 
     //qDebug() << *dataJson;
     emit buildGraph(*dataJson);
@@ -490,7 +504,34 @@ void InputWindow::on_pushButton_buildGraph_clicked() // FIXME Сделать п�
     //delete curveRadiuses;
 }
 
-//void InputWindow::on_comboBox_activated(const QString &arg1)
-//{
-//    qDebug() << arg1 << "\n" << locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
-//}
+void InputWindow::on_cancelPushButton_clicked()
+{
+    this->close();
+    emit showMainWindow();
+}
+
+void InputWindow::on_railcarsTableView_doubleClicked(const QModelIndex &index)
+{
+    setupRailcarEditForm(ui->railcarsTableView);
+
+    wInputEditForm->showDeleteButton();
+    wInputEditForm->enableSaveButton();
+
+    wInputEditForm->setWIndex(new QModelIndex(index));
+    wInputEditForm->getMapper()->setCurrentModelIndex(index);
+    wInputEditForm->show();
+}
+
+void InputWindow::on_trackSectionTableView_doubleClicked(const QModelIndex &index)
+{
+    //QModelIndex proxyIndex = proxyModel->mapToSource(index);
+    setupTracSectionEditForm(ui->trackSectionTableView);
+
+    wInputEditForm->showDeleteButton();
+    wInputEditForm->enableSaveButton();
+
+    QModelIndex proxyIndex = proxyModel->mapToSource(index); // Тут возможно творится какая-то магия. Не трогать.
+    wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
+    wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex);
+    wInputEditForm->show();
+}

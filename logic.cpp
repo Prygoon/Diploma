@@ -4,7 +4,7 @@ Logic::Logic(QObject *parent, const QJsonObject *dataJson) :
     QObject(parent),
     dataJson(dataJson)
 {
-    qDebug() << dataJson->value("railcars").toObject();
+    qDebug() << *dataJson;
 }
 
 void Logic::setValues()
@@ -21,7 +21,7 @@ void Logic::setValues()
     locoTractionVelocity = new QVector<double>();
 
     QJsonObject localLocomotiveJson = dataJson->value("locomotive").toObject();
-    qDebug() << localLocomotiveJson;
+    //qDebug() << localLocomotiveJson;
     locoCalcThrustForce = localLocomotiveJson.value("calc_thrust_force").toDouble() * 1000; // Расчетная сила тяги, перевод
     locoMass = localLocomotiveJson.value("mass").toDouble(); // Масса
     locoConstrVelocity = localLocomotiveJson.value("construction_velocity").toInt(); // Конструкционная скорость
@@ -311,6 +311,7 @@ void Logic::onCalcSignalReceived()
 
     trainMass = maxQ;
     qDebug() << "trainMass" << trainMass ; // масса, убрать дебаг, выевсти в окне
+    railcarsCountUpdate();
     fW0 = littleTableW0(trainMass);
 
     maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог

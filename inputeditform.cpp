@@ -11,7 +11,7 @@ InputEditForm::InputEditForm(QString *senderName, QWidget *parent) :
     //generalVerticalLayout = new QVBoxLayout();
     //generalVerticalLayout->setObjectName("generalVerticalLayout");
 
-    if(this->senderName == QString("pushButton_addRailcar") || this->senderName == QString("railcars_tableView")) {
+    if(this->senderName == QString("addRailcarPushButton") || this->senderName == QString("railcarsTableView")) {
         setupRailcarForm();
     } else {
         setupTrackSectionForm();
