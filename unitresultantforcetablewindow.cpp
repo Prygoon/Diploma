@@ -25,6 +25,17 @@ UnitResultantForceTableWindow::UnitResultantForceTableWindow(QWidget *parent, QV
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     //ui->tableView->verticalHeader()->setMinimumSectionSize(50);
     ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
+    ui->tableView->setMinimumWidth(1200);
+
+    /* Устанавливаем названия колонок в таблице */
+    QStringList headers;
+    headers << "Поставить" << "Сюда" << "Названия" << "Колонок" << "Их"
+            << "Должно" << "Быть" << "Пятнадцать" << "Штук" << "."
+            << "Надо" << "Еще" << "Придумать" << "Два" << "Заголовка"; //FIXME Поставить сюда названия колонок
+
+    for(int i = 0; i < model->columnCount(); i++){
+        model->setHeaderData(i, Qt::Horizontal, headers[i]);
+    }
 
 }
 
