@@ -4,7 +4,7 @@ Logic::Logic(QObject *parent, const QJsonObject *dataJson) :
     QObject(parent),
     dataJson(dataJson)
 {
-    qDebug() << *dataJson;
+    qDebug() << *this->dataJson;
 }
 
 void Logic::setValues()
@@ -15,6 +15,13 @@ void Logic::setValues()
     slopes->clear();
     trackSectionLengths->clear();
 
+    /* Параметры */
+    maxSpeed = dataJson->value("params").toObject().value("speed_limit").toDouble();
+    lenStation = dataJson->value("params").toObject().value("po_length").toInt();
+    if(!(dataJson->value("params").toObject().value("thrust_fuel").isUndefined() && dataJson->value("params").toObject().value("nothrust_fuel").isUndefined())) {
+        thrustFuel = dataJson->value("params").toObject().value("thrust_fuel").toDouble();
+        dataJson->value("params").toObject().value("nothrust_fuel").toDouble();
+    }
 
     /* Локомотив */
     locoTractionThrust = new QVector<double>();
@@ -104,11 +111,23 @@ void Logic::setValues()
 void Logic::setCoeffitient()
 {
     //  bool Kolodki;
+    if(dataJson->value("params").toObject().value("brake_pads").toString() == "Чугунные") {
+        //do smthng
+    } else if (dataJson->value("params").toObject().value("brake_pads").toString() == "Композитные") {
+        //do smthng else
+    }
+    qDebug() << "Колодки" << dataJson->value("params").toObject().value("brake_pads").toString();
+
+    if(dataJson->value("params").toObject().value("path").toString() == "Звеньевой") {
+        //do
+    } else if (dataJson->value("params").toObject().value("path").toString() == "Безстыковой") {
+        //or not to to
+    }
+    qDebug() << "Путь" << dataJson->value("params").toObject().value("path").toString();
 
     // FIXME
     stepV = 0.01;
     testSpeed = 50;
-    lenStation = 0;
 
     k_hh =  2.4;    // коэффициенты для
     a_hh =  0.011;  // основого удельного на ХХ
@@ -314,7 +333,7 @@ void Logic::onCalcSignalReceived()
     railcarsCountUpdate();
     fW0 = littleTableW0(trainMass);
 
-    maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
+    //maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
 
     // грустно считаем весь путь, сумма.
     distanse = 0;
