@@ -431,6 +431,12 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="inputMask">
+             <string/>
+            </property>
+            <property name="text">
+             <string>90</string>
+            </property>
            </widget>
           </item>
          </layout>

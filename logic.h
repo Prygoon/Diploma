@@ -69,6 +69,8 @@ private:
 
     double okr = 0; //  расчетный тормозной коэффициент состава
 
+    bool fuelMode = false;
+
     int lenghtRailcars[2] = {15, 20}; // Длины вагонов
     double stepV; //шаг скоростей
     double lenStation; // приемно-отправочные пути, если задано
@@ -93,8 +95,8 @@ private:
     double timeThrust;
     double timeAll;
 
-        double FwosrIp; // для расчета пути
-            int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
+    double FwosrIp; // для расчета пути
+    int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
 
     int testSpeed; // временно для проверки
 
@@ -102,6 +104,9 @@ private:
     double trainMass; // масса состава
     double mainIp; //расчетный подъем
     double distanse;
+    double fuelCons; //расход топлива
+    double specfuelCons; // удельный расход топлива
+
 
     QVector<QVector<double> > littleTable; // таблица, основные значения
     QVector<QVector<double> > *littleTable_ptr;
