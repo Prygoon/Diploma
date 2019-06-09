@@ -87,6 +87,12 @@ private:
     double locoB;  // основное удельное сопротивление локомотива
     double locoC; //
 
+    double timeThrust;
+    double timeAll;
+
+        double FwosrIp; // для расчета пути
+            int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
+
     int testSpeed; // временно для проверки
 
     // расчитываем, можно выводить
@@ -164,6 +170,7 @@ private:
 
     void okrUpdate(double trainMass); // расчетный тормозной коэффициент состава
     void FinalTable(double currentV); // формирование  подробных данных по тяге и удельным
+    void moveModeFwosrIp (int moveMode);
     void calcVelParamUpdate();
     void railcarsCountUpdate();
     //void showTable();

@@ -81,16 +81,16 @@ void Logic::setValues()
     }
 
     // рандомный ввод профиля для теста
-    /*  arIp.push_back(0);
-    arLen.push_back(6000);
+   /* slopes->push_back(0);
+    trackSectionLengths->push_back(6000);
     for (int i = 1; i < 7; i++){
-        arIp.push_back((qrand() % 160 - 52) * 0.1);
-        arLen.push_back(qrand() % 15000);
+        slopes->push_back((qrand() % 160 - 52) * 0.1);
+        trackSectionLengths->push_back(qrand() % 15000);
     }
-    arIp.push_back(6);
-    arLen.push_back(6000);
-    arIp.push_back(0);
-    arLen.push_back(2500);*/
+    slopes->push_back(6);
+    trackSectionLengths->push_back(6000);
+    slopes->push_back(0);
+    trackSectionLengths->push_back(2500);*/
     // конец рандомного ввода, внести из исходных данных
 
     //arTrack.push_back(arIp);
@@ -180,9 +180,15 @@ void Logic::onCalcSignalReceived()
                 maxIp = arIpTemp->at(j);
             }
         }
-        arCalcNum.push_back(numIp);
-        arCalcIp.push_back(maxIp);
-        arCalcLen.push_back(trackSectionLengths->at(numIp));
+        if (arCalcNum.count()>1 && fabs(maxIp-arCalcIp[i-1])<EPS) {
+            if (arCalcLen[i-1] < trackSectionLengths->at(numIp))
+                arCalcLen[i-1] = trackSectionLengths->at(numIp);
+            i--;
+        } else {
+            arCalcNum.push_back(numIp);
+            arCalcIp.push_back(maxIp);
+            arCalcLen.push_back(trackSectionLengths->at(numIp));
+        }
         arIpTemp->replace(numIp, 0);
     }
     arCalcTrack.push_back(arCalcNum);
@@ -412,28 +418,25 @@ void Logic::onCalcSignalReceived()
     int currentSector = 0;
     double addPoint;
     double addTimePoint;
-    double FwosrIp;
 
+    timeAll = 0;
+    timeThrust = 0;
 
-    QVector <double> deltaFW0;
-    QVector <double> deltaw0xbt;
-    QVector <double> xSpeed;
 
     double currentTime = 0;
     pointT->push_back(0);
     int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
-    //qDebug() << w0xFin ;
 
-    // построение из расчетов, что всегда премся в тяге :)
+    // построение
     do {
         currentS = 0;
-        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
+        // qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
         if (slopes->at(currentSector) >= 0 || moveMode == 0) {
             moveMode = 0;
         } else {
             moveMode = 4;
         }
-        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
+        // qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
         do {
             if ((currentSpeed + stepV) > maxSpeed) {
                 moveMode = 1;
@@ -487,29 +490,41 @@ void Logic::onCalcSignalReceived()
                 stepV = -fabs(stepV);
             }
 
-            /*if ((currentSpeed + stepV) > maxSpeed) {
-                moveMode = 1;
-                //currentSpeed -= stepV;
-                //addPoint = pathPoint(currentSpeed, currentSpeed, FwosrIp);
-                //currentS = arLen[currentSector];
-            } // else {*/
             addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
             addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
-            currentSpeed += stepV;
+
             currentS += addPoint;
+            currentSpeed += stepV;
+
+            if (currentS > trackSectionLengths->at(currentSector))
+            {
+                double tempStepV = stepV;
+                currentS -= addPoint;
+                currentSpeed -= stepV;
+                do {
+                    tempStepV = tempStepV - tempStepV/10;
+                    addPoint = pathPoint(currentSpeed + tempStepV, currentSpeed, FwosrIp);
+                } while ((currentS+addPoint) > trackSectionLengths->at(currentSector) || tempStepV > 0.0005);
+
+                addTimePoint = timePoint(currentSpeed + tempStepV, currentSpeed, FwosrIp);
+                currentS = trackSectionLengths->at(currentSector);
+                currentSpeed += tempStepV;
+            }
+
+
+            if (moveMode == 0) {
+                timeThrust += addTimePoint;
+            }
+
+            timeAll += addTimePoint;
+
             currentTime += addTimePoint;
             if (currentTime > 100) {
                 currentTime += -100;
             }
-            //  }
-
 
             pointT->push_back(currentTime);
             pointV->push_back(currentSpeed);
-            if (currentS > trackSectionLengths->at(currentSector))
-            {
-                currentS = trackSectionLengths->at(currentSector);
-            }
 
             switch (moveMode) {
             case 1:
@@ -527,8 +542,8 @@ void Logic::onCalcSignalReceived()
             default:
                 break;
             }
-            pointS->push_back(currentS + S);
 
+            pointS->push_back(currentS + S);
 
             //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
@@ -547,6 +562,8 @@ void Logic::onCalcSignalReceived()
 
 
     littleTable_ptr = &littleTable;
+    qDebug() << "TimeTr" << timeThrust;
+    qDebug() << "Time" << timeAll;
     //   qDebug() << "S" << pointS;
     //   qDebug() << "T" << pointT;
     // закончили построение.
