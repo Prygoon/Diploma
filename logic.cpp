@@ -20,7 +20,8 @@ void Logic::setValues()
     lenStation = dataJson->value("params").toObject().value("po_length").toInt();
     if(!(dataJson->value("params").toObject().value("thrust_fuel").isUndefined() && dataJson->value("params").toObject().value("nothrust_fuel").isUndefined())) {
         thrustFuel = dataJson->value("params").toObject().value("thrust_fuel").toDouble();
-        dataJson->value("params").toObject().value("nothrust_fuel").toDouble();
+        noThrustFuel = dataJson->value("params").toObject().value("nothrust_fuel").toDouble();
+        fuelMode = true;
     }
 
     /* Локомотив */
@@ -41,6 +42,10 @@ void Logic::setValues()
     for (int i = 0; i < n; i++) {
         locoTractionThrust->push_back(localThrustForceArray.at(i).toDouble());
         locoTractionVelocity->push_back(localVelocityArray.at(i).toDouble());
+    }
+
+    if (maxSpeed > locoConstrVelocity) {
+        maxSpeed = locoConstrVelocity;
     }
 
     //locoTractionThrust = {1458.0,1336.0,1154.0,830.0,613.0,491.0,410.0,351.0,312.0,274.0,239.0};
@@ -88,16 +93,16 @@ void Logic::setValues()
     }
 
     // рандомный ввод профиля для теста
-    /*  arIp.push_back(0);
-    arLen.push_back(6000);
+   /* slopes->push_back(0);
+    trackSectionLengths->push_back(6000);
     for (int i = 1; i < 7; i++){
-        arIp.push_back((qrand() % 160 - 52) * 0.1);
-        arLen.push_back(qrand() % 15000);
+        slopes->push_back((qrand() % 160 - 52) * 0.1);
+        trackSectionLengths->push_back(qrand() % 15000);
     }
-    arIp.push_back(6);
-    arLen.push_back(6000);
-    arIp.push_back(0);
-    arLen.push_back(2500);*/
+    slopes->push_back(6);
+    trackSectionLengths->push_back(6000);
+    slopes->push_back(0);
+    trackSectionLengths->push_back(2500);*/
     // конец рандомного ввода, внести из исходных данных
 
     //arTrack.push_back(arIp);
@@ -113,35 +118,55 @@ void Logic::setCoeffitient()
     //  bool Kolodki;
     if(dataJson->value("params").toObject().value("brake_pads").toString() == "Чугунные") {
         //do smthng
+
+        k_tt =  0.27;    // коэффициенты для
+        a_tt =  100;  // основого удельного торможение
+        b_tt = 5;  // как минимум 2 вида под колодки
+
+        k_okr = 68.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
     } else if (dataJson->value("params").toObject().value("brake_pads").toString() == "Композитные") {
         //do smthng else
+
+        k_tt =  0.36;    // коэффициенты для
+        a_tt =  150;  // основого удельного торможение
+        b_tt = 2;  // как минимум 2 вида под колодки
+
+        k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
+
+
     }
     qDebug() << "Колодки" << dataJson->value("params").toObject().value("brake_pads").toString();
 
     if(dataJson->value("params").toObject().value("path").toString() == "Звеньевой") {
         //do
+        locoA = 1.9;   // какие-то коэффициенты для
+        locoB = 0.01;  // основное удельное сопротивление локомотива
+        locoC = 0.0003; //
+
+
+        k_hh =  2.4;    // коэффициенты для
+        a_hh =  0.011;  // основого удельного на ХХ
+        b_hh = 0.00035;  // постоянные или меняются (???)
+
+
     } else if (dataJson->value("params").toObject().value("path").toString() == "Безстыковой") {
         //or not to to
+        locoA = 1.9;   // какие-то коэффициенты для
+        locoB = 0.008;  // основное удельное сопротивление локомотива
+        locoC = 0.00025; //
+
+
+        k_hh =  2.4;    // коэффициенты для
+        a_hh =  0.009;  // основого удельного на ХХ
+        b_hh = 0.00035;  // постоянные или меняются (???)
+
+
     }
     qDebug() << "Путь" << dataJson->value("params").toObject().value("path").toString();
 
-    // FIXME
     stepV = 0.01;
     testSpeed = 50;
-
-    k_hh =  2.4;    // коэффициенты для
-    a_hh =  0.011;  // основого удельного на ХХ
-    b_hh = 0.0003;  // постоянные или меняются (???)
-
-    k_tt =  0.36;    // коэффициенты для
-    a_tt =  150;  // основого удельного торможение
-    b_tt = 2;  // как минимум 2 вида под колодки
-
-    k_okr = 41.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
-
-    locoA = 1.9;   // какие-то коэффициенты для
-    locoB = 0.01;  // основное удельное сопротивление локомотива
-    locoC = 0.0003; //
 
 }
 
@@ -199,9 +224,15 @@ void Logic::onCalcSignalReceived()
                 maxIp = arIpTemp->at(j);
             }
         }
-        arCalcNum.push_back(numIp);
-        arCalcIp.push_back(maxIp);
-        arCalcLen.push_back(trackSectionLengths->at(numIp));
+        if (arCalcNum.count()>1 && fabs(maxIp-arCalcIp[i-1])<EPS) {
+            if (arCalcLen[i-1] < trackSectionLengths->at(numIp))
+                arCalcLen[i-1] = trackSectionLengths->at(numIp);
+            i--;
+        } else {
+            arCalcNum.push_back(numIp);
+            arCalcIp.push_back(maxIp);
+            arCalcLen.push_back(trackSectionLengths->at(numIp));
+        }
         arIpTemp->replace(numIp, 0);
     }
     arCalcTrack.push_back(arCalcNum);
@@ -348,21 +379,19 @@ void Logic::onCalcSignalReceived()
 
     pointS->push_back(0);
     pointV->push_back(0);
-
-    // какой-то большой Лагр...
     okrUpdate(trainMass);
 
+
+    // ВАРИАНТ 1
+    // какой-то большой Лагр...
     // до 15
 
-
+/*
     for (int i= 0; i < 2; i++)
     {
         partlocoTractionThrust->push_back(locoTractionThrust->at(i));
         partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
     }
-    /*for (double k = partlocoTractionVelocity[0] ; k < partlocoTractionVelocity[1]; k = k+stepV){
-        FinalTable(k);
-    }*/
 
     int s = 1 ; // s = speed
     // int deb = 0;
@@ -418,10 +447,56 @@ void Logic::onCalcSignalReceived()
     // до конца
     for (double k = partlocoTractionVelocity->at(3) ; k < locoConstrVelocity; k = k + stepV){
         FinalTable(k);
-    }
-    //qDebug () << pointVF;
-    // конец большого Лагра
+    }*/
 
+    // вариант 2
+    /*for (int i= 0; i < 4; i++)
+    {
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
+    }
+
+    for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(1); k = k + stepV){
+        FinalTable(k);
+    }
+
+    for (int s = 4 ; s< locoTractionThrust->count() - 1; s++)
+    {
+        for (double k = partlocoTractionVelocity->at(1) ; k < partlocoTractionVelocity->at(2); k = k + stepV){
+            FinalTable(k);
+        }
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(s));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(s));
+    }
+
+    for (double k = partlocoTractionVelocity->at(2) ; k <= locoConstrVelocity; k = k + stepV){
+        FinalTable(k);
+    }*/
+
+
+    // вариант 3
+    for (int i= 0; i < 2; i++)
+    {
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
+    }
+
+    for (int s = 1 ; s< locoTractionThrust->count() - 1; s++)
+    {
+        for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(1); k = k + stepV){
+            FinalTable(k);
+        }
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(s));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(s));
+    }
+
+    for (double k = partlocoTractionVelocity->at(0) ; k <= locoConstrVelocity; k = k + stepV){
+        FinalTable(k);
+    }
 
 
     // вспомогательные
@@ -431,28 +506,25 @@ void Logic::onCalcSignalReceived()
     int currentSector = 0;
     double addPoint;
     double addTimePoint;
-    double FwosrIp;
 
+    timeAll = 0;
+    timeThrust = 0;
 
-    QVector <double> deltaFW0;
-    QVector <double> deltaw0xbt;
-    QVector <double> xSpeed;
 
     double currentTime = 0;
     pointT->push_back(0);
     int moveMode = 0; // режим движения. 0 - тяга, 1 - ХХ вниз 2 -  тормоз, 2 - ХХ вверх
-    //qDebug() << w0xFin ;
 
-    // построение из расчетов, что всегда премся в тяге :)
+    // построение
     do {
         currentS = 0;
-        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
+        // qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
         if (slopes->at(currentSector) >= 0 || moveMode == 0) {
             moveMode = 0;
         } else {
             moveMode = 4;
         }
-        qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
+        // qDebug() << slopes->at(currentSector) << currentSector << moveMode << currentSpeed;
         do {
             if ((currentSpeed + stepV) > maxSpeed) {
                 moveMode = 1;
@@ -506,29 +578,41 @@ void Logic::onCalcSignalReceived()
                 stepV = -fabs(stepV);
             }
 
-            /*if ((currentSpeed + stepV) > maxSpeed) {
-                moveMode = 1;
-                //currentSpeed -= stepV;
-                //addPoint = pathPoint(currentSpeed, currentSpeed, FwosrIp);
-                //currentS = arLen[currentSector];
-            } // else {*/
             addPoint = pathPoint(currentSpeed + stepV, currentSpeed, FwosrIp);
             addTimePoint = timePoint(currentSpeed + stepV, currentSpeed, FwosrIp);
-            currentSpeed += stepV;
+
             currentS += addPoint;
+            currentSpeed += stepV;
+
+            if (currentS > trackSectionLengths->at(currentSector))
+            {
+                double tempStepV = stepV;
+                currentS -= addPoint;
+                currentSpeed -= stepV;
+                do {
+                    tempStepV = tempStepV - tempStepV/10;
+                    addPoint = pathPoint(currentSpeed + tempStepV, currentSpeed, FwosrIp);
+                } while ((currentS+addPoint) > trackSectionLengths->at(currentSector) || tempStepV > 0.0005);
+
+                addTimePoint = timePoint(currentSpeed + tempStepV, currentSpeed, FwosrIp);
+                currentS = trackSectionLengths->at(currentSector);
+                currentSpeed += tempStepV;
+            }
+
+
+            if (moveMode == 0) {
+                timeThrust += addTimePoint;
+            }
+
+            timeAll += addTimePoint;
+
             currentTime += addTimePoint;
             if (currentTime > 100) {
                 currentTime += -100;
             }
-            //  }
-
 
             pointT->push_back(currentTime);
             pointV->push_back(currentSpeed);
-            if (currentS > trackSectionLengths->at(currentSector))
-            {
-                currentS = trackSectionLengths->at(currentSector);
-            }
 
             switch (moveMode) {
             case 1:
@@ -546,8 +630,8 @@ void Logic::onCalcSignalReceived()
             default:
                 break;
             }
-            pointS->push_back(currentS + S);
 
+            pointS->push_back(currentS + S);
 
             //   qDebug() << "curS" << currentS << arLen[currentSector] << currentSector;
 
@@ -566,6 +650,8 @@ void Logic::onCalcSignalReceived()
 
 
     littleTable_ptr = &littleTable;
+    qDebug() << "TimeTr" << timeThrust;
+    qDebug() << "Time" << timeAll;
     //   qDebug() << "S" << pointS;
     //   qDebug() << "T" << pointT;
     // закончили построение.
@@ -593,6 +679,13 @@ void Logic::onCalcSignalReceived()
 
     // qDebug() << "STor" << pointSTor;
     // qDebug() << "VTor" << pointVTor;
+
+    if (fuelMode) {
+    fuelCons = timeThrust * thrustFuel + (timeAll - timeThrust) * noThrustFuel;
+    specfuelCons = fuelCons / trainMass / distanse * 10000;
+    qDebug() << "Расход / удельный расход топлива" << fuelCons << "/" << specfuelCons;
+    }
+
 
 }
 
