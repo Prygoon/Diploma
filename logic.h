@@ -72,6 +72,9 @@ private:
     int lenghtRailcars[2] = {15, 20}; // Длины вагонов
     double stepV; //шаг скоростей
     double lenStation; // приемно-отправочные пути, если задано
+    double maxSpeed;  // вынести как прямую линию сверху.
+    double thrustFuel;
+    double noThrustFuel;
 
     double k_hh;    // коэффициенты для
     double a_hh;  // основого удельного на ХХ
@@ -128,8 +131,6 @@ private:
     QVector <double> *pointSTor;
     QVector <double> *pointVTor;
     // ВОТ ОН ТУТ
-
-    double maxSpeed;  // вынести как прямую линию сверху.
 
     // исходные данные
     // вагоны
