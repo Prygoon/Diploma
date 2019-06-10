@@ -37,7 +37,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>529</width>
+         <width>576</width>
          <height>351</height>
         </rect>
        </property>
@@ -70,7 +70,7 @@
          <item>
           <widget class="QLabel" name="massResultLabel">
            <property name="text">
-            <string>                    </string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -88,7 +88,7 @@
          <item>
           <widget class="QLabel" name="calcSlopeResultLabel">
            <property name="text">
-            <string>                   </string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -133,14 +133,14 @@
        <item row="4" column="0">
         <layout class="QHBoxLayout" name="fuelHorizontalLayout">
          <item>
-          <widget class="QLabel" name="fuelResultLabel">
+          <widget class="QLabel" name="fuelLabel">
            <property name="text">
             <string>Расход топлива: </string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="fuelLabel">
+          <widget class="QLabel" name="fuelResultLabel">
            <property name="text">
             <string/>
            </property>
@@ -153,7 +153,8 @@
          <item>
           <widget class="QLabel" name="unitFuelLabel">
            <property name="text">
-            <string>Удельный расход топлива: </string>
+            <string>Удельный 
+расход топлива: </string>
            </property>
           </widget>
          </item>
@@ -237,7 +238,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>Проект</string>
+     <string>Рассчёт</string>
     </property>
     <addaction name="action_new"/>
     <addaction name="separator"/>

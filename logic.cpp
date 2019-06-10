@@ -740,6 +740,26 @@ void Logic::onCalcSignalReceived()
 
 }
 
+bool Logic::getFuelMode() const
+{
+    return fuelMode;
+}
+
+double Logic::getSpecfuelCons() const
+{
+    return specfuelCons;
+}
+
+double Logic::getFuelCons() const
+{
+    return fuelCons;
+}
+
+double Logic::getTimeAll() const
+{
+    return timeAll;
+}
+
 double Logic::getMainIp() const
 {
     return mainIp;
