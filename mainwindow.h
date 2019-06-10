@@ -55,6 +55,7 @@ private:
     void buildVCalcGraph();
     void buildMaxVelocityGraph();
     void drawTrackSections();
+    void outputResults();
 
 private slots:
     void on_action_new_triggered();

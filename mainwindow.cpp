@@ -78,6 +78,13 @@ void MainWindow::drawTrackSections()
     }
 }
 
+void MainWindow::outputResults()
+{
+    ui->distanceResultLabel->setText(QString::number(logic->getDistanse()).append(" метров"));
+    ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append(""));
+    ui->massResultLabel->setText(QString::number(logic->getTrainMass()).append(" тонн"));
+}
+
 void MainWindow::buildHHVsGraph()
 {
     ui->mainGraph->addGraph();
@@ -166,9 +173,9 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     }
 
     ui->mainGraph->clearGraphs();
-    //ui->mainGraph->setInteractions(QCP::iRangeDrag |QCP::iRangeZoom);
-    //ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
-    //ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
+//    ui->mainGraph->setInteractions(QCP::iRangeDrag /*| QCP::iRangeZoom*/);
+//    ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
+//    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
 
     //ui->mainGraph->graph()->
 
@@ -194,6 +201,7 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     //qDebug() << dataJson;
     //delete logic;
     enableSecondaryButtons();
+    outputResults();
 }
 
 void MainWindow::on_pushButtonShowDiag_clicked()
