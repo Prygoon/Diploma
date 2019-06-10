@@ -50,10 +50,12 @@ public:
     QVector<double> *getPointSTor() const;
     QVector<double> *getPointVTor() const;
     QVector<QVector<double> > *getLittleTable_ptr() const;
-
     double getTrainMass() const;
-
     double getMainIp() const;
+    double getTimeAll() const;
+    double getFuelCons() const;
+    double getSpecfuelCons() const;
+    bool getFuelMode() const;
 
 public slots:
     void onCalcSignalReceived();

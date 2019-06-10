@@ -81,8 +81,16 @@ void MainWindow::drawTrackSections()
 void MainWindow::outputResults()
 {
     ui->distanceResultLabel->setText(QString::number(logic->getDistanse()).append(" метров"));
-    ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append(""));
+    ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append("‰"));
     ui->massResultLabel->setText(QString::number(logic->getTrainMass()).append(" тонн"));
+    ui->timeResultabel->setText(QString::number(logic->getTimeAll()).append(" минут"));
+    if(logic->getFuelMode()) {
+        ui->unitFuelResultlabel->setText(QString::number(logic->getSpecfuelCons()).append("<br/>кг/(10<sup>4</sup> · т·км)"));
+        ui->fuelResultLabel->setText(QString::number(logic->getFuelCons()).append(" кг"));
+    } else {
+        ui->unitFuelResultlabel->setText(QString::number(0).append("<br/>кг/(10<sup>4</sup> · т·км)"));
+        ui->fuelResultLabel->setText(QString::number(0).append(" кг"));
+    }
 }
 
 void MainWindow::buildHHVsGraph()
@@ -173,9 +181,9 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     }
 
     ui->mainGraph->clearGraphs();
-//    ui->mainGraph->setInteractions(QCP::iRangeDrag /*| QCP::iRangeZoom*/);
-//    ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
-//    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
+    ui->mainGraph->setInteractions(/*QCP::iRangeDrag |*/ QCP::iRangeZoom);
+    ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
+    //    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
 
     //ui->mainGraph->graph()->
 
