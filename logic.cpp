@@ -93,7 +93,7 @@ void Logic::setValues()
     }
 
     // рандомный ввод профиля для теста
-   /* slopes->push_back(0);
+    /* slopes->push_back(0);
     trackSectionLengths->push_back(6000);
     for (int i = 1; i < 7; i++){
         slopes->push_back((qrand() % 160 - 52) * 0.1);
@@ -386,7 +386,7 @@ void Logic::onCalcSignalReceived()
     // какой-то большой Лагр...
     // до 15
 
-/*
+    /*
     for (int i= 0; i < 2; i++)
     {
         partlocoTractionThrust->push_back(locoTractionThrust->at(i));
@@ -477,7 +477,7 @@ void Logic::onCalcSignalReceived()
 
 
     // вариант 3
-    for (int i= 0; i < 2; i++)
+    /* for (int i= 0; i < 2; i++)
     {
         partlocoTractionThrust->push_back(locoTractionThrust->at(i));
         partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
@@ -496,7 +496,58 @@ void Logic::onCalcSignalReceived()
 
     for (double k = partlocoTractionVelocity->at(0) ; k <= locoConstrVelocity; k = k + stepV){
         FinalTable(k);
+    }*/
+
+    // вариант 4
+    for (int i= 0; i < 2; i++)
+    {
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
     }
+
+    int s = 1 ; // s = speed
+    while (locoTractionVelocity->at(s-1) <= 15)
+    {
+
+        for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(1); k = k + stepV){
+            FinalTable(k);
+        }
+        s++;
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(s));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(s));
+    }
+
+    partlocoTractionThrust->clear();
+    partlocoTractionVelocity->clear();
+
+    for (int i= s - 1; i < s + 3; i++)
+    {
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
+    }
+
+    for (double k = partlocoTractionVelocity->at(0) ; k < partlocoTractionVelocity->at(1); k = k + stepV){
+        FinalTable(k);
+    }
+
+    for (int i = s + 3 ; i < locoTractionThrust->count(); i++)
+    {
+
+        for (double k = partlocoTractionVelocity->at(1) ; k < partlocoTractionVelocity->at(2); k = k + stepV){
+            FinalTable(k);
+        }
+        partlocoTractionThrust->remove(0);
+        partlocoTractionVelocity->remove(0);
+        partlocoTractionThrust->push_back(locoTractionThrust->at(i));
+        partlocoTractionVelocity->push_back(locoTractionVelocity->at(i));
+    }
+
+    for (double k = partlocoTractionVelocity->at(2) ; k <= locoConstrVelocity; k = k + stepV){
+        FinalTable(k);
+    }
+
 
 
     // вспомогательные
@@ -681,9 +732,9 @@ void Logic::onCalcSignalReceived()
     // qDebug() << "VTor" << pointVTor;
 
     if (fuelMode) {
-    fuelCons = timeThrust * thrustFuel + (timeAll - timeThrust) * noThrustFuel;
-    specfuelCons = fuelCons / trainMass / distanse * 10000;
-    qDebug() << "Расход / удельный расход топлива" << fuelCons << "/" << specfuelCons;
+        fuelCons = timeThrust * thrustFuel + (timeAll - timeThrust) * noThrustFuel;
+        specfuelCons = fuelCons / trainMass / (distanse/1000) * 10000;
+        qDebug() << "Расход / удельный расход топлива" << fuelCons << "/" << specfuelCons;
     }
 
 
