@@ -740,6 +740,16 @@ void Logic::onCalcSignalReceived()
 
 }
 
+double Logic::getMainIp() const
+{
+    return mainIp;
+}
+
+double Logic::getTrainMass() const
+{
+    return trainMass;
+}
+
 QVector<QVector<double> > *Logic::getLittleTable_ptr() const
 {
     return littleTable_ptr;
