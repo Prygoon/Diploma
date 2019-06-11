@@ -81,7 +81,8 @@ void MainWindow::drawTrackSections()
 void MainWindow::outputResults()
 {
     ui->distanceResultLabel->setText(QString::number(logic->getDistanse()).append(" метров"));
-    ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append("‰"));
+    ui->calcSlopeLabel->setText(QString("Расчётный\nподъем (").append(QString::number(logic->getNumIp() + 1)).append(")"));
+    ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append(" ‰").append("\n").append(QString::number(logic->getMainLen())).append(" метров"));
     ui->massResultLabel->setText(QString::number(logic->getTrainMass()).append(" тонн"));
     ui->timeResultabel->setText(QString::number(logic->getTimeAll()).append(" минут"));
     if(logic->getFuelMode()) {
@@ -181,8 +182,8 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     }
 
     ui->mainGraph->clearGraphs();
-    ui->mainGraph->setInteractions(/*QCP::iRangeDrag |*/ QCP::iRangeZoom);
-    ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
+    //ui->mainGraph->setInteractions(/*QCP::iRangeDrag |*/ QCP::iRangeZoom);
+    //ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
     //    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
 
     //ui->mainGraph->graph()->

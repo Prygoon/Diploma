@@ -125,7 +125,7 @@ void Logic::setCoeffitient()
 
         k_okr = 68.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
 
-    } else if (dataJson->value("params").toObject().value("brake_pads").toString() == "Композитные") {
+    } else if (dataJson->value("params").toObject().value("brake_pads").toString() == "Композиционные") {
         //do smthng else
 
         k_tt =  0.36;    // коэффициенты для
@@ -150,7 +150,7 @@ void Logic::setCoeffitient()
         b_hh = 0.00035;  // постоянные или меняются (???)
 
 
-    } else if (dataJson->value("params").toObject().value("path").toString() == "Безстыковой") {
+    } else if (dataJson->value("params").toObject().value("path").toString() == "Беcстыковой") {
         //or not to to
         locoA = 1.9;   // какие-то коэффициенты для
         locoB = 0.008;  // основное удельное сопротивление локомотива
@@ -211,7 +211,7 @@ void Logic::onCalcSignalReceived()
     QVector <double> arCalcLen;
     QVector <double> arCalcNum;
     double maxIp;
-    int numIp = 0;
+    numIp = 0;
     arIpTemp->append(*slopes);
 
 
@@ -374,7 +374,7 @@ void Logic::onCalcSignalReceived()
     qDebug() << "Весь путь" << distanse ;  // убрать дебаг, вывести в окне
 
     mainIp = slopes->at(numIp);
-
+    mainLen = trackSectionLengths->at(numIp);
 
 
     pointS->push_back(0);
@@ -738,6 +738,16 @@ void Logic::onCalcSignalReceived()
     }
 
 
+}
+
+int Logic::getMainLen() const
+{
+    return mainLen;
+}
+
+int Logic::getNumIp() const
+{
+    return numIp;
 }
 
 bool Logic::getFuelMode() const

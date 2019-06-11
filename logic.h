@@ -56,6 +56,8 @@ public:
     double getFuelCons() const;
     double getSpecfuelCons() const;
     bool getFuelMode() const;
+    int getNumIp() const;
+    int getMainLen() const;
 
 public slots:
     void onCalcSignalReceived();
@@ -109,6 +111,8 @@ private:
     // расчитываем, можно выводить
     double trainMass; // масса состава
     double mainIp; //расчетный подъем
+    int mainLen; // длина расчетного подъема
+    int numIp; // номер расчтного подъема
     double distanse;
     double fuelCons; //расход топлива
     double specfuelCons; // удельный расход топлива
