@@ -393,12 +393,12 @@ void InputWindow::showTrackSectionTableView()
 void InputWindow::setupParamsComboboxes()
 {
     QStringList items;
-    items << "Чугунные" << "Композитные";
+    items << "Композиционные" << "Чугунные";
     ui->brakePadsComboBox->addItems(items);
     ui->brakePadsComboBox->setCurrentIndex(0);
 
     items.clear();
-    items << "Звеньевой" << "Безстыковой";
+    items << "Звеньевой" << "Бесстыковой";
     ui->pathComboBox->addItems(items);
     ui->pathComboBox->setCurrentIndex(0);
 }

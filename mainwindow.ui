@@ -37,7 +37,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>576</width>
+         <width>594</width>
          <height>351</height>
         </rect>
        </property>
@@ -56,6 +56,12 @@
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -81,7 +87,8 @@
          <item>
           <widget class="QLabel" name="calcSlopeLabel">
            <property name="text">
-            <string>Расчётный подъём: </string>
+            <string>Расчётный
+подъём: </string>
            </property>
           </widget>
          </item>
