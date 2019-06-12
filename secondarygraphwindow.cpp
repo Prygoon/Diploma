@@ -63,6 +63,7 @@ void SecondaryGraphWindow::on_ClosePushButton_clicked()
 
 void SecondaryGraphWindow::onBuildDiagGraphSignalReceived(const QVector<QVector<double> > &data)
 {
+    setWindowTitle("Диаграмма удельных равнодействующих сил");
     ui->graphWidget->clearGraphs();
 
     //ui->graphWidget->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag);
@@ -80,20 +81,32 @@ void SecondaryGraphWindow::onBuildDiagGraphSignalReceived(const QVector<QVector<
     ui->graphWidget->xAxis->setRange(data.at(3).at(0) - 5, data.at(1).at(0) + 5);
     ui->graphWidget->xAxis->setRangeReversed(true);
     ui->graphWidget->xAxis->setLowerEnding(QCPLineEnding::esSpikeArrow);
+    ui->xAxisLabelLeft->setText("f<sup>k</sup> - w<sub>0</sub>, Н/кН");
+    ui->xAxisLabelRight->setText("w<sub>0x</sub>, Н/кН<br/>w<sub>0x</sub> + 0,5·b<sub>t</sub>, Н/кН");
+   // ui->graphWidget->xAxis->setLabel(QString("f<sup>k</sup> - w<sub>0</sub>,<br/> Н/кН"));
 
     ui->graphWidget->yAxis->setRange(0, data.at(0).last() + 10);
     ui->graphWidget->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->graphWidget->yAxis->setLabel("v, км/ч");
 
     ui->graphWidget->replot();
 }
 
-void SecondaryGraphWindow::onBuildDiagTractionSignalReceived(const QVector<QVector<double> > &data)
+void SecondaryGraphWindow::onBuildTractionGraphSignalReceived(const QVector<QVector<double> > &data)
 {
+    setWindowTitle("Тяговая характеристика");
     ui->graphWidget->clearGraphs();
 
     buildFVGraph(data.at(0), data.at(1));
 
     ui->graphWidget->xAxis->setRange(0, data.at(0).last() + 10);
+    ui->graphWidget->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->xAxisLabelRight->setText("v, км/ч");
+    ui->xAxisLabelLeft->setText("");
+    //ui->graphWidget->xAxis->setLabel("v, км/ч");
+
     ui->graphWidget->yAxis->setRange(0, data.at(1).at(0) + 50);
+    ui->graphWidget->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->graphWidget->yAxis->setLabel("F, кН");
     ui->graphWidget->replot();
 }

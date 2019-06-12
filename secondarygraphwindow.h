@@ -40,7 +40,7 @@ private slots:
 
 public slots:
     void onBuildDiagGraphSignalReceived(const QVector<QVector<double>> &data);
-    void onBuildDiagTractionSignalReceived(const QVector<QVector<double>> &data);
+    void onBuildTractionGraphSignalReceived(const QVector<QVector<double>> &data);
 };
 
 #endif // SECONDARYGRAPHWINDOW_H
