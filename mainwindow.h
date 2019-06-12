@@ -54,7 +54,10 @@ private:
     void buildBTVsGraph();
     void buildVCalcGraph();
     void buildMaxVelocityGraph();
+
     void drawTrackSections();
+    void drawTrackSectionText(int length, double slopes, int position);
+
     void outputResults();
 
 private slots:

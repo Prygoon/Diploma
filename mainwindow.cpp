@@ -39,7 +39,7 @@ void MainWindow::buildVsGraph()
 void MainWindow::buildVCalcGraph()
 {
     ui->mainGraph->addGraph();
-    ui->mainGraph->graph(1)->setData({0, logic->getDistanse()}, {logic->getLocoCalcVelocity(), logic->getLocoCalcVelocity()});
+    ui->mainGraph->graph(1)->setData({0, logic->getDistance()}, {logic->getLocoCalcVelocity(), logic->getLocoCalcVelocity()});
     ui->mainGraph->graph(1)->setPen(QPen(Qt::red));
 }
 
@@ -53,17 +53,19 @@ void MainWindow::buildTimeGraph()
 void MainWindow::buildMaxVelocityGraph()
 {
     ui->mainGraph->addGraph();
-    ui->mainGraph->graph(3)->setData({0, logic->getDistanse()}, {logic->getMaxSpeed(), logic->getMaxSpeed()});
+    ui->mainGraph->graph(3)->setData({0, logic->getDistance()}, {logic->getMaxSpeed(), logic->getMaxSpeed()});
     ui->mainGraph->graph(3)->setPen(QPen(Qt::red));
 }
 
 void MainWindow::drawTrackSections()
 {
-    QVector<int> localTrackSectionLengths = *logic->getTrackSectionLengths();
+    QVector<int> *localTrackSectionLengths = logic->getTrackSectionLengths();
+    QVector<double> *localSlopes = logic->getSlopes();
     int currentTrackSectionPosition = 0;
+    int previousTrackSectionPosition = 0;
 
-    for (int i = 0; i < localTrackSectionLengths.size(); i++) {
-        currentTrackSectionPosition += localTrackSectionLengths.at(i);
+    for (int i = 0; i < localTrackSectionLengths->size(); i++) {
+        currentTrackSectionPosition += localTrackSectionLengths->at(i);
         QCPItemLine *upperVerticalLine = new QCPItemLine(ui->mainGraph);
         upperVerticalLine->start->setCoords(currentTrackSectionPosition, 0);
         upperVerticalLine->end->setCoords(currentTrackSectionPosition, 100);
@@ -75,12 +77,78 @@ void MainWindow::drawTrackSections()
         lowerVerticalLine->end->setCoords(currentTrackSectionPosition, 0);
         lowerVerticalLine->setPen(QPen(Qt::SolidLine));
         lowerVerticalLine->setPen(QPen(Qt::black));
+
+        if(i > 0) {
+            previousTrackSectionPosition += localTrackSectionLengths->at(i - 1);
+        }
+        //if(i < localSlopes->size() - 1) {
+        if(localSlopes->at(i) > 0) {
+            QCPItemLine *risingDiagonal = new QCPItemLine(ui->mainGraph);
+            risingDiagonal->start->setCoords(previousTrackSectionPosition, -10);
+            risingDiagonal->end->setCoords(currentTrackSectionPosition, 0);
+            drawTrackSectionText(localTrackSectionLengths->at(i), localSlopes->at(i), previousTrackSectionPosition);
+
+        } else if (localSlopes->at(i) < 0) {
+            QCPItemLine *descendingDiagonal = new QCPItemLine(ui->mainGraph);
+            descendingDiagonal->start->setCoords(previousTrackSectionPosition, 0);
+            descendingDiagonal->end->setCoords(currentTrackSectionPosition, -10);
+            drawTrackSectionText(localTrackSectionLengths->at(i), localSlopes->at(i), previousTrackSectionPosition);
+
+        } else if (localSlopes->at(i) == 0.0) {
+            QCPItemLine *zeroSlopeLine = new QCPItemLine(ui->mainGraph);
+            zeroSlopeLine->start->setCoords(previousTrackSectionPosition, -5);
+            zeroSlopeLine->end->setCoords(currentTrackSectionPosition, -5);
+            drawTrackSectionText(localTrackSectionLengths->at(i), localSlopes->at(i), previousTrackSectionPosition);
+
+        }
+        //}
     }
+}
+
+void MainWindow::drawTrackSectionText(int length, double slope, int position)
+{
+    int lowerMargin;
+    int upperMargin;
+    double leftMargin;
+    double rightMargin;
+    QFont localQFont = QFont(font().family(), 7);
+    if(slope != 0.0) {
+        lowerMargin = -7;
+        upperMargin = -3;
+    } else {
+        lowerMargin = -7;
+        upperMargin = -2;
+    }
+
+    if(slope < 0) {
+        leftMargin = 4;
+        rightMargin = 1.25;
+    } else if (slope > 0) {
+        leftMargin = 1.25;
+        rightMargin = 4;
+    } else {
+        leftMargin = 2;
+        rightMargin = 2;
+    }
+
+    if(length <= 700) {
+        localQFont.setPointSize(5);
+    }
+
+    QCPItemText *lengthTextLabel = new QCPItemText(ui->mainGraph);
+    lengthTextLabel->position->setCoords(position + length / leftMargin, lowerMargin);
+    lengthTextLabel->setText(QString::number(length));
+    lengthTextLabel->setFont(localQFont);
+
+    QCPItemText *slopeTextLabel = new QCPItemText(ui->mainGraph);
+    slopeTextLabel->position->setCoords(position + length / rightMargin, upperMargin);
+    slopeTextLabel->setText(QString::number(slope));
+    slopeTextLabel->setFont(localQFont);
 }
 
 void MainWindow::outputResults()
 {
-    ui->distanceResultLabel->setText(QString::number(logic->getDistanse()).append(" метров"));
+    ui->distanceResultLabel->setText(QString::number(logic->getDistance()).append(" метров"));
     ui->calcSlopeLabel->setText(QString("Расчётный\nподъем (").append(QString::number(logic->getNumIp() + 1)).append(")"));
     ui->calcSlopeResultLabel->setText(QString::number(logic->getMainIp()).append(" ‰").append("\n").append(QString::number(logic->getMainLen())).append(" метров"));
     ui->massResultLabel->setText(QString::number(logic->getTrainMass()).append(" тонн"));
@@ -175,13 +243,14 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     connect(this, &MainWindow::calc, logic, &Logic::onCalcSignalReceived);
     emit calc();
 
-    if(logic->getDistanse() < 50000) {
+    if(logic->getDistance() < 50000) {
         ui->mainGraph->setFixedWidth((static_cast<int>(50000 / 48 + 50)));
     } else {
-        ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistanse() / 48 + 50)));
+        ui->mainGraph->setFixedWidth((static_cast<int>(logic->getDistance() / 48 + 50)));
     }
 
     ui->mainGraph->clearGraphs();
+    ui->mainGraph->clearItems();
     //ui->mainGraph->setInteractions(/*QCP::iRangeDrag |*/ QCP::iRangeZoom);
     //ui->mainGraph->axisRect()->setRangeZoom(Qt::Horizontal);
     //    ui->mainGraph->axisRect()->setRangeDrag(Qt::Horizontal);
@@ -198,8 +267,9 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
 
     drawTrackSections();
 
-    ui->mainGraph->xAxis->setRange(0, logic->getDistanse() + 50);
+    ui->mainGraph->xAxis->setRange(0, logic->getDistance() + 50);
     ui->mainGraph->xAxis->setLabel("S, м");
+    ui->mainGraph->xAxis->setTicks(false);
     ui->mainGraph->yAxis->setRange(-10, logic->getLocoConstrVelocity() + 10);
     ui->mainGraph->yAxis->grid()->setZeroLinePen(QPen(Qt::SolidLine | Qt::black));
     ui->mainGraph->yAxis->setLabel("v, км/ч");
@@ -250,7 +320,7 @@ void MainWindow::on_pushButtonTraction_clicked()
     ui->pushButtonTraction->setDisabled(true);
 
     connect(wSecondaryGraphWindow, &SecondaryGraphWindow::enableShowTractionGraphButton, this, &MainWindow::onEnableShowTractionGraphButtonReceived);
-    connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildTractionGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildDiagTractionSignalReceived);
+    connect(this, static_cast<void (MainWindow::*)(QVector<QVector<double>> const&)>(&MainWindow::buildTractionGraph), wSecondaryGraphWindow, &SecondaryGraphWindow::onBuildTractionGraphSignalReceived);
 
     emit buildTractionGraph(*secondaryData);
     delete secondaryData;

@@ -367,11 +367,11 @@ void Logic::onCalcSignalReceived()
     //maxSpeed = 90; // пока без решения тормозной задачи, эта скорость ее итог
 
     // грустно считаем весь путь, сумма.
-    distanse = 0;
+    distance = 0;
     for (int i  =0; i < trackSectionLengths->length(); i++) {
-        distanse += trackSectionLengths->at(i);
+        distance += trackSectionLengths->at(i);
     }
-    qDebug() << "Весь путь" << distanse ;  // убрать дебаг, вывести в окне
+    qDebug() << "Весь путь" << distance ;  // убрать дебаг, вывести в окне
 
     mainIp = slopes->at(numIp);
     mainLen = trackSectionLengths->at(numIp);
@@ -691,7 +691,7 @@ void Logic::onCalcSignalReceived()
         S += currentS;
 
         //  qDebug() << "S" << S << distanse << currentSector;
-    } while (S < distanse);
+    } while (S < distance);
 
     //    qDebug() << "SHH" << pointHH;
     //  qDebug() << "VHH" << pointVHH;
@@ -708,7 +708,7 @@ void Logic::onCalcSignalReceived()
     // закончили построение.
 
 
-    pointSTor->push_back(distanse);
+    pointSTor->push_back(distance);
     pointVTor->push_back(0);
 
     // построение отрезка торможения
@@ -733,11 +733,16 @@ void Logic::onCalcSignalReceived()
 
     if (fuelMode) {
         fuelCons = timeThrust * thrustFuel + (timeAll - timeThrust) * noThrustFuel;
-        specfuelCons = fuelCons / trainMass / (distanse/1000) * 10000;
+        specfuelCons = fuelCons / trainMass / (distance/1000) * 10000;
         qDebug() << "Расход / удельный расход топлива" << fuelCons << "/" << specfuelCons;
     }
 
 
+}
+
+QVector<double> *Logic::getSlopes() const
+{
+    return slopes;
 }
 
 int Logic::getMainLen() const
@@ -1104,7 +1109,7 @@ void Logic::railcarsCountUpdate()
 
 
 
-double Logic::getDistanse() const
+double Logic::getDistance() const
 {
-    return distanse;
+    return distance;
 }

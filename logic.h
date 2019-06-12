@@ -33,7 +33,7 @@ public:
     QVector<double> *getPointS() const;
     QVector<double> *getPointV() const;
     QVector<double> *getPointT() const;
-    double getDistanse() const;
+    double getDistance() const;
     int getLocoConstrVelocity() const;
     double getLocoCalcVelocity() const;
     QVector<double> *getPointF() const;
@@ -58,6 +58,7 @@ public:
     bool getFuelMode() const;
     int getNumIp() const;
     int getMainLen() const;
+    QVector<double> *getSlopes() const;
 
 public slots:
     void onCalcSignalReceived();
@@ -113,7 +114,7 @@ private:
     double mainIp; //расчетный подъем
     int mainLen; // длина расчетного подъема
     int numIp; // номер расчтного подъема
-    double distanse;
+    double distance;
     double fuelCons; //расход топлива
     double specfuelCons; // удельный расход топлива
 
