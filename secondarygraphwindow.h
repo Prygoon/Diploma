@@ -2,7 +2,6 @@
 #define SECONDARYGRAPHWINDOW_H
 
 #include <QDialog>
-#include <QDir>
 
 namespace Ui {
 class SecondaryGraphWindow;

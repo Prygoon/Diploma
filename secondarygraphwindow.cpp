@@ -114,7 +114,7 @@ void SecondaryGraphWindow::onBuildTractionGraphSignalReceived(const QVector<QVec
 
 void SecondaryGraphWindow::on_saveGraphPushButton_clicked()
 {
-    QString saveFileName = QFileDialog::getSaveFileName(this, QDir::homePath(), "", "*.png");
+    QString saveFileName = QFileDialog::getSaveFileName(this, "Сохранить файл", QDir::homePath(), "*.png");
     if(saveFileName != "") {
         if(!saveFileName.contains(".png")){
             ui->graphWidget->savePng(saveFileName.append(".png"), 1280, 720);

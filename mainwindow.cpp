@@ -352,8 +352,10 @@ void MainWindow::onEnableShowTableButtonReceived()
 
 void MainWindow::on_pushButtonSaveGraph_clicked()
 {
+    qDebug() << QDir::homePath();
     int width;
-    QString saveFileName = QFileDialog::getSaveFileName(this, QDir::homePath(), "", "*.png");
+    QString saveFileName = QFileDialog::getSaveFileName(this, "Сохранить файл", QDir::homePath(), "*.png");
+    qDebug() << saveFileName;
 
     if(logic->getDistance() < 50000) {
         width = static_cast<int>(50000 / 24 + 50);
