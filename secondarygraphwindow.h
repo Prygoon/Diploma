@@ -2,6 +2,7 @@
 #define SECONDARYGRAPHWINDOW_H
 
 #include <QDialog>
+#include <QDir>
 
 namespace Ui {
 class SecondaryGraphWindow;
@@ -37,6 +38,8 @@ signals:
 
 private slots:
     void on_ClosePushButton_clicked();
+
+    void on_saveGraphPushButton_clicked();
 
 public slots:
     void onBuildDiagGraphSignalReceived(const QVector<QVector<double>> &data);

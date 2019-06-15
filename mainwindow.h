@@ -44,7 +44,7 @@ private:
 
     Logic *logic;
 
-    void disableSecondaryButtons();
+    //void disableSecondaryButtons();
     void enableSecondaryButtons();
 
     void buildVsGraph();
@@ -66,7 +66,7 @@ private slots:
     void on_action_loco_triggered();
     void on_action_railcars_triggered();
 
-    void on_pushButtonTest_clicked();
+    void on_pushButtonSaveGraph_clicked();
     void on_pushButtonTraction_clicked();
     void on_pushButtonShowDiag_clicked();
     void on_pushButtonTable_clicked();
@@ -83,4 +83,3 @@ signals:
 };
 
 #endif // MAINWINDOW_H
-
