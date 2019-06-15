@@ -144,4 +144,3 @@ void LocomotiveDbWindow::closeEvent(QCloseEvent *event)
     emit showMainWindow();
     event->accept();
 }
-

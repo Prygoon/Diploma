@@ -200,6 +200,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="pushButtonShowDiag">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Диаграммы уд. равнодействующих сил</string>
          </property>
@@ -207,6 +210,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pushButtonTraction">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Тяговая характеристика</string>
          </property>
@@ -214,15 +220,21 @@
        </item>
        <item>
         <widget class="QPushButton" name="pushButtonTable">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Таблица</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonTest">
+        <widget class="QPushButton" name="pushButtonSaveGraph">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
-          <string>TEST</string>
+          <string>Сохранить чертёж</string>
          </property>
         </widget>
        </item>

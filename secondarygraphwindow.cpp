@@ -7,6 +7,7 @@ SecondaryGraphWindow::SecondaryGraphWindow(QString *senderName, QWidget *parent)
     senderName(senderName)
 {
     ui->setupUi(this);
+
 }
 
 SecondaryGraphWindow::~SecondaryGraphWindow()
@@ -83,7 +84,7 @@ void SecondaryGraphWindow::onBuildDiagGraphSignalReceived(const QVector<QVector<
     ui->graphWidget->xAxis->setLowerEnding(QCPLineEnding::esSpikeArrow);
     ui->xAxisLabelLeft->setText("f<sup>k</sup> - w<sub>0</sub>, Н/кН");
     ui->xAxisLabelRight->setText("w<sub>0x</sub>, Н/кН<br/>w<sub>0x</sub> + 0,5·b<sub>t</sub>, Н/кН");
-   // ui->graphWidget->xAxis->setLabel(QString("f<sup>k</sup> - w<sub>0</sub>,<br/> Н/кН"));
+    // ui->graphWidget->xAxis->setLabel(QString("f<sup>k</sup> - w<sub>0</sub>,<br/> Н/кН"));
 
     ui->graphWidget->yAxis->setRange(0, data.at(0).last() + 10);
     ui->graphWidget->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
@@ -109,4 +110,16 @@ void SecondaryGraphWindow::onBuildTractionGraphSignalReceived(const QVector<QVec
     ui->graphWidget->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
     ui->graphWidget->yAxis->setLabel("F, кН");
     ui->graphWidget->replot();
+}
+
+void SecondaryGraphWindow::on_saveGraphPushButton_clicked()
+{
+    QString saveFileName = QFileDialog::getSaveFileName(this, QDir::homePath(), "", "*.png");
+    if(saveFileName != "") {
+        if(!saveFileName.contains(".png")){
+            ui->graphWidget->savePng(saveFileName.append(".png"), 1280, 720);
+        } else {
+            ui->graphWidget->savePng(saveFileName, 1280, 720);
+        }
+    }
 }

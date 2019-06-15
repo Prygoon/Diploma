@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    disableSecondaryButtons();
+    //disableSecondaryButtons();
 }
 
 MainWindow::~MainWindow()
@@ -16,18 +16,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::disableSecondaryButtons()
-{
-    ui->pushButtonShowDiag->setDisabled(true);
-    ui->pushButtonTraction->setDisabled(true);
-    ui->pushButtonTable->setDisabled(true);
-}
+//void MainWindow::disableSecondaryButtons()
+//{
+//    ui->pushButtonShowDiag->setDisabled(true);
+//    ui->pushButtonTraction->setDisabled(true);
+//    ui->pushButtonTable->setDisabled(true);
+//}
 
 void MainWindow::enableSecondaryButtons()
 {
     ui->pushButtonShowDiag->setEnabled(true);
     ui->pushButtonTraction->setEnabled(true);
     ui->pushButtonTable->setEnabled(true);
+    ui->pushButtonSaveGraph->setEnabled(true);
 }
 
 void MainWindow::buildVsGraph()
@@ -69,14 +70,11 @@ void MainWindow::drawTrackSections()
         QCPItemLine *upperVerticalLine = new QCPItemLine(ui->mainGraph);
         upperVerticalLine->start->setCoords(currentTrackSectionPosition, 0);
         upperVerticalLine->end->setCoords(currentTrackSectionPosition, 100);
-        upperVerticalLine->setPen(QPen(Qt::DashLine));
         upperVerticalLine->setPen(QPen(Qt::gray));
 
         QCPItemLine *lowerVerticalLine = new QCPItemLine(ui->mainGraph);
         lowerVerticalLine->start->setCoords(currentTrackSectionPosition, -10);
         lowerVerticalLine->end->setCoords(currentTrackSectionPosition, 0);
-        lowerVerticalLine->setPen(QPen(Qt::SolidLine));
-        lowerVerticalLine->setPen(QPen(Qt::black));
 
         if(i > 0) {
             previousTrackSectionPosition += localTrackSectionLengths->at(i - 1);
@@ -157,8 +155,8 @@ void MainWindow::outputResults()
         ui->unitFuelResultlabel->setText(QString::number(logic->getSpecfuelCons()).append("<br/>кг/(10<sup>4</sup> · т·км)"));
         ui->fuelResultLabel->setText(QString::number(logic->getFuelCons()).append(" кг"));
     } else {
-        ui->unitFuelResultlabel->setText(QString::number(0).append("<br/>кг/(10<sup>4</sup> · т·км)"));
-        ui->fuelResultLabel->setText(QString::number(0).append(" кг"));
+        ui->unitFuelResultlabel->setText("-");
+        ui->fuelResultLabel->setText("-");
     }
 }
 
@@ -229,11 +227,6 @@ void MainWindow::on_action_railcars_triggered()
     connect(wRailcarDbWindow, &RailcarDbWindow::showMainWindow, this, &MainWindow::show);
     wRailcarDbWindow->show();
     this->hide();
-}
-
-void MainWindow::on_pushButtonTest_clicked()
-{
-
 }
 
 void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
@@ -355,4 +348,24 @@ void MainWindow::onEnableShowTractionGraphButtonReceived()
 void MainWindow::onEnableShowTableButtonReceived()
 {
     ui->pushButtonTable->setEnabled(true);
+}
+
+void MainWindow::on_pushButtonSaveGraph_clicked()
+{
+    int width;
+    QString saveFileName = QFileDialog::getSaveFileName(this, QDir::homePath(), "", "*.png");
+
+    if(logic->getDistance() < 50000) {
+        width = static_cast<int>(50000 / 24 + 50);
+    } else {
+        width = static_cast<int>(logic->getDistance() / 24 + 50);
+    }
+
+    if(saveFileName != "") {
+        if(!saveFileName.contains(".png")){
+            ui->mainGraph->savePng(saveFileName.append(".png"), width, 720);
+        } else {
+            ui->mainGraph->savePng(saveFileName, width, 720);
+        }
+    }
 }
