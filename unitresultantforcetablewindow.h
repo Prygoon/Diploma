@@ -2,7 +2,6 @@
 #define UNITRESULTANTFORCETABLEWINDOW_H
 
 #include <QDialog>
-#include <QTextDocument>
 #include <QCloseEvent>
 #include <QStandardItemModel>
 
