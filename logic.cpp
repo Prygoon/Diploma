@@ -84,12 +84,30 @@ void Logic::setValues()
     QVector<QVariant> localCurveLengths = localTrackSectionsJson.value("curve_lengths").toArray().toVariantList().toVector(); // Длины кривых
     QVector<QVariant> localCurveRadiuses = localTrackSectionsJson.value("curve_radiuses").toArray().toVariantList().toVector(); // Радиусы кривых
 
-    // надо так же для курвы, но пока ее нет
+
+    QVector<int> curveLengths;
+    QVector<int> curveRadiuses;
+
     foreach (QVariant item, localSlopes){
         slopes->push_back(item.toDouble());
     }
     foreach (QVariant item, localLengths){
         trackSectionLengths->push_back(item.toInt());
+    }
+    foreach (QVariant item, localCurveLengths){
+        curveLengths.push_back(item.toInt());
+    }
+    foreach (QVariant item, localCurveRadiuses){
+        curveRadiuses.push_back(item.toInt());
+    }
+
+    double newIp;
+    for (int i = 0; i < slopes->count(); i++)
+    {
+        if (curveLengths.at(i) > 0) {
+            newIp = 700 * curveLengths.at(i) / curveRadiuses.at(i) / static_cast<double>(trackSectionLengths->at(i)) ; //
+            slopes->replace(i, slopes->at(i) + newIp);
+        }
     }
 
     // рандомный ввод профиля для теста
@@ -104,10 +122,6 @@ void Logic::setValues()
     slopes->push_back(0);
     trackSectionLengths->push_back(2500);*/
     // конец рандомного ввода, внести из исходных данных
-
-    //arTrack.push_back(arIp);
-    //arTrack.push_back(trackSectionLengths);
-    //qDebug() << arTrack;
 
 
 
@@ -558,6 +572,8 @@ void Logic::onCalcSignalReceived()
     double addPoint;
     double addTimePoint;
 
+    int countLastSector = 0;
+
     timeAll = 0;
     timeThrust = 0;
 
@@ -688,10 +704,14 @@ void Logic::onCalcSignalReceived()
 
         } while (currentS < trackSectionLengths->at(currentSector));
         currentSector++ ;
+        if (currentSector == trackSectionLengths->count() - 2)
+        {
+            countLastSector = pointS->count();
+        }
         S += currentS;
 
         //  qDebug() << "S" << S << distanse << currentSector;
-    } while (S < distance);
+    } while (S < distance || currentSector < trackSectionLengths->count() - 1);
 
     //    qDebug() << "SHH" << pointHH;
     //  qDebug() << "VHH" << pointVHH;
@@ -707,29 +727,137 @@ void Logic::onCalcSignalReceived()
     //   qDebug() << "T" << pointT;
     // закончили построение.
 
+    QVector <double> *pointSTemp;
+    QVector <double> *pointVTemp;
 
-    pointSTor->push_back(distance);
-    pointVTor->push_back(0);
+    pointSTemp = new QVector<double>();
+    pointVTemp = new QVector<double>();
+
+
+
+    pointSTemp->push_back(distance);
+    pointVTemp->push_back(0);
+
 
     // построение отрезка торможения
-    //    S = 0;
-    //    currentS = 0;
-    //    currentSector = arIp.count() - 1;
-    //    currentSpeed = 0;
+    S = 0;
+    currentS = 0;
+    currentSector = slopes->count() - 1;
+    currentSpeed = 0;
+    double tempStep = 0.05;
 
-    //    do {
 
-    //        FwosrIp = w0xbtFin[abs(static_cast<int>(currentSpeed/stepV))] + arIp[currentSector];
-    //       // FwosrIp = - deltaw0xbt[static_cast<int>(floor(currentSpeed / 10))] + arIp[currentSector];
-    //        addPoint = pathPoint(currentSpeed, currentSpeed + stepV, FwosrIp);
-    //        currentSpeed += stepV;
-    //        currentS += addPoint;
-    //        pointSTor.push_front(distanse - currentS - S);
-    //        pointVTor.push_front(currentSpeed);
-    //    } while (currentSpeed < maxSpeed);
+    do {
+        FwosrIp = w0xbtFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
+        addPoint = pathPoint(currentSpeed, currentSpeed + tempStep, FwosrIp);
+        currentSpeed += tempStep;
+        currentS += addPoint;
+        pointSTemp->push_front(distance - currentS - S);
+        pointVTemp->push_front(currentSpeed);
+    } while (currentSpeed < maxSpeed);
 
-    // qDebug() << "STor" << pointSTor;
-    // qDebug() << "VTor" << pointVTor;
+    int n = pointSTemp->count() - 1;
+    int numTor = pointV->count() - 1;
+    double min = 1000;
+    int lenTor;
+    int lenS;
+
+    do {
+       for (int i = n; i > 1; i--){
+           if (pointV->at(numTor) >= pointVTemp->at(i) && pointV->at(numTor) <= pointVTemp->at(i-1))
+           {
+               if (min > fabs(pointSTemp->at(i) - pointS->at(numTor)))
+               {
+                   min = fabs(pointSTemp->at(i) - pointS->at(numTor));
+                   if (pointSTemp->at(i) - pointS->at(numTor) > 0)
+                   {
+                        lenTor = i;
+                        lenS = numTor;
+                   } else
+                   {
+                        lenTor = i - 1;
+                        lenS = numTor + 1;
+                   }
+               }
+           }
+       }
+       numTor -- ;
+    } while (numTor > countLastSector) ;
+
+    n = pointS->count() - 1;
+   /* if (pointBT->last() > pointS->at(lenS))
+    {
+
+    }
+
+    if (pointBT->last() > pointS->at(lenS))
+    {
+
+    }*/
+    while ( pointBT->last() > pointS->at(lenS)) {
+        pointBT->removeLast();
+        pointVBT->removeLast();
+        moveMode = 1;
+    }
+
+    while ( pointHH->last() > pointS->at(lenS)) {
+        pointHH->removeLast();
+        pointVHH->removeLast();
+        moveMode = 1;
+    }
+
+    if (moveMode == 0)
+    {
+        if (pointT->last() > pointT->at(lenS)) {
+            timeThrust = timeThrust - (pointT->last() - pointT->at(lenS));
+        } else {
+            timeThrust = timeThrust - (pointT->last() + 100 - pointT->at(lenS));
+        }
+
+    }
+
+
+    if (pointT->last() > pointT->at(lenS)) {
+        timeAll = timeAll - (pointT->last() - pointT->at(lenS));
+    } else {
+        timeAll = timeAll - (pointT->last() + 100 - pointT->at(lenS));
+    }
+
+    currentTime = pointT->at(lenS - 1);
+
+    for (int i = n; i >= lenS; i--) {
+        pointS->remove(i);
+        pointV->remove(i);
+        pointT->remove(i);
+    }
+
+
+
+    for (int i = lenTor; i < pointSTemp->count() - 1; i++){
+        currentSpeed = pointV->last();
+        FwosrIp = w0xbtFin->at(abs(static_cast<int>(currentSpeed/stepV))) - slopes->at(currentSector);
+        addTimePoint = timePoint(pointVTemp->at(i), currentSpeed, FwosrIp);
+
+        timeAll += addTimePoint;
+
+        currentTime += addTimePoint;
+        if (currentTime > 100) {
+            currentTime += -100;
+        }
+
+
+        //pointSTor->push_back(pointSTemp->at(i));
+        //pointVTor->push_back(pointVTemp->at(i));
+        pointS->push_back(pointSTemp->at(i));
+        pointV->push_back(pointVTemp->at(i));
+        pointBT->push_back(pointSTemp->at(i));
+        pointVBT->push_back(pointVTemp->at(i));
+
+
+
+        pointT->push_back(currentTime);
+    }
+
 
     if (fuelMode) {
         fuelCons = timeThrust * thrustFuel + (timeAll - timeThrust) * noThrustFuel;
