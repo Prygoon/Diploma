@@ -69,7 +69,8 @@
          <item>
           <widget class="QLabel" name="massLabel">
            <property name="text">
-            <string>Масса состава: </string>
+            <string>Норма
+массы состава: </string>
            </property>
           </widget>
          </item>
@@ -272,7 +273,7 @@
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>Настройки</string>
+     <string>О программе</string>
     </property>
    </widget>
    <addaction name="menuFile"/>

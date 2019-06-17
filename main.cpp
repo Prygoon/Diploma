@@ -22,6 +22,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    /* Перевод */
+    QTranslator *qt_translator = new QTranslator;
+    if(qt_translator->load( ":translations/translations/qtbase_ru.qm" )) {
+        a.installTranslator( qt_translator );
+    }
+
     MainWindow w;
     w.show();
 
