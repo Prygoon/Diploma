@@ -13,8 +13,10 @@ InputEditForm::InputEditForm(QString *senderName, QWidget *parent) :
 
     if(this->senderName == QString("addRailcarPushButton") || this->senderName == QString("railcarsTableView")) {
         setupRailcarForm();
+        setWindowTitle("Редактирование типов вагонов");
     } else {
         setupTrackSectionForm();
+        setWindowTitle("Редактирование участков пути");
     }
 
     //setWindowFlag(Qt::WindowStaysOnTopHint); // Поверх родительского окна (не работает на некоторых Линуксах)

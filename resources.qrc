@@ -11,5 +11,9 @@
         <file>img/026-gas-truck.svg</file>
         <file>img/030-railroad-3.svg</file>
         <file>img/006-high-speed-train.svg</file>
+        <file>img/formula.png</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file>translations/qtbase_ru.qm</file>
     </qresource>
 </RCC>

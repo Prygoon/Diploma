@@ -64,6 +64,8 @@ private:
     void addTrackSectionsToJson();
     void addParamsToJson();
 
+    void allRailcarsTypeSum();
+
     QJsonObject objectFromString(const QString &strJson);
 
 signals:
@@ -84,6 +86,7 @@ private slots:
     void on_cancelPushButton_clicked();
     void on_railcarsTableView_doubleClicked(const QModelIndex &index);
     void on_trackSectionTableView_doubleClicked(const QModelIndex &index);
+    void on_railcarsModelDataChanged();
 };
 
 #endif // INPUTWINDOW_H

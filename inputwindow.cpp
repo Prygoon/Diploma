@@ -38,8 +38,12 @@ InputWindow::InputWindow(QWidget *parent) :
     showTrackSectionTableView();
 
     setupParamsComboboxes();
+    allRailcarsTypeSum();
 
     dataDir = QDir().homePath();
+    connect(railcarsMapModel, &QSqlRelationalTableModel::dataChanged, this, &InputWindow::on_railcarsModelDataChanged);
+    //connect(wLocoEditForm, static_cast<void (LocoEditForm::*)(QString const&)>(&LocoEditForm::submitTableModel), this, &LocomotiveDbWindow::onSubmitModelSignalReceived);
+
 }
 
 InputWindow::~InputWindow()
@@ -534,4 +538,26 @@ void InputWindow::on_trackSectionTableView_doubleClicked(const QModelIndex &inde
     wInputEditForm->setWIndex(new QModelIndex(proxyIndex));
     wInputEditForm->getMapper()->setCurrentModelIndex(proxyIndex);
     wInputEditForm->show();
+}
+
+void InputWindow::allRailcarsTypeSum()
+{
+    double result = 0;
+    for (int i = 0; i < railcarsMapModel->rowCount(); i++) {
+        result += railcarsMapModel->record(i).value(TABLE_RAILCAR_MAP_PERCENT).toDouble();
+    }
+
+    ui->allRailcarsTypeResultLabel->setText(QString::number(result));
+
+    if(result == 1.0) {
+        ui->buildGraphPushButton->setEnabled(true);
+    } else {
+        ui->buildGraphPushButton->setEnabled(false);
+        ui->buildGraphPushButton->setToolTip("Общая доля вагонов не равна 1");
+    }
+}
+
+void InputWindow::on_railcarsModelDataChanged()
+{
+    allRailcarsTypeSum();
 }
