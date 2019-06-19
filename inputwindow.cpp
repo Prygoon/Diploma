@@ -455,37 +455,85 @@ void InputWindow::on_excelPushButton_clicked()
 
     if(excelFilePath != "") {
         //trackSectionModel->clear();
-        trackSectionModel->removeRows(0, trackSectionModel->rowCount());
-        trackSectionModel->submitAll();
+        int row = -1;
+        int column = 0;
 
-        for (int i = 0; i < 16; i++) {
-            QVariant slopeRead = excelDoc.read(3, i + 3);
-            QVariant lengthRead = excelDoc.read(4, i + 3);
-            QVariant curveLengthRead = excelDoc.read(5, i + 3);
-            QVariant curveRadiusRead = excelDoc.read(6, i + 3);
-
-            trackSectionModel->insertRows(i, 1);
-            //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
-            trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
-            trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
-            trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
+        for (int j = 0; j < 50; j++) {
+            for (int k = 0; k < 50; k++) {
+                if(excelDoc.read(k, j).canConvert<int>() || excelDoc.read(k, j).canConvert<double>()) {
+                    if (excelDoc.read(k + 1, j).toInt() != 0){
+                        row = k;
+                        column = j;
+                        k = 51;
+                        j = 51;
+                    }
+                }
+            }
+        }
+        if(row != -1) {
+            trackSectionModel->removeRows(0, trackSectionModel->rowCount());
             trackSectionModel->submitAll();
+            int i = 0;
+            while(true) {
+                if(excelDoc.read(row, column + i).isNull() || excelDoc.read(row + 1, column + i).isNull() || excelDoc.read(row + 2, column + i).isNull() || excelDoc.read(row + 3, column + i).isNull()) {
+                    break;
+                }
 
-            qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
+                QVariant slopeRead = excelDoc.read(row, column + i);
+                QVariant lengthRead = excelDoc.read(row + 1, column + i);
+                QVariant curveLengthRead = excelDoc.read(row + 2, column + i);
+                QVariant curveRadiusRead = excelDoc.read(row + 3, column + i);
+
+                trackSectionModel->insertRows(i, 1);
+                //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
+                trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
+                trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
+                trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
+                trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
+                trackSectionModel->submitAll();
+
+                qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
+
+                i++;
+            }
+        } else {
+            QMessageBox *msgBox = new QMessageBox(this);
+            msgBox->setIcon(QMessageBox::Warning);
+            msgBox->setText("Данные в файле не найдены.\n"
+                            "Проверьте формат ввода.");
+            msgBox->setWindowTitle("Ошибка ввода!");
+            msgBox->exec();
         }
     }
-
-
-    //    excelDoc.write("A1", "Hello");
-    //    excelDoc.write("A2", "from");
-    //    excelDoc.write("A3", "my");
-    //    excelDoc.write("A4", "diploma");
-    //    excelDoc.write("A5", "project!");
-    //    excelDoc.save();
-
     qDebug() << dataDir << endl << excelFilePath;
 }
+
+
+//    for (int i = 0; i < 16; i++) {
+//        QVariant slopeRead = excelDoc.read(3, i + 3);
+//        QVariant lengthRead = excelDoc.read(4, i + 3);
+//        QVariant curveLengthRead = excelDoc.read(5, i + 3);
+//        QVariant curveRadiusRead = excelDoc.read(6, i + 3);
+
+//        trackSectionModel->insertRows(i, 1);
+//        //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
+//        trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
+//        trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
+//        trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
+//        trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
+//        trackSectionModel->submitAll();
+
+//        qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
+//    }
+
+
+//    excelDoc.write("A1", "Hello");
+//    excelDoc.write("A2", "from");
+//    excelDoc.write("A3", "my");
+//    excelDoc.write("A4", "diploma");
+//    excelDoc.write("A5", "project!");
+//    excelDoc.save();
+
 
 void InputWindow::on_buildGraphPushButton_clicked()
 {

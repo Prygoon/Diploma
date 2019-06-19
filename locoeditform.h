@@ -4,6 +4,7 @@
 #define BLANK_TEXT ""
 
 #include <QDialog>
+#include <QMessageBox>
 #include <QSqlTableModel>
 #include <QDataWidgetMapper>
 #include <QCloseEvent>
