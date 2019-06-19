@@ -190,29 +190,51 @@ void LocoEditForm::on_traction_pushButton_clicked()
     QJsonObject *tractionJson = new QJsonObject();
     QJsonArray *velocityJsonArray = new QJsonArray() ;
     QJsonArray *thrustForceJsonArray = new QJsonArray();
-    int i = 0;
 
     if(excelFilePath != "") {
-        //for (int i = 0; i < 16; i++) {
-        while(true) {
-            if(excelDoc.read(3, i + 3).isNull() || excelDoc.read(4, i + 3).isNull()) {
-                break;
+        int row = -1;
+        int column = 0;
+        for (int j = 0; j < 50; j++) {
+            for (int k = 0; k < 50; k++) {
+                if(excelDoc.read(k, j).canConvert<int>() || excelDoc.read(k, j).canConvert<double>()) {
+                    if (excelDoc.read(k + 1, j).toInt() != 0){
+                        row = k;
+                        column = j;
+                        k = 51;
+                        j = 51;
+                    }
+                }
             }
-
-            velocityJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(3, i + 3)));
-            thrustForceJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(4, i + 3)));
-
-            i++;
         }
 
-        tractionJson->insert("velocity", *velocityJsonArray);
-        tractionJson->insert("thrust_force", *thrustForceJsonArray);
+        int i = 0;
+        if (row != -1) {
+            while(true) {
+                if(excelDoc.read(row, column + i).isNull() || excelDoc.read(row + 1, column + i).isNull()) {
+                    break;
+                }
 
-        tractionJsonDoc = new QJsonDocument(*tractionJson);
-        strTractionJson = tractionJsonDoc->toJson(QJsonDocument::Compact);
+                velocityJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(row, column + i)));
+                thrustForceJsonArray->push_back(QJsonValue::fromVariant(excelDoc.read(row + 1, column + i)));
 
-        qDebug() << *tractionJsonDoc << endl << strTractionJson;
+                i++;
+            }
+
+            tractionJson->insert("velocity", *velocityJsonArray);
+            tractionJson->insert("thrust_force", *thrustForceJsonArray);
+
+            tractionJsonDoc = new QJsonDocument(*tractionJson);
+            strTractionJson = tractionJsonDoc->toJson(QJsonDocument::Compact);
+
+            qDebug() << *tractionJsonDoc << endl << strTractionJson;
+        } else {
+            QMessageBox *msgBox = new QMessageBox(this);
+            msgBox->setIcon(QMessageBox::Warning);
+            msgBox->setText("Данные в файле не найдены.\n"
+                            "Проверьте формат ввода.");
+            msgBox->setWindowTitle("Ошибка ввода!");
+            msgBox->exec();
+        }
     }
-
     qDebug() << dataDir << endl << excelFilePath;
 }

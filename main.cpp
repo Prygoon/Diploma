@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText("Приложение уже запущено.\n"
                        "Разрешено запускать только один экземпляр приложения.");
+        msgBox.setWindowTitle("Ошибка");
         msgBox.exec();
         return 1;
     }
