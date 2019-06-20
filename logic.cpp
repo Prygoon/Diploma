@@ -152,7 +152,7 @@ void Logic::setCoeffitient()
     }
     qDebug() << "Колодки" << dataJson->value("params").toObject().value("brake_pads").toString();
 
-    if(dataJson->value("params").toObject().value("path").toString() == "Звеньевой") {
+    if(dataJson->value("params").toObject().value("path").toString().toLower().contains("звеньевой")) {
         //do
         locoA = 1.9;   // какие-то коэффициенты для
         locoB = 0.01;  // основное удельное сопротивление локомотива
@@ -164,7 +164,7 @@ void Logic::setCoeffitient()
         b_hh = 0.00035;  // постоянные или меняются (???)
 
 
-    } else if (dataJson->value("params").toObject().value("path").toString() == "Беcстыковой") {
+    } else if (dataJson->value("params").toObject().value("path").toString().toLower().contains("бесстыковой")) {
         //or not to to
         locoA = 1.9;   // какие-то коэффициенты для
         locoB = 0.008;  // основное удельное сопротивление локомотива
