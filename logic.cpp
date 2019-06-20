@@ -130,7 +130,7 @@ void Logic::setValues()
 void Logic::setCoeffitient()
 {
     //  bool Kolodki;
-    if(dataJson->value("params").toObject().value("brake_pads").toString() == "Чугунные") {
+    if(dataJson->value("params").toObject().value("brake_pads").toString().contains("чугунные", Qt::CaseInsensitive)) {
         //do smthng
 
         k_tt =  0.27;    // коэффициенты для
@@ -139,7 +139,7 @@ void Logic::setCoeffitient()
 
         k_okr = 68.5; // коэффициент, расчетные силы нажатия тормозных колодок, чугун или композит
 
-    } else if (dataJson->value("params").toObject().value("brake_pads").toString() == "Композиционные") {
+    } else if (dataJson->value("params").toObject().value("brake_pads").toString().contains("композиционные", Qt::CaseInsensitive)) {
         //do smthng else
 
         k_tt =  0.36;    // коэффициенты для
@@ -152,7 +152,7 @@ void Logic::setCoeffitient()
     }
     qDebug() << "Колодки" << dataJson->value("params").toObject().value("brake_pads").toString();
 
-    if(dataJson->value("params").toObject().value("path").toString().toLower().contains("звеньевой")) {
+    if(dataJson->value("params").toObject().value("path").toString().contains("звеньевой", Qt::CaseInsensitive)) {
         //do
         locoA = 1.9;   // какие-то коэффициенты для
         locoB = 0.01;  // основное удельное сопротивление локомотива
@@ -164,7 +164,7 @@ void Logic::setCoeffitient()
         b_hh = 0.00035;  // постоянные или меняются (???)
 
 
-    } else if (dataJson->value("params").toObject().value("path").toString().toLower().contains("бесстыковой")) {
+    } else if (dataJson->value("params").toObject().value("path").toString().contains("бесстыковой", Qt::CaseInsensitive)) {
         //or not to to
         locoA = 1.9;   // какие-то коэффициенты для
         locoB = 0.008;  // основное удельное сопротивление локомотива
@@ -759,8 +759,8 @@ void Logic::onCalcSignalReceived()
     int n = pointSTemp->count() - 1;
     int numTor = pointV->count() - 1;
     double min = 1000;
-    int lenTor;
-    int lenS;
+    int lenTor = 0;
+    int lenS = 0;
 
     do {
        for (int i = n; i > 1; i--){

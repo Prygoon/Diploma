@@ -12,11 +12,6 @@ InputWindow::InputWindow(QWidget *parent) :
     db = &DataBase::Instance();
     db->connectToDataBase();
 
-    /* Поля проекта определены статически для тестов
-     * TODO: сделать подгрузку динамически из БД */
-    //projectId = 1;
-    //projectTitle = new QString("Test");
-
     setupLocomotiveTableModel(TABLE_LOCO_NAME);
     showLocomotiveComboBox();
 
@@ -38,12 +33,15 @@ InputWindow::InputWindow(QWidget *parent) :
     showTrackSectionTableView();
 
     setupParamsComboboxes();
+    setupParamsValidators();
     allRailcarsTypeSum();
 
     dataDir = QDir().homePath();
     connect(railcarsMapModel, &QSqlRelationalTableModel::dataChanged, this, &InputWindow::on_railcarsModelDataChanged);
+    connect(ui->fuelThrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
+    connect(ui->fuelNothrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
+    connect(ui->speedLimitLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
     //connect(wLocoEditForm, static_cast<void (LocoEditForm::*)(QString const&)>(&LocoEditForm::submitTableModel), this, &LocomotiveDbWindow::onSubmitModelSignalReceived);
-
 }
 
 InputWindow::~InputWindow()
@@ -73,13 +71,6 @@ void InputWindow::onDeleteSignalRecieved()
     }
 }
 
-//void InputWindow::deleteTrackSection()
-//{
-//    trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
-//    wInputEditForm->getMapper()->submit();
-//    trackSectionModel->submit();
-//}
-
 void InputWindow::onSubmitSignalReceived()
 { 
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
@@ -108,24 +99,8 @@ void InputWindow::onRevertSignalReceived()
     }
 }
 
-//void InputWindow::setProjectId()
-//{
-//    if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
-//        int aRow = railcarsMapModel->rowCount() - 1;
-//        QModelIndex localIndex = railcarsMapModel->index(aRow, 4);
-//        railcarsMapModel->setData(localIndex, projectId);
-//    }
-
-//    if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
-//        int aRow = trackSectionModel->rowCount() - 1;
-//        QModelIndex localIndex = trackSectionModel->index(aRow, 6);
-//        trackSectionModel->setData(localIndex, projectId);
-//    }
-//}
-
 void InputWindow::addLocomotiveToJson()
 {
-    //int localCurrentComboBoxIndex = locomotiveModel->index(ui->comboBox->currentIndex(), 0).data(0).toInt();
     QVariant localTmp;
     QJsonObject *localLocomotiveJson = new QJsonObject();
 
@@ -181,7 +156,7 @@ void InputWindow::addParamsToJson()
     localParamsJson->insert("brake_pads", ui->brakePadsComboBox->currentText());
     localParamsJson->insert("path", ui->pathComboBox->currentText());
 
-    if(ui->fuelThrustLineEdit->isEnabled() && ui->fuelNothrustLineEdit) {
+    if(ui->fuelThrustLineEdit->isEnabled() && ui->fuelNothrustLineEdit->isEnabled()) {
         localParamsJson->insert("thrust_fuel", ui->fuelThrustLineEdit->text().toDouble());
         localParamsJson->insert("nothrust_fuel", ui->fuelNothrustLineEdit->text().toDouble());
     }
@@ -205,6 +180,14 @@ QJsonObject InputWindow::objectFromString(const QString &strJson)
         qDebug() << "Invalid JSON...\n" << strJson << endl;
     }
     return obj;
+}
+
+void InputWindow::onTextEdited(const QString &arg1)
+{
+    QString line = arg1;
+    int commaIndex = arg1.indexOf(',');
+    line.replace(commaIndex, 1, '.');
+    static_cast<QLineEdit*>(sender())->setText(line);
 }
 
 void InputWindow::addRailcarMapToJson()
@@ -407,6 +390,17 @@ void InputWindow::setupParamsComboboxes()
     ui->pathComboBox->setCurrentIndex(0);
 }
 
+void InputWindow::setupParamsValidators()
+{
+    validator = new  QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
+    ui->poLengthLineEdit->setValidator(validator);
+
+    validator = new  QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
+    ui->speedLimitLineEdit->setValidator(validator);
+    ui->fuelThrustLineEdit->setValidator(validator);
+    ui->fuelNothrustLineEdit->setValidator(validator);
+}
+
 void InputWindow::on_fuelCheckBox_stateChanged(int arg1)
 {
     if(arg1 == Qt::CheckState::Unchecked) {
@@ -508,25 +502,6 @@ void InputWindow::on_excelPushButton_clicked()
     qDebug() << dataDir << endl << excelFilePath;
 }
 
-
-//    for (int i = 0; i < 16; i++) {
-//        QVariant slopeRead = excelDoc.read(3, i + 3);
-//        QVariant lengthRead = excelDoc.read(4, i + 3);
-//        QVariant curveLengthRead = excelDoc.read(5, i + 3);
-//        QVariant curveRadiusRead = excelDoc.read(6, i + 3);
-
-//        trackSectionModel->insertRows(i, 1);
-//        //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
-//        trackSectionModel->setData(trackSectionModel->index(i, 1), slopeRead.toDouble());
-//        trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
-//        trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
-//        trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
-//        trackSectionModel->submitAll();
-
-//        qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;
-//    }
-
-
 //    excelDoc.write("A1", "Hello");
 //    excelDoc.write("A2", "from");
 //    excelDoc.write("A3", "my");
@@ -548,12 +523,6 @@ void InputWindow::on_buildGraphPushButton_clicked()
     emit buildGraph(*dataJson);
     this->close();
     emit showMainWindow();
-    //dataJson->insert("lenStation", 1500); // пока фиксированное, взять из lineEdit
-    //dataJson->insert("slope", );
-    //delete slopes;
-    //delete lengths;
-    //delete curveLengths;
-    //delete curveRadiuses;
 }
 
 void InputWindow::on_cancelPushButton_clicked()
@@ -576,7 +545,6 @@ void InputWindow::on_railcarsTableView_doubleClicked(const QModelIndex &index)
 
 void InputWindow::on_trackSectionTableView_doubleClicked(const QModelIndex &index)
 {
-    //QModelIndex proxyIndex = proxyModel->mapToSource(index);
     setupTracSectionEditForm(ui->trackSectionTableView);
 
     wInputEditForm->showDeleteButton();

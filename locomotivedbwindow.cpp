@@ -104,7 +104,7 @@ void LocomotiveDbWindow::setupModel(const QString &tableName, const QStringList 
         model->setHeaderData(i, Qt::Horizontal, headers[i]);
     }
     // Устанавливаем сортировку по возрастанию данных по нулевой колонке
-    model->setSort(0, Qt::AscendingOrder);
+    model->setSort(1, Qt::AscendingOrder);
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 }
 

@@ -8,24 +8,18 @@ RailcarEditForm::RailcarEditForm(QWidget *parent) :
     ui->setupUi(this);
 
     // Валидатор для поля ввода типа вагона
-    validator = new QRegExpValidator(QRegExp("^[А-Я,а-я,0-9]+&"), this);
+    validator = new QRegExpValidator(QRegExp("^[А-Я,а-я,0-9]+&"), this); //FIXME поправить маску
     ui->railcar_type_lineEdit->setValidator(validator);
 
     // Валидатор для поля ввода количества осей
     validator = new QRegExpValidator(QRegExp("^[1-9]{1}[0-9]{0,20}$"), this);
     ui->axle_count_lineEdit->setValidator(validator);
 
-    // Валидторы для полей ввода коэффициентов
+    // Валидтор для полей ввода коэффициентов
     validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
     ui->k_lineEdit->setValidator(validator);
-
-    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
     ui->a_lineEdit->setValidator(validator);
-
-    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
     ui->b_lineEdit->setValidator(validator);
-
-    validator = new QRegExpValidator(QRegExp("^(0|([1-9][0-9]*))([\\.\\,][0-9]+)?$"), this);
     ui->c_lineEdit->setValidator(validator);
 
     mapper = new QDataWidgetMapper(this);
