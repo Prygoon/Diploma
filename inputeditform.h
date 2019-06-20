@@ -2,6 +2,7 @@
 #define INPUTEDITFORM_H
 
 #include <QDialog>
+#include <QValidator>
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -70,13 +71,7 @@ private:
     QHBoxLayout *railcarPercentHorizontalLayout;
     QLabel *railcarPercent_label;
     QSpacerItem *railcarPercentHorizontalSpacer;
-    QLineEdit *percent_lineEdit;
-
-    //Лэйаут ввода порядкового номера участка пути
-    //QHBoxLayout *trackSectionIndexHorizontalLayout;
-    //QLabel *trackSectionIndex_label;
-    //QSpacerItem *trackSectionIndexHorizontalSpacer;
-    //QLineEdit *trackSectionIndex_lineEdit;
+    QLineEdit *railcarPercent_lineEdit;
 
     //Лэйаут ввода уклона участка пути
     QHBoxLayout *trackSectionSlopeHorizontalLayout;
@@ -133,6 +128,7 @@ signals:
     //void writeProjectId();
 
 private slots:
+    void onTextEdited(const QString &arg1);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_delete_pushButton_clicked();

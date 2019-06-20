@@ -37,6 +37,8 @@ private:
     QSqlTableModel *trackSectionModel;
     TrackSectionProxyModel *proxyModel;
 
+    QValidator *validator;
+
     //QFileDialog *fileDialog;
     QString dataDir;
 
@@ -56,6 +58,8 @@ private:
 
     void setupParamsComboboxes();
 
+    void setupParamsValidators();
+
     void closeEvent(QCloseEvent *event); // Переопределённый виртуальный метод обработки крестика закрытия окна
     //void setProjectId();
 
@@ -73,6 +77,7 @@ signals:
     void buildGraph(const QJsonObject &dataJson);
 
 private slots:
+    void onTextEdited(const QString &arg1);
     void onDeleteSignalRecieved();
     //void deleteTrackSection();
     void onSubmitSignalReceived();

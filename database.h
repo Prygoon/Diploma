@@ -13,7 +13,7 @@
 //Директивы имен таблицы, полей таблицы и базы данных
 #define DATABASE_HOSTNAME   "DiplomaDataBase"
 #define DATABASE_NAME       "Diploma.db"
-#define DATABASE_PATH       "./data/"
+#define DATABASE_PATH       "/data/"
 
 //Таблица локомотивов
 #define TABLE_LOCO_NAME                  "locomotives"
@@ -78,6 +78,9 @@ private:
 
     //Oбъект базы данных, с которым будет производиться работа
     QSqlDatabase db;
+
+    QString dataDirPath;
+    QString dataBasePath;
 
     //Внутренние методы для работы с базой данных
     bool openDataBase();

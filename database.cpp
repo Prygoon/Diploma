@@ -1,7 +1,8 @@
 #include "database.h"
 
 DataBase::DataBase() {
-
+    dataDirPath = QDir::currentPath().append(DATABASE_PATH);
+    dataBasePath = dataDirPath.append(DATABASE_NAME);
 }
 
 DataBase::~DataBase() {
@@ -11,13 +12,15 @@ DataBase::~DataBase() {
 // Методы для подключения к базе данных
 void DataBase::connectToDataBase()
 {
-    if(!QDir().exists(DATABASE_PATH)) {
-        QDir().mkpath(DATABASE_PATH);
+    //qDebug() << dataBasePath;
+
+    if(!QDir().exists(dataDirPath)) {
+        QDir().mkpath(dataDirPath);
     }
 
     /* Перед подключением к базе данных производим проверку на её существование.
      * В зависимости от результата производим открытие базы данных или её восстановление */
-    if(!QFile(DATABASE_PATH DATABASE_NAME).exists()) {
+    if(!QFile(dataBasePath).exists()) {
         this->restoreDataBase();
     } else {
         this->openDataBase();
@@ -47,7 +50,7 @@ bool DataBase::openDataBase()
     if(!db.isOpen()) {
         db = QSqlDatabase::addDatabase("QSQLITE");
         db.setHostName(DATABASE_HOSTNAME);
-        db.setDatabaseName(DATABASE_PATH DATABASE_NAME);
+        db.setDatabaseName(dataBasePath);
     }
 
     if(db.open()){
