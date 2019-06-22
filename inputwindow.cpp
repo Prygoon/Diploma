@@ -38,6 +38,8 @@ InputWindow::InputWindow(QWidget *parent) :
 
     dataDir = QDir().homePath();
     connect(railcarsMapModel, &QSqlRelationalTableModel::dataChanged, this, &InputWindow::on_railcarsModelDataChanged);
+    connect(railcarsMapModel, &QSqlRelationalTableModel::rowsInserted, this, &InputWindow::on_railcarsModelDataChanged);
+
     connect(ui->fuelThrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
     connect(ui->fuelNothrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
     connect(ui->speedLimitLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
@@ -58,9 +60,10 @@ void InputWindow::closeEvent(QCloseEvent *event)
 void InputWindow::onDeleteSignalRecieved()
 {
     if (wInputEditForm->getSenderName()->contains("railcar", Qt::CaseInsensitive)) {
-        wInputEditForm->getMapper()->submit();
         railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
         railcarsMapModel->submitAll();
+        wInputEditForm->getMapper()->submit();
+        allRailcarsTypeSum();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
@@ -469,14 +472,21 @@ void InputWindow::on_excelPushButton_clicked()
             trackSectionModel->submitAll();
             int i = 0;
             while(true) {
-                if(excelDoc.read(row, column + i).isNull() || excelDoc.read(row + 1, column + i).isNull() || excelDoc.read(row + 2, column + i).isNull() || excelDoc.read(row + 3, column + i).isNull()) {
+                if(excelDoc.read(row, column + i).isNull() || excelDoc.read(row + 1, column + i).isNull()) {
                     break;
                 }
 
                 QVariant slopeRead = excelDoc.read(row, column + i);
                 QVariant lengthRead = excelDoc.read(row + 1, column + i);
-                QVariant curveLengthRead = excelDoc.read(row + 2, column + i);
-                QVariant curveRadiusRead = excelDoc.read(row + 3, column + i);
+                QVariant curveLengthRead = 0;
+                QVariant curveRadiusRead = 0;
+
+                if(excelDoc.read(row + 2, column + i).isNull() || excelDoc.read(row + 3, column + i).isNull()) {
+                    //do nothing
+                } else {
+                    curveLengthRead = excelDoc.read(row + 2, column + i);
+                    curveRadiusRead = excelDoc.read(row + 3, column + i);
+                }
 
                 trackSectionModel->insertRows(i, 1);
                 //trackSectionModel->setData(trackSectionModel->index(i, 1), i + 1);
@@ -484,6 +494,7 @@ void InputWindow::on_excelPushButton_clicked()
                 trackSectionModel->setData(trackSectionModel->index(i, 2), lengthRead.toInt());
                 trackSectionModel->setData(trackSectionModel->index(i, 3), curveLengthRead.toInt());
                 trackSectionModel->setData(trackSectionModel->index(i, 4), curveRadiusRead.toInt());
+
                 trackSectionModel->submitAll();
 
                 qDebug() << slopeRead << lengthRead << curveLengthRead << curveRadiusRead;

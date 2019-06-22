@@ -273,8 +273,12 @@
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>О программе</string>
+     <string>Справка</string>
     </property>
+    <addaction name="action_tutorial"/>
+    <addaction name="action_about"/>
+    <addaction name="separator"/>
+    <addaction name="action_Qt"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_db"/>
@@ -316,6 +320,21 @@
    </property>
    <property name="text">
     <string>Вагоны</string>
+   </property>
+  </action>
+  <action name="action_tutorial">
+   <property name="text">
+    <string>Инструкция</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="action_Qt">
+   <property name="text">
+    <string>О Qt</string>
    </property>
   </action>
  </widget>
