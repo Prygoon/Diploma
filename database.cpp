@@ -2,7 +2,7 @@
 
 DataBase::DataBase() {
     dataDirPath = QDir::currentPath().append(DATABASE_PATH);
-    dataBasePath = dataDirPath.append(DATABASE_NAME);
+    dataBasePath = dataDirPath + DATABASE_NAME;
 }
 
 DataBase::~DataBase() {

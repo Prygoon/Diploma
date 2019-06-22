@@ -76,6 +76,12 @@ private slots:
     void onEnableShowTractionGraphButtonReceived();
     void onEnableShowTableButtonReceived();
 
+    void on_action_about_triggered();
+
+    void on_action_Qt_triggered();
+
+    void on_action_tutorial_triggered();
+
 signals:
     void calc();
     void buildDiagGraph(const QVector<QVector<double>> &data);
