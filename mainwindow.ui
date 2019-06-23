@@ -286,6 +286,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_new">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/img/new.svg</normaloff>:/resources/img/new.svg</iconset>
+   </property>
    <property name="text">
     <string>Ввести данные</string>
    </property>
@@ -297,6 +301,10 @@
    </property>
   </action>
   <action name="action_close">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/img/exit.svg</normaloff>:/resources/img/exit.svg</iconset>
+   </property>
    <property name="text">
     <string>Выйти</string>
    </property>
@@ -323,16 +331,28 @@
    </property>
   </action>
   <action name="action_tutorial">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/img/book.svg</normaloff>:/resources/img/book.svg</iconset>
+   </property>
    <property name="text">
     <string>Инструкция</string>
    </property>
   </action>
   <action name="action_about">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/img/info.svg</normaloff>:/resources/img/info.svg</iconset>
+   </property>
    <property name="text">
     <string>О программе</string>
    </property>
   </action>
   <action name="action_Qt">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/img/Qt.svg</normaloff>:/resources/img/Qt.svg</iconset>
+   </property>
    <property name="text">
     <string>О Qt</string>
    </property>
