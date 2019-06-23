@@ -68,7 +68,9 @@ private:
     void addTrackSectionsToJson();
     void addParamsToJson();
 
-    void allRailcarsTypeSum();
+    bool allRailcarsTypeSum();
+    bool trackSectionsEnough();
+    void inputCheck();
 
     QJsonObject objectFromString(const QString &strJson);
 
@@ -92,6 +94,7 @@ private slots:
     void on_railcarsTableView_doubleClicked(const QModelIndex &index);
     void on_trackSectionTableView_doubleClicked(const QModelIndex &index);
     void on_railcarsModelDataChanged();
+    void on_trackSectionModelDataChanged();
 };
 
 #endif // INPUTWINDOW_H

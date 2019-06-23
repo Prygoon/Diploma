@@ -8,7 +8,7 @@ RailcarEditForm::RailcarEditForm(QWidget *parent) :
     ui->setupUi(this);
 
     // Валидатор для поля ввода типа вагона
-    validator = new QRegExpValidator(QRegExp("^[А-Я,а-я,0-9]+&"), this); //FIXME поправить маску
+    validator = new QRegExpValidator(QRegExp("^[А-Я,а-я]{1}[а-я,0-9]+\\s{1}[а-я,0-9]+$"), this);
     ui->railcar_type_lineEdit->setValidator(validator);
 
     // Валидатор для поля ввода количества осей

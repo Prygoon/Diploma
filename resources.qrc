@@ -1,17 +1,14 @@
 <RCC>
     <qresource prefix="/resources">
-        <file>img/011-train.svg</file>
-        <file>img/001-clock.svg</file>
-        <file>img/003-railway.svg</file>
-        <file>img/004-flags.svg</file>
         <file>img/008-locomotive.svg</file>
-        <file>img/012-signboard.svg</file>
-        <file>img/022-station.svg</file>
-        <file>img/025-wagon.svg</file>
         <file>img/026-gas-truck.svg</file>
-        <file>img/030-railroad-3.svg</file>
-        <file>img/006-high-speed-train.svg</file>
         <file>img/formula.png</file>
+        <file>img/Qt_Inf.svg</file>
+        <file>img/Qt.svg</file>
+        <file>img/book.svg</file>
+        <file>img/new.svg</file>
+        <file>img/exit.svg</file>
+        <file>img/info.svg</file>
     </qresource>
     <qresource prefix="/translations">
         <file>translations/qtbase_ru.qm</file>

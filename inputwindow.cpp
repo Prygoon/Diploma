@@ -34,11 +34,13 @@ InputWindow::InputWindow(QWidget *parent) :
 
     setupParamsComboboxes();
     setupParamsValidators();
-    allRailcarsTypeSum();
+    inputCheck();
 
     dataDir = QDir().homePath();
     connect(railcarsMapModel, &QSqlRelationalTableModel::dataChanged, this, &InputWindow::on_railcarsModelDataChanged);
     connect(railcarsMapModel, &QSqlRelationalTableModel::rowsInserted, this, &InputWindow::on_railcarsModelDataChanged);
+    connect(trackSectionModel, &QSqlTableModel::dataChanged, this, &InputWindow::on_trackSectionModelDataChanged);
+    connect(trackSectionModel, &QSqlTableModel::dataChanged, this, &InputWindow::on_trackSectionModelDataChanged);
 
     connect(ui->fuelThrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
     connect(ui->fuelNothrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
@@ -63,7 +65,7 @@ void InputWindow::onDeleteSignalRecieved()
         railcarsMapModel->removeRow(wInputEditForm->getWIndex()->row());
         railcarsMapModel->submitAll();
         wInputEditForm->getMapper()->submit();
-        allRailcarsTypeSum();
+        inputCheck();
     }
 
     if (wInputEditForm->getSenderName()->contains("trackSection", Qt::CaseInsensitive)) {
@@ -71,6 +73,7 @@ void InputWindow::onDeleteSignalRecieved()
         wInputEditForm->getMapper()->submit();
         trackSectionModel->removeRow(wInputEditForm->getWIndex()->row());
         trackSectionModel->submitAll();
+        inputCheck();
     }
 }
 
@@ -567,7 +570,7 @@ void InputWindow::on_trackSectionTableView_doubleClicked(const QModelIndex &inde
     wInputEditForm->show();
 }
 
-void InputWindow::allRailcarsTypeSum()
+bool InputWindow::allRailcarsTypeSum()
 {
     double result = 0;
     for (int i = 0; i < railcarsMapModel->rowCount(); i++) {
@@ -577,14 +580,52 @@ void InputWindow::allRailcarsTypeSum()
     ui->allRailcarsTypeResultLabel->setText(QString::number(result));
 
     if(result == 1.0) {
-        ui->buildGraphPushButton->setEnabled(true);
+         return true;
     } else {
-        ui->buildGraphPushButton->setEnabled(false);
-        ui->buildGraphPushButton->setToolTip("Общая доля вагонов не равна 1");
+        return false;
+    }
+}
+
+bool InputWindow::trackSectionsEnough()
+{
+    if(trackSectionModel->rowCount() < 5) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+void InputWindow::inputCheck()
+{
+    bool localAllRailcarsTypeSum = allRailcarsTypeSum();
+    bool localTrackSectionsEnough = trackSectionsEnough();
+
+    if(localAllRailcarsTypeSum) {
+        if(localTrackSectionsEnough) {
+            ui->buildGraphPushButton->setEnabled(true);
+            ui->buildGraphPushButton->setToolTip("");
+        } else {
+            ui->buildGraphPushButton->setEnabled(false);
+            ui->buildGraphPushButton->setToolTip("Участков профиля меньше 5");
+        }
+    } else {
+        if(localTrackSectionsEnough) {
+            ui->buildGraphPushButton->setEnabled(false);
+            ui->buildGraphPushButton->setToolTip("Общая доля вагонов не равна 1");
+        } else {
+            ui->buildGraphPushButton->setEnabled(false);
+            ui->buildGraphPushButton->setToolTip("Общая доля вагонов не равна 1\n" \
+                                                 "Участков профиля меньше 5");
+        }
     }
 }
 
 void InputWindow::on_railcarsModelDataChanged()
 {
-    allRailcarsTypeSum();
+    inputCheck();
+}
+
+void InputWindow::on_trackSectionModelDataChanged()
+{
+    inputCheck();
 }
