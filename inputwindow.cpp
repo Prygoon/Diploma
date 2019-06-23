@@ -40,7 +40,7 @@ InputWindow::InputWindow(QWidget *parent) :
     connect(railcarsMapModel, &QSqlRelationalTableModel::dataChanged, this, &InputWindow::on_railcarsModelDataChanged);
     connect(railcarsMapModel, &QSqlRelationalTableModel::rowsInserted, this, &InputWindow::on_railcarsModelDataChanged);
     connect(trackSectionModel, &QSqlTableModel::dataChanged, this, &InputWindow::on_trackSectionModelDataChanged);
-    connect(trackSectionModel, &QSqlTableModel::dataChanged, this, &InputWindow::on_trackSectionModelDataChanged);
+    connect(trackSectionModel, &QSqlTableModel::rowsInserted, this, &InputWindow::on_trackSectionModelDataChanged);
 
     connect(ui->fuelThrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
     connect(ui->fuelNothrustLineEdit, static_cast<void (QLineEdit::*)(QString const&)>(&QLineEdit::textEdited), this, &InputWindow::onTextEdited);
