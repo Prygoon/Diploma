@@ -375,7 +375,7 @@ void MainWindow::on_pushButtonSaveGraph_clicked()
 void MainWindow::on_action_about_triggered()
 {
 
-    QMessageBox::about(this, "О программе", "<h2>О программе</h2>"
+    QMessageBox::about(this, "О программе", "<h2>О программе.</h2>"
                                             "Версия alpha 1.0, 2019 г.<br/>"
                                             "Программа тяговых расчетов разработана на языке C++ на основе открытого ПО.<br/>"
                                             "Использованные модули: QtCore, QtGui, QtSql, QtXlsx.");
@@ -393,7 +393,7 @@ void MainWindow::on_action_Qt_triggered()
 
 void MainWindow::on_action_tutorial_triggered()
 {
-    QMessageBox::about(this, "Инструкция", "<h1>Инструкция</h1>"
+    QMessageBox::about(this, "Инструкция", "<h1>Инструкция.</h1>"
                                            "<h2>Правила добавления Excel файлов:</h2>" \
                                            "1.  Таблицы должны быть расположены горизонтально, на первом листе, в диапазоне A1:AX50.<br/>" \
                                            "2.  Для тяговых характеристик: первая строка – скорость, вторая строка – значение тяги.<br/>" \
