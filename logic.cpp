@@ -763,29 +763,29 @@ void Logic::onCalcSignalReceived()
     int lenS = 0;
 
     do {
-       for (int i = n; i > 1; i--){
-           if (pointV->at(numTor) >= pointVTemp->at(i) && pointV->at(numTor) <= pointVTemp->at(i-1))
-           {
-               if (min > fabs(pointSTemp->at(i) - pointS->at(numTor)))
-               {
-                   min = fabs(pointSTemp->at(i) - pointS->at(numTor));
-                   if (pointSTemp->at(i) - pointS->at(numTor) > 0)
-                   {
+        for (int i = n; i > 1; i--){
+            if (pointV->at(numTor) >= pointVTemp->at(i) && pointV->at(numTor) <= pointVTemp->at(i-1))
+            {
+                if (min > fabs(pointSTemp->at(i) - pointS->at(numTor)))
+                {
+                    min = fabs(pointSTemp->at(i) - pointS->at(numTor));
+                    if (pointSTemp->at(i) - pointS->at(numTor) > 0)
+                    {
                         lenTor = i;
                         lenS = numTor;
-                   } else
-                   {
+                    } else
+                    {
                         lenTor = i - 1;
                         lenS = numTor + 1;
-                   }
-               }
-           }
-       }
-       numTor -- ;
+                    }
+                }
+            }
+        }
+        numTor -- ;
     } while (numTor > countLastSector) ;
 
     n = pointS->count() - 1;
-   /* if (pointBT->last() > pointS->at(lenS))
+    /* if (pointBT->last() > pointS->at(lenS))
     {
 
     }
@@ -794,16 +794,20 @@ void Logic::onCalcSignalReceived()
     {
 
     }*/
-    while ( pointBT->last() > pointS->at(lenS)) {
-        pointBT->removeLast();
-        pointVBT->removeLast();
-        moveMode = 1;
+    if (pointBT->count() > 1){
+        while ( pointBT->last() > pointS->at(lenS)) {
+            pointBT->removeLast();
+            pointVBT->removeLast();
+            moveMode = 1;
+        }
     }
 
-    while ( pointHH->last() > pointS->at(lenS)) {
-        pointHH->removeLast();
-        pointVHH->removeLast();
-        moveMode = 1;
+    if (pointHH->count() > 1){
+        while ( pointHH->last() > pointS->at(lenS)) {
+            pointHH->removeLast();
+            pointVHH->removeLast();
+            moveMode = 1;
+        }
     }
 
     if (moveMode == 0)
