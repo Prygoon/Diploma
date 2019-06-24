@@ -140,7 +140,7 @@ void MainWindow::drawTrackSectionText(int length, double slope, int position)
 
     QCPItemText *slopeTextLabel = new QCPItemText(ui->mainGraph);
     slopeTextLabel->position->setCoords(position + length / rightMargin, upperMargin);
-    slopeTextLabel->setText(QString::number(slope));
+    slopeTextLabel->setText(toFormattedString(slope));
     slopeTextLabel->setFont(localQFont);
 }
 
@@ -158,6 +158,14 @@ void MainWindow::outputResults()
         ui->unitFuelResultlabel->setText("-");
         ui->fuelResultLabel->setText("-");
     }
+}
+
+QString MainWindow::toFormattedString(qreal num)
+{
+    QString str = QString::number(num, 'f', 2);
+    str.remove(QRegExp("0+$")); // Remove any number of trailing 0's
+    str.remove(QRegExp("\\.$")); // If the last character is just a '.' then remove it
+    return str;
 }
 
 void MainWindow::buildHHVsGraph()
@@ -265,7 +273,7 @@ void MainWindow::onBuildGraphSignalReceived(const QJsonObject &dataJson)
     ui->mainGraph->xAxis->setTicks(false);
     ui->mainGraph->yAxis->setRange(-10, logic->getLocoConstrVelocity() + 10);
     ui->mainGraph->yAxis->grid()->setZeroLinePen(QPen(Qt::SolidLine | Qt::black));
-    ui->mainGraph->yAxis->setLabel("v, км/ч");
+    ui->mainGraph->yAxis->setLabel("v, км/ч  t, мин");
 
     //ui->mainGraph->legend->setVisible(true);
 
@@ -376,9 +384,9 @@ void MainWindow::on_action_about_triggered()
 {
 
     QMessageBox::about(this, "О программе.", "<h2>О программе.</h2>"
-                                            "Версия alpha 1.0, 2019 г.<br/>"
-                                            "Программа тяговых расчетов разработана на языке C++ на основе открытого ПО.<br/>"
-                                            "Использованные модули: QtCore, QtGui, QtSql, QtXlsx.");
+                                             "Версия alpha 1.0, 2019 г.<br/>"
+                                             "Программа тяговых расчетов разработана на языке C++ на основе открытого ПО.<br/>"
+                                             "Использованные модули: QtCore, QtGui, QtSql, QtXlsx.");
 
     /*"Правила добавления Excel файлов:"
                        "1.  Таблицы должны быть расположены горизонтально, на первом листе, в диапазоне A1:AX50."
@@ -394,8 +402,8 @@ void MainWindow::on_action_Qt_triggered()
 void MainWindow::on_action_tutorial_triggered()
 {
     QMessageBox::about(this, "Инструкция.", "<h1>Инструкция.</h1>"
-                                           "<h2>Правила добавления Excel файлов:</h2>" \
-                                           "1.  Таблицы должны быть расположены горизонтально, на первом листе, в диапазоне A1:AX50.<br/>" \
-                                           "2.  Для тяговых характеристик: первая строка – скорость, вторая строка – значение тяги.<br/>" \
-                                           "Для профиля пути: первая строка – уклон, вторая строка – длина элемента, третья и четвертые строки (не обязательно) – длина и радиус кривой.");
+                                            "<h2>Правила добавления Excel файлов:</h2>" \
+                                            "1.  Таблицы должны быть расположены горизонтально, на первом листе, в диапазоне A1:AX50.<br/>" \
+                                            "2.  Для тяговых характеристик: первая строка – скорость, вторая строка – значение тяги.<br/>" \
+                                            "Для профиля пути: первая строка – уклон, вторая строка – длина элемента, третья и четвертые строки (не обязательно) – длина и радиус кривой.");
 }

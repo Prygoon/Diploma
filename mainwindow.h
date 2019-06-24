@@ -60,6 +60,8 @@ private:
 
     void outputResults();
 
+    QString toFormattedString(qreal num);
+
 private slots:
     void on_action_new_triggered();
     void on_action_close_triggered();
@@ -77,9 +79,7 @@ private slots:
     void onEnableShowTableButtonReceived();
 
     void on_action_about_triggered();
-
     void on_action_Qt_triggered();
-
     void on_action_tutorial_triggered();
 
 signals:
